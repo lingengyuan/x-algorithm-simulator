@@ -8,11 +8,11 @@
 
 ## English
 
-A fully interactive web simulator for understanding X (Twitter)'s recommendation algorithm. This project visualizes the complete pipeline from tweet creation to ranking, based on the algorithm X open-sourced in 2023.
+A fully interactive web simulator for understanding X (Twitter)'s recommendation algorithm. This project visualizes the complete pipeline from tweet creation to ranking, based on the algorithm X open-sourced in 2026.
 
 ### Background
 
-In April 2023, X (formerly Twitter) open-sourced their recommendation algorithm. After deep-diving into the source code, we built this simulator to help everyone understand:
+In January 2026, X (formerly Twitter) open-sourced their recommendation algorithm. After deep-diving into the source code, we built this simulator to help everyone understand:
 
 - **How tweets are filtered** — 12 filtering stages decide what you don't see
 - **How tweets are scored** — 18 behavior predictions determine ranking
@@ -178,11 +178,11 @@ MIT
 
 ## 中文
 
-一个完全交互式的 Web 模拟器，帮助理解 X（Twitter）的推荐算法。本项目可视化了从推文创建到排序的完整流程，基于 X 在 2023 年开源的算法实现。
+一个完全交互式的 Web 模拟器，帮助理解 X（Twitter）的推荐算法。本项目可视化了从推文创建到排序的完整流程，基于 X 在 2026 年开源的算法实现。
 
 ### 项目背景
 
-2023 年 4 月，X（原 Twitter）开源了他们的推荐算法。在深度阅读源码后，我们构建了这个模拟器，帮助大家理解：
+2026 年 1 月，X（原 Twitter）开源了他们的推荐算法。在深度阅读源码后，我们构建了这个模拟器，帮助大家理解：
 
 - **推文如何被过滤** — 12 道过滤关卡决定什么不会被展示
 - **推文如何被评分** — 18 种行为预测决定排序
