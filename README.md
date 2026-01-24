@@ -20,13 +20,12 @@ In January 2026, X (formerly Twitter) open-sourced their recommendation algorith
 
 ### Screenshots
 
-> **Note:** Screenshots needed for the following sections:
 
 | Screenshot | Description |
 |------------|-------------|
-| `screenshot-analyzer.png` | Tweet Analyzer with heat gauge and radar chart |
-| `screenshot-ranking.png` | Ranking Simulator showing pipeline execution |
-| `screenshot-weightlab.png` | Weight Laboratory with parameter sliders |
+| ![alt text](image.png) | Tweet Analyzer with heat gauge and radar chart |
+| ![alt text](image-1.png) | Ranking Simulator showing pipeline execution |
+| ![alt text](image-2.png) | Weight Laboratory with parameter sliders |
 
 ### Features
 
@@ -62,7 +61,7 @@ Experiment with ranking parameters in real-time:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourname/x-algorithm-simulator.git
+git clone https://github.com/lingengyuan/x-algorithm-simulator.git
 
 # Enter project directory
 cd x-algorithm-simulator
@@ -190,13 +189,11 @@ MIT
 
 ### 效果截图
 
-> **注意：** 以下位置需要截图：
-
 | 截图 | 说明 |
 |------|------|
-| `screenshot-analyzer.png` | 推文分析器，包含热度仪表盘和雷达图 |
-| `screenshot-ranking.png` | 排序模拟器，展示管道执行过程 |
-| `screenshot-weightlab.png` | 权重实验室，包含参数调节滑块 |
+| ![alt text](image-3.png) | 推文分析器，包含热度仪表盘和雷达图 |
+| ![alt text](image-4.png) | 排序模拟器，展示管道执行过程 |
+| ![alt text](image-5.png) | 权重实验室，包含参数调节滑块 |
 
 ### 功能特性
 
@@ -235,7 +232,7 @@ MIT
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourname/x-algorithm-simulator.git
+git clone https://github.com/lingengyuan/x-algorithm-simulator.git
 
 # 进入项目目录
 cd x-algorithm-simulator
