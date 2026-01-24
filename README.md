@@ -336,7 +336,7 @@ src/
 
 ### 相关链接
 
-- [X 算法开源仓库](https://github.com/twitter/the-algorithm)
+- [X 算法开源仓库](https://github.com/xai-org/x-algorithm)
 
 ### 开源协议
 
