@@ -120,12 +120,12 @@ export function Suggestions({ input }: SuggestionsProps) {
       });
     }
 
-    if (input.authorType === 'influencer') {
+    if (input.authorType === 'normal') {
       result.push({
-        type: 'positive',
-        message: 'Verified influencer status boosts visibility',
+        type: 'neutral',
+        message: 'Consider getting verified to boost visibility',
         messageZh: '认证大 V 身份可以提升曝光',
-        impact: 'high',
+        impact: 'medium',
       });
     }
 
