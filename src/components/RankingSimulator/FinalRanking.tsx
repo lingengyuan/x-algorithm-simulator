@@ -30,7 +30,7 @@ export function FinalRanking({ candidates, topK = 10 }: FinalRankingProps) {
       </CardHeader>
       <CardContent>
         {rankedCandidates.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
+          <div className="py-8 text-center text-slate-500">
             {t('common.noData')}
           </div>
         ) : (
@@ -49,10 +49,10 @@ export function FinalRanking({ candidates, topK = 10 }: FinalRankingProps) {
                       index === 0
                         ? 'bg-yellow-500'
                         : index === 1
-                        ? 'bg-gray-400'
+                        ? 'bg-slate-400'
                         : index === 2
                         ? 'bg-amber-600'
-                        : 'bg-gray-300'
+                        : 'bg-slate-300'
                     }`}
                   >
                     {index + 1}

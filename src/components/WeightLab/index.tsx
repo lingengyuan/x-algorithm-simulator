@@ -126,22 +126,25 @@ export function WeightLab() {
     return (
       <div className="p-8 text-center">
         <h2 className="text-xl font-bold text-red-500 mb-4">Error</h2>
-        <p className="text-gray-600 mb-4">{error}</p>
+        <p className="mb-4 text-slate-600">{error}</p>
         <Button onClick={() => window.location.reload()}>Reload</Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <SlidersHorizontal className="w-6 h-6 text-[#1DA1F2]" />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Live Tuning
+          </p>
+          <h1 className="mt-1 text-2xl font-bold flex items-center gap-2 text-slate-900">
+            <SlidersHorizontal className="w-6 h-6 text-sky-600" />
             {t('weightLab.title')}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">{t('weightLab.subtitle')}</p>
+          <p className="text-slate-600 text-sm mt-1">{t('weightLab.subtitle')}</p>
         </div>
 
         {/* Preset Controls */}

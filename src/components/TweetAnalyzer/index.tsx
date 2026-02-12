@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { TweetInput, AnalysisResult } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { InputForm } from './InputForm';
 import { ScoreRadar } from './ScoreRadar';
 import { HeatGauge } from './HeatGauge';
@@ -44,7 +45,22 @@ export function TweetAnalyzer() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <Card className="overflow-hidden border-slate-900/15 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-800 text-white">
+        <CardContent className="relative p-6">
+          <div className="pointer-events-none absolute -right-14 -top-10 h-36 w-36 rounded-full bg-orange-300/25 blur-2xl" />
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-200/90">
+            Editorial Simulation
+          </p>
+          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
+            {t('analyzer.title')}
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm text-slate-100/90 sm:text-base">
+            {t('analyzer.subtitle')}
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Mode Toggle */}
       <div className="flex justify-end">
         <Button
@@ -109,12 +125,12 @@ export function TweetAnalyzer() {
                   {currentInput && <Suggestions input={currentInput} />}
                 </motion.div>
               ) : (
-                <div className="flex items-center justify-center h-[400px] bg-white rounded-xl border border-gray-200">
-                  <div className="text-center text-gray-400">
-                    <p className="text-lg font-medium">
+                <div className="flex h-[400px] items-center justify-center rounded-2xl border border-slate-900/10 bg-[rgba(255,255,255,0.7)]">
+                  <div className="text-center text-slate-500">
+                    <p className="text-lg font-semibold text-slate-700">
                       {t('analyzer.subtitle')}
                     </p>
-                    <p className="text-sm mt-2">
+                    <p className="mt-2 text-sm">
                       {t('analyzer.inputPlaceholder')}
                     </p>
                   </div>

@@ -31,7 +31,7 @@ export function CandidatePool({
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <Users className="w-5 h-5 text-[#1DA1F2]" />
+          <Users className="w-5 h-5 text-sky-600" />
           {t('simulator.candidatePool')}
         </CardTitle>
         <div className="flex gap-2 flex-wrap mt-2">

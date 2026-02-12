@@ -1,43 +1,79 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 :root {
-  --twitter-blue: #1DA1F2;
-  --positive: #22C55E;
-  --negative: #EF4444;
-  --background: #F8FAFC;
-  --card: #FFFFFF;
-  --foreground: #0F172A;
-  --muted: #64748B;
-  --border: #E2E8F0;
+  --twitter-blue: #0ea5e9;
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --background: #f2eee5;
+  --card: rgba(255, 255, 255, 0.72);
+  --foreground: #0f172a;
+  --muted: #4b5563;
+  --border: rgba(15, 23, 42, 0.16);
+  --accent-strong: #0f172a;
+  --accent-soft: #16a34a;
+  --highlight: #fb923c;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(14, 165, 233, 0.14), transparent 42%),
+    radial-gradient(circle at 92% 8%, rgba(249, 115, 22, 0.17), transparent 38%),
+    radial-gradient(circle at 83% 82%, rgba(22, 163, 74, 0.12), transparent 36%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(242, 238, 229, 0.95) 65%);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.28;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(15, 23, 42, 0.04) 0,
+    rgba(15, 23, 42, 0.04) 1px,
+    transparent 1px,
+    transparent 14px
+  );
 }
 
 #root {
   min-height: 100vh;
 }
 
+h1,
+h2,
+h3 {
+  font-family: "Archivo", "Helvetica Neue", sans-serif;
+  letter-spacing: -0.02em;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: rgba(15, 23, 42, 0.06);
+  border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #0f172a 0%, #0ea5e9 100%);
+  border-radius: 999px;
+  border: 2px solid rgba(242, 238, 229, 0.7);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
+  background: linear-gradient(180deg, #0f172a 0%, #0284c7 100%);
 }

@@ -58,10 +58,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-[#1DA1F2]" />
+          <Sparkles className="w-5 h-5 text-sky-600" />
           {t('analyzer.title')}
         </CardTitle>
-        <p className="text-sm text-gray-500">{t('analyzer.subtitle')}</p>
+        <p className="text-sm text-slate-600">{t('analyzer.subtitle')}</p>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Tweet Content */}
@@ -73,14 +73,14 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
             className="min-h-[120px] resize-none"
             maxLength={280}
           />
-          <div className="flex justify-end text-xs text-gray-400">
+          <div className="flex justify-end text-xs text-slate-500">
             {content.length}/280
           </div>
         </div>
 
         {/* Media Type */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-slate-700">
             {t('analyzer.mediaType')}
           </label>
           <div className="flex gap-2">
@@ -121,10 +121,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
         {hasMedia === 'video' && (
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-slate-700">
                 {t('analyzer.videoDuration')}
               </label>
-              <span className="text-sm text-gray-500">{videoDuration}s</span>
+              <span className="text-sm text-slate-600">{videoDuration}s</span>
             </div>
             <Slider
               value={[videoDuration]}
@@ -138,7 +138,7 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
 
         {/* Author Type */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-slate-700">
             {t('analyzer.authorType')}
           </label>
           <Select value={authorType} onValueChange={(v) => setAuthorType(v as typeof authorType)}>
@@ -156,10 +156,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
         {/* Follower Count */}
         <div className="space-y-2">
           <div className="flex justify-between">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-slate-700">
               {t('analyzer.followerCount')}
             </label>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-slate-600">
               {formatFollowerCount(followerCount)}
             </span>
           </div>

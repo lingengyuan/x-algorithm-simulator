@@ -31,31 +31,36 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+    <header className="sticky top-0 z-50 border-b border-slate-900/10 bg-[rgba(255,255,255,0.7)] backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-[4.5rem] items-center justify-between gap-4 py-3">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">X</span>
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-950/20 bg-gradient-to-br from-slate-900 to-slate-700 shadow-[0_8px_24px_rgba(15,23,42,0.28)]">
+              <span className="text-lg font-black text-white">X</span>
             </div>
-            <span className="hidden sm:block font-semibold text-gray-900">
-              {t('common.appName')}
-            </span>
+            <div className="min-w-0">
+              <p className="hidden truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 sm:block">
+                Recommendation Workshop
+              </p>
+              <span className="block truncate text-sm font-bold text-slate-900 sm:text-base">
+                {t('common.appName')}
+              </span>
+            </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-1.5 overflow-x-auto rounded-2xl border border-slate-900/10 bg-white/70 p-1 shadow-[0_12px_30px_rgba(15,23,42,0.1)]">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
                   cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-all',
                     isActive
-                      ? 'bg-gray-100 text-[#1DA1F2]'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.25)]'
+                      : 'text-slate-600 hover:bg-slate-200/70 hover:text-slate-900'
                   )
                 }
               >
@@ -66,7 +71,9 @@ export function Header() {
           </nav>
 
           {/* Language Switch */}
-          <LanguageSwitch />
+          <div className="shrink-0">
+            <LanguageSwitch />
+          </div>
         </div>
       </div>
     </header>

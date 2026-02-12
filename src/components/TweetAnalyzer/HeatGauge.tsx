@@ -32,7 +32,7 @@ export function HeatGauge({ score }: HeatGaugeProps) {
               <path
                 d="M 20 100 A 80 80 0 0 1 180 100"
                 fill="none"
-                stroke="#e5e7eb"
+                stroke="#cbd5e1"
                 strokeWidth="16"
                 strokeLinecap="round"
               />
@@ -71,11 +71,11 @@ export function HeatGauge({ score }: HeatGaugeProps) {
                   y1="100"
                   x2="100"
                   y2="35"
-                  stroke="#1f2937"
+                  stroke="#0f172a"
                   strokeWidth="3"
                   strokeLinecap="round"
                 />
-                <circle cx="100" cy="100" r="8" fill="#1f2937" />
+                <circle cx="100" cy="100" r="8" fill="#0f172a" />
               </motion.g>
 
               {/* Labels */}
@@ -110,7 +110,7 @@ export function HeatGauge({ score }: HeatGaugeProps) {
           </motion.div>
 
           {/* Scale reference */}
-          <div className="flex justify-between w-full mt-4 text-xs text-gray-400">
+          <div className="flex justify-between w-full mt-4 text-xs text-slate-500">
             <span>{t('heatLevel.low')}</span>
             <span>{t('heatLevel.medium')}</span>
             <span>{t('heatLevel.high')}</span>

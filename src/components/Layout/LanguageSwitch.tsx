@@ -7,10 +7,10 @@ export function LanguageSwitch() {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="sm"
       onClick={toggleLanguage}
-      className="gap-2"
+      className="gap-2 rounded-xl border-slate-900/20 bg-white/75 text-slate-700 hover:bg-slate-900 hover:text-white"
     >
       <Globe className="w-4 h-4" />
       <span className="hidden sm:inline">

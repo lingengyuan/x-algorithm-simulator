@@ -63,21 +63,21 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData}>
-                <PolarGrid stroke="#e5e7eb" />
+                <PolarGrid stroke="#cbd5e1" />
                 <PolarAngleAxis
                   dataKey="subject"
-                  tick={{ fill: '#6b7280', fontSize: 10 }}
+                  tick={{ fill: '#475569', fontSize: 10 }}
                 />
                 <PolarRadiusAxis
                   angle={90}
                   domain={[0, 100]}
-                  tick={{ fill: '#9ca3af', fontSize: 10 }}
+                  tick={{ fill: '#94a3b8', fontSize: 10 }}
                 />
                 <Radar
                   name={compareScores ? 'Tweet A' : 'Score'}
                   dataKey="A"
-                  stroke="#1DA1F2"
-                  fill="#1DA1F2"
+                  stroke="#0f172a"
+                  fill="#0ea5e9"
                   fillOpacity={0.4}
                 />
                 {compareScores && (

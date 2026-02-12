@@ -39,7 +39,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
     return (
       <div key={key} className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-slate-700">
             {isZh ? meta.nameZh : meta.name}
           </label>
           <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               : '[&_[data-radix-slider-range]]:bg-red-500 [&_[data-radix-slider-thumb]]:border-red-500'
           )}
         />
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-slate-500">
           {isZh ? meta.descriptionZh : meta.description}
         </p>
       </div>
@@ -119,7 +119,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-slate-700">
                 {t('weightLab.authorDiversityDecay')}
               </label>
               <span className="text-sm font-mono text-purple-600">
@@ -138,7 +138,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-slate-700">
                 {t('weightLab.authorDiversityFloor')}
               </label>
               <span className="text-sm font-mono text-purple-600">
@@ -168,7 +168,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-slate-700">
                 {t('weightLab.oonWeightFactor')}
               </label>
               <span className="text-sm font-mono text-blue-600">
@@ -182,7 +182,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               max={1}
               step={0.05}
             />
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-slate-500">
               {isZh
                 ? '关注外内容的权重乘数（1 = 与关注内相同）'
                 : 'Multiplier for out-of-network content (1 = same as in-network)'}

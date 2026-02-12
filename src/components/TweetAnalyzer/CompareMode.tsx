@@ -34,7 +34,7 @@ interface CompareItem {
   result?: AnalysisResult;
 }
 
-const COLORS = ['#1DA1F2', '#22C55E', '#F97316', '#A855F7'];
+const COLORS = ['#0f172a', '#0ea5e9', '#16a34a', '#ea580c'];
 
 export function CompareMode({ onClose }: CompareModeProps) {
   const { t, isZh } = useTranslation();
@@ -115,7 +115,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <GitCompare className="w-5 h-5 text-[#1DA1F2]" />
+            <GitCompare className="w-5 h-5 text-sky-600" />
             {t('analyzer.compareMode')}
             <Badge variant="secondary">{items.length}</Badge>
           </CardTitle>
@@ -167,7 +167,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                 className="min-h-[100px] resize-none"
                 maxLength={280}
               />
-              <div className="flex justify-end text-xs text-gray-400 mt-1">
+              <div className="flex justify-end text-xs text-slate-500 mt-1">
                 {item.input.content.length}/280
               </div>
 
@@ -180,7 +180,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                         className="w-4 h-4"
                         style={{ color: getHeatLevel(item.result.heatScore).color }}
                       />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-slate-600">
                         {t('analyzer.heatScore')}
                       </span>
                     </div>
@@ -239,15 +239,15 @@ export function CompareMode({ onClose }: CompareModeProps) {
             <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={radarData}>
-                  <PolarGrid stroke="#e5e7eb" />
+                  <PolarGrid stroke="#cbd5e1" />
                   <PolarAngleAxis
                     dataKey="subject"
-                    tick={{ fill: '#6b7280', fontSize: 10 }}
+                    tick={{ fill: '#475569', fontSize: 10 }}
                   />
                   <PolarRadiusAxis
                     angle={90}
                     domain={[0, 100]}
-                    tick={{ fill: '#9ca3af', fontSize: 10 }}
+                    tick={{ fill: '#94a3b8', fontSize: 10 }}
                   />
                   {validItems.map((_, index) => (
                     <Radar
@@ -268,7 +268,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
             <div className="mt-4 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b">
+                  <tr className="border-b border-slate-900/10">
                     <th className="text-left py-2 pr-4">{isZh ? '指标' : 'Metric'}</th>
                     {validItems.map((_, index) => (
                       <th
@@ -282,7 +282,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b">
+                  <tr className="border-b border-slate-900/10">
                     <td className="py-2 pr-4 font-medium">
                       {isZh ? '热度评分' : 'Heat Score'}
                     </td>
@@ -297,7 +297,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                     ))}
                   </tr>
                   {positiveKeys.slice(0, 6).map((key) => (
-                    <tr key={key} className="border-b">
+                    <tr key={key} className="border-b border-slate-900/10">
                       <td className="py-2 pr-4">
                         {isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name}
                       </td>

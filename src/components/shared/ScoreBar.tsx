@@ -24,14 +24,14 @@ export function ScoreBar({
 
   return (
     <div className={cn('flex items-center gap-2', compact ? 'text-xs' : 'text-sm')}>
-      <span className={cn('text-gray-600 flex-shrink-0', compact ? 'w-20' : 'w-28')}>
+      <span className={cn('text-slate-600 flex-shrink-0', compact ? 'w-20' : 'w-28')}>
         {label}
       </span>
-      <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-2 flex-1 overflow-hidden rounded-full border border-slate-900/10 bg-slate-200/70">
         <div
           className={cn(
             'h-full rounded-full transition-all duration-300',
-            type === 'positive' ? 'bg-green-500' : 'bg-red-500'
+            type === 'positive' ? 'bg-gradient-to-r from-emerald-600 to-emerald-400' : 'bg-gradient-to-r from-rose-600 to-rose-400'
           )}
           style={{ width: `${percentage}%` }}
         />

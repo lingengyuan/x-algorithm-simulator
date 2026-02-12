@@ -24,9 +24,18 @@ After deep-diving into the open-source code, we built this simulator to help eve
 
 | Screenshot | Description |
 |------------|-------------|
-| ![alt text](image.png) | Tweet Analyzer with heat gauge and radar chart |
-| ![alt text](image-1.png) | Ranking Simulator showing pipeline execution |
-| ![alt text](image-2.png) | Weight Laboratory with parameter sliders |
+| ![Tweet Analyzer](docs/screenshots/after-analyzer.jpg) | Tweet Analyzer with heat gauge and radar chart |
+| ![Ranking Simulator](docs/screenshots/after-simulator.jpg) | Ranking Simulator showing pipeline execution |
+| ![Weight Laboratory](docs/screenshots/after-weights.jpg) | Weight Laboratory with parameter sliders |
+
+#### Before vs After (UI Redesign, 2026-02-12)
+
+| Page | Before | After |
+|------|--------|-------|
+| Tweet Analyzer | ![before analyzer](docs/screenshots/before-analyzer.jpg) | ![after analyzer](docs/screenshots/after-analyzer.jpg) |
+| Ranking Simulator | ![before simulator](docs/screenshots/before-simulator.jpg) | ![after simulator](docs/screenshots/after-simulator.jpg) |
+| Weight Laboratory | ![before weights](docs/screenshots/before-weights.jpg) | ![after weights](docs/screenshots/after-weights.jpg) |
+| History | ![before history](docs/screenshots/before-history.jpg) | ![after history](docs/screenshots/after-history.jpg) |
 
 ### Features
 
@@ -213,9 +222,18 @@ MIT
 
 | 截图 | 说明 |
 |------|------|
-| ![alt text](image-3.png) | 推文分析器，包含热度仪表盘和雷达图 |
-| ![alt text](image-4.png) | 排序模拟器，展示管道执行过程 |
-| ![alt text](image-5.png) | 权重实验室，包含参数调节滑块 |
+| ![推文分析器](docs/screenshots/after-analyzer.jpg) | 推文分析器，包含热度仪表盘和雷达图 |
+| ![排序模拟器](docs/screenshots/after-simulator.jpg) | 排序模拟器，展示管道执行过程 |
+| ![权重实验室](docs/screenshots/after-weights.jpg) | 权重实验室，包含参数调节滑块 |
+
+#### 前后对比（UI 重设计，2026-02-12）
+
+| 页面 | 重设计前 | 重设计后 |
+|------|----------|----------|
+| 推文分析器 | ![重设计前-分析器](docs/screenshots/before-analyzer.jpg) | ![重设计后-分析器](docs/screenshots/after-analyzer.jpg) |
+| 排序模拟器 | ![重设计前-模拟器](docs/screenshots/before-simulator.jpg) | ![重设计后-模拟器](docs/screenshots/after-simulator.jpg) |
+| 权重实验室 | ![重设计前-权重](docs/screenshots/before-weights.jpg) | ![重设计后-权重](docs/screenshots/after-weights.jpg) |
+| 历史记录 | ![重设计前-历史](docs/screenshots/before-history.jpg) | ![重设计后-历史](docs/screenshots/after-history.jpg) |
 
 ### 功能特性
 

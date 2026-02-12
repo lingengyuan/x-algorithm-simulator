@@ -72,15 +72,18 @@ export function HistoryList() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <History className="w-6 h-6 text-[#1DA1F2]" />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Audit Trail
+          </p>
+          <h1 className="mt-1 text-2xl font-bold flex items-center gap-2 text-slate-900">
+            <History className="w-6 h-6 text-sky-600" />
             {t('history.title')}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-slate-600 text-sm mt-1">
             {histories.length} {isZh ? '条记录' : 'records'}
           </p>
         </div>
@@ -97,8 +100,8 @@ export function HistoryList() {
       {histories.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <History className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-400">{t('history.noHistory')}</p>
+            <History className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+            <p className="text-slate-500">{t('history.noHistory')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -116,11 +119,11 @@ export function HistoryList() {
                   exit={{ opacity: 0, x: -100 }}
                   transition={{ delay: index * 0.02 }}
                 >
-                  <Card className="hover:shadow-md transition-shadow">
+                  <Card className="transition-shadow hover:shadow-[0_14px_34px_rgba(15,23,42,0.18)]">
                     <CardContent className="py-4">
                       <div className="flex items-start gap-4">
                         {/* Type Icon */}
-                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full border border-slate-900/10 bg-slate-100/80 flex items-center justify-center text-slate-700">
                           {getTypeIcon(history.type)}
                         </div>
 
@@ -128,11 +131,11 @@ export function HistoryList() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <Badge variant="secondary">{getTypeLabel(history.type)}</Badge>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-slate-500">
                               {formatDate(history.timestamp)}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-700 line-clamp-2">
+                          <p className="text-sm text-slate-700 line-clamp-2">
                             {getPreviewContent(history)}
                           </p>
                         </div>
@@ -165,7 +168,7 @@ export function HistoryList() {
                           onClick={() => handleDelete(history.id)}
                           className="flex-shrink-0"
                         >
-                          <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                          <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" />
                         </Button>
                       </div>
                     </CardContent>

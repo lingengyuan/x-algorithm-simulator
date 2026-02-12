@@ -56,10 +56,10 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  'p-3 rounded-lg border cursor-pointer transition-all',
-                  isActive && 'border-[#1DA1F2] bg-blue-50',
-                  isPassed && 'border-green-300 bg-green-50',
-                  !isActive && !isPassed && 'border-gray-200 hover:border-gray-300'
+                  'cursor-pointer rounded-xl border p-3 transition-all',
+                  isActive && 'border-sky-300 bg-sky-50',
+                  isPassed && 'border-emerald-300 bg-emerald-50',
+                  !isActive && !isPassed && 'border-slate-300/60 hover:border-slate-400/70'
                 )}
                 onClick={() => onStepClick?.(globalIndex)}
               >
@@ -68,9 +68,9 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                   <div
                     className={cn(
                       'w-8 h-8 rounded-full flex items-center justify-center text-lg',
-                      isActive && 'bg-[#1DA1F2]',
+                      isActive && 'bg-sky-600',
                       isPassed && 'bg-green-500',
-                      !isActive && !isPassed && 'bg-gray-200'
+                      !isActive && !isPassed && 'bg-slate-200'
                     )}
                   >
                     {isPassed ? (
@@ -87,17 +87,17 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                         {isZh ? step.nameZh : step.name}
                       </span>
                       {isActive && (
-                        <Zap className="w-4 h-4 text-[#1DA1F2] animate-pulse" />
+                        <Zap className="w-4 h-4 text-sky-600 animate-pulse" />
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-slate-600 truncate">
                       {isZh ? step.descriptionZh : step.description}
                     </p>
                   </div>
 
                   {/* Stats */}
                   <div className="text-right text-xs">
-                    <div className="text-gray-500">
+                    <div className="text-slate-500">
                       {step.inputCount} {t('simulator.tweets')}
                     </div>
                     {scorerResult && (
@@ -107,7 +107,7 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                     )}
                   </div>
 
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>
 
                 {/* Formula Preview */}
@@ -115,9 +115,9 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 pt-3 border-t border-gray-200"
+                    className="mt-3 border-t border-slate-200 pt-3"
                   >
-                    <div className="text-xs font-mono bg-gray-100 p-2 rounded overflow-x-auto">
+                    <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
                       score = Σ(behavior_i × weight_i) + offset
                     </div>
                   </motion.div>
@@ -127,9 +127,9 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 pt-3 border-t border-gray-200"
+                    className="mt-3 border-t border-slate-200 pt-3"
                   >
-                    <div className="text-xs font-mono bg-gray-100 p-2 rounded overflow-x-auto">
+                    <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
                       multiplier = (1 - floor) × decay^position + floor
                     </div>
                   </motion.div>

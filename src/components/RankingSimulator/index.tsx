@@ -144,7 +144,7 @@ export function RankingSimulator() {
     return (
       <div className="p-8 text-center">
         <h2 className="text-xl font-bold text-red-500 mb-4">Error</h2>
-        <p className="text-gray-600 mb-4">{error}</p>
+        <p className="mb-4 text-slate-600">{error}</p>
         <Button onClick={() => window.location.reload()}>Reload</Button>
       </div>
     );
@@ -154,7 +154,7 @@ export function RankingSimulator() {
   if (!initialized) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">{t('common.loading')}</div>
+        <div className="text-slate-500">{t('common.loading')}</div>
       </div>
     );
   }
@@ -171,15 +171,18 @@ export function RankingSimulator() {
   const isComplete = steps.length > 0 && steps[steps.length - 1].id === 'final_ranking';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-[#1DA1F2]" />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Pipeline Explorer
+          </p>
+          <h1 className="mt-1 text-2xl font-bold flex items-center gap-2 text-slate-900">
+            <BarChart3 className="w-6 h-6 text-sky-600" />
             {t('simulator.title')}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">{t('simulator.subtitle')}</p>
+          <p className="text-slate-600 text-sm mt-1">{t('simulator.subtitle')}</p>
         </div>
 
         {/* Scenario Selector */}
@@ -206,7 +209,7 @@ export function RankingSimulator() {
       </div>
 
       {/* Controls */}
-      <Card>
+      <Card className="border-slate-900/15 bg-[rgba(255,255,255,0.78)]">
         <CardContent className="py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Playback Controls */}
@@ -264,7 +267,7 @@ export function RankingSimulator() {
 
             {/* Speed Control */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">{t('simulator.speed')}:</span>
+              <span className="text-sm text-slate-600">{t('simulator.speed')}:</span>
               <Slider
                 value={[playSpeed]}
                 onValueChange={([value]) => setPlaySpeed(value)}
@@ -316,10 +319,10 @@ export function RankingSimulator() {
               <FinalRanking candidates={currentCandidates} topK={10} />
             </motion.div>
           ) : (
-            <Card className="h-full flex items-center justify-center">
+            <Card className="h-full flex items-center justify-center border-dashed border-slate-900/20">
               <CardContent className="text-center py-12">
-                <BarChart3 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-400">
+                <BarChart3 className="mx-auto mb-4 h-12 w-12 text-slate-400" />
+                <p className="text-slate-500">
                   {isZh
                     ? '完成所有步骤后显示最终排序'
                     : 'Final ranking will appear after all steps'}

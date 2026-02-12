@@ -201,7 +201,7 @@ export function Suggestions({ input }: SuggestionsProps) {
       case 'high':
         return <Badge variant="destructive">{isZh ? '高风险' : 'High Risk'}</Badge>;
       case 'medium':
-        return <Badge className="bg-orange-500">{isZh ? '中风险' : 'Med Risk'}</Badge>;
+        return <Badge className="border-orange-700/20 bg-orange-100 text-orange-700">{isZh ? '中风险' : 'Med Risk'}</Badge>;
       default:
         return <Badge variant="secondary">{isZh ? '低风险' : 'Low Risk'}</Badge>;
     }
@@ -220,7 +220,7 @@ export function Suggestions({ input }: SuggestionsProps) {
         </CardHeader>
         <CardContent>
           {suggestions.length === 0 ? (
-            <p className="text-gray-500 text-sm">{t('common.noData')}</p>
+            <p className="text-slate-600 text-sm">{t('common.noData')}</p>
           ) : (
             <div className="space-y-3">
               {suggestions.map((suggestion, index) => (
@@ -228,14 +228,14 @@ export function Suggestions({ input }: SuggestionsProps) {
                   key={index}
                   className={cn(
                     'flex items-start gap-3 p-3 rounded-lg',
-                    suggestion.type === 'positive' && 'bg-green-50',
-                    suggestion.type === 'negative' && 'bg-red-50',
-                    suggestion.type === 'neutral' && 'bg-gray-50'
+                    suggestion.type === 'positive' && 'bg-emerald-50',
+                    suggestion.type === 'negative' && 'bg-rose-50',
+                    suggestion.type === 'neutral' && 'bg-slate-100/70'
                   )}
                 >
                   {getSuggestionIcon(suggestion.type)}
                   <div className="flex-1">
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-slate-700">
                       {isZh ? suggestion.messageZh : suggestion.message}
                     </p>
                   </div>
@@ -249,7 +249,7 @@ export function Suggestions({ input }: SuggestionsProps) {
 
       {/* Filter Risks */}
       {filterRisks.length > 0 && (
-        <Card className="border-orange-200">
+        <Card className="border-orange-300/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2 text-orange-600">
               <AlertTriangle className="w-5 h-5" />
@@ -266,10 +266,10 @@ export function Suggestions({ input }: SuggestionsProps) {
                 >
                   <AlertTriangle className="w-4 h-4 text-orange-500 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-sm font-medium text-slate-700">
                       {risk.filterName}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-600">
                       {isZh ? risk.reasonZh : risk.reason}
                     </p>
                   </div>

@@ -47,10 +47,10 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  'p-3 rounded-lg border cursor-pointer transition-all',
-                  isActive && 'border-[#1DA1F2] bg-blue-50',
-                  isPassed && 'border-green-300 bg-green-50',
-                  !isActive && !isPassed && 'border-gray-200 hover:border-gray-300'
+                  'cursor-pointer rounded-xl border p-3 transition-all',
+                  isActive && 'border-sky-300 bg-sky-50',
+                  isPassed && 'border-emerald-300 bg-emerald-50',
+                  !isActive && !isPassed && 'border-slate-300/60 hover:border-slate-400/70'
                 )}
                 onClick={() => onStepClick?.(steps.indexOf(step))}
               >
@@ -59,9 +59,9 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
                   <div
                     className={cn(
                       'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
-                      isActive && 'bg-[#1DA1F2] text-white',
+                      isActive && 'bg-sky-600 text-white',
                       isPassed && 'bg-green-500 text-white',
-                      !isActive && !isPassed && 'bg-gray-200 text-gray-500'
+                      !isActive && !isPassed && 'bg-slate-200 text-slate-600'
                     )}
                   >
                     {isPassed ? <CheckCircle className="w-4 h-4" /> : index + 1}
@@ -79,14 +79,14 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-slate-600 truncate">
                       {isZh ? step.descriptionZh : step.description}
                     </p>
                   </div>
 
                   {/* Stats */}
                   <div className="text-right text-xs">
-                    <div className="text-gray-500">
+                    <div className="text-slate-500">
                       {step.inputCount} → {step.outputCount}
                     </div>
                     {filterResult && (
@@ -99,7 +99,7 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
                     )}
                   </div>
 
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>
 
                 {/* Progress Bar */}

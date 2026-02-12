@@ -30,8 +30,8 @@ export function TweetCard({
   return (
     <Card
       className={cn(
-        'transition-all duration-200 cursor-pointer hover:shadow-md',
-        highlighted && 'ring-2 ring-[#1DA1F2]',
+        'cursor-pointer transition-all duration-200 hover:shadow-[0_14px_30px_rgba(15,23,42,0.16)]',
+        highlighted && 'ring-2 ring-sky-500',
         tweet.filtered && 'opacity-50',
         compact ? 'p-2' : ''
       )}
@@ -41,29 +41,29 @@ export function TweetCard({
         {/* Header */}
         <div className="flex items-start gap-3">
           {rank !== undefined && (
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#1DA1F2] text-white flex items-center justify-center text-sm font-bold">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
               {rank}
             </div>
           )}
 
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-slate-900/10 bg-slate-100 text-lg">
             {tweet.authorAvatar || '👤'}
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-gray-900 truncate">
+              <span className="truncate font-semibold text-slate-900">
                 {tweet.authorName}
               </span>
               {tweet.authorVerified && (
-                <CheckCircle className="w-4 h-4 text-[#1DA1F2] flex-shrink-0" />
+                <CheckCircle className="h-4 w-4 flex-shrink-0 text-sky-600" />
               )}
-              <span className="text-gray-500 text-sm">
+              <span className="text-sm text-slate-500">
                 {formatRelativeTime(tweet.id, language === 'zh' ? 'zh' : 'en')}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs text-slate-500">
               <Users className="w-3 h-3" />
               <span>
                 {tweet.authorFollowers >= 1000000
@@ -87,7 +87,7 @@ export function TweetCard({
 
         {/* Content */}
         <div className={cn('mt-3', compact && 'text-sm')}>
-          <p className="text-gray-800 line-clamp-3">{tweet.content}</p>
+          <p className="line-clamp-3 text-slate-800">{tweet.content}</p>
         </div>
 
         {/* Media indicators */}
@@ -110,11 +110,11 @@ export function TweetCard({
 
         {/* Scores */}
         {showScores && tweet.finalScore !== undefined && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="mt-3 border-t border-slate-200 pt-3">
             <div className="grid grid-cols-2 gap-2 text-xs">
               {tweet.weightedScore !== undefined && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">{t('simulator.weightedScore')}:</span>
+                  <span className="text-slate-500">{t('simulator.weightedScore')}:</span>
                   <span className="font-mono font-medium">
                     {tweet.weightedScore.toFixed(3)}
                   </span>
@@ -122,17 +122,17 @@ export function TweetCard({
               )}
               {tweet.diversityAdjustedScore !== undefined && (
                 <div className="flex justify-between">
-                  <span className="text-gray-500">{t('simulator.diversityScore')}:</span>
+                  <span className="text-slate-500">{t('simulator.diversityScore')}:</span>
                   <span className="font-mono font-medium">
                     {tweet.diversityAdjustedScore.toFixed(3)}
                   </span>
                 </div>
               )}
               <div className="flex justify-between col-span-2">
-                <span className="text-gray-500 font-semibold">
+                <span className="font-semibold text-slate-500">
                   {t('simulator.finalScore')}:
                 </span>
-                <span className="font-mono font-bold text-[#1DA1F2]">
+                <span className="font-mono font-bold text-sky-700">
                   {tweet.finalScore.toFixed(3)}
                 </span>
               </div>
@@ -142,7 +142,7 @@ export function TweetCard({
 
         {/* Filtered status */}
         {showFiltered && tweet.filtered && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
+          <div className="mt-3 border-t border-slate-200 pt-3">
             <div className="flex items-center gap-2 text-red-500 text-sm">
               <XCircle className="w-4 h-4" />
               <span>

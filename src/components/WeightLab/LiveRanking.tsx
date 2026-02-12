@@ -69,14 +69,14 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
   const getRankChangeIcon = (change: number) => {
     if (change > 0) return <TrendingUp className="w-4 h-4 text-green-500" />;
     if (change < 0) return <TrendingDown className="w-4 h-4 text-red-500" />;
-    return <Minus className="w-4 h-4 text-gray-400" />;
+    return <Minus className="w-4 h-4 text-slate-400" />;
   };
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-[#1DA1F2]" />
+          <BarChart3 className="w-5 h-5 text-sky-600" />
           {t('weightLab.liveRanking')}
           <Badge variant="secondary">Top 15</Badge>
         </CardTitle>
@@ -103,7 +103,7 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
                     'p-3 rounded-lg border transition-colors',
                     candidate.rankChange && candidate.rankChange > 0 && 'border-green-200 bg-green-50',
                     candidate.rankChange && candidate.rankChange < 0 && 'border-red-200 bg-red-50',
-                    !candidate.rankChange && 'border-gray-200'
+                    !candidate.rankChange && 'border-slate-200'
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -112,16 +112,16 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
                       className={cn(
                         'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
                         index === 0 && 'bg-yellow-500 text-white',
-                        index === 1 && 'bg-gray-400 text-white',
+                        index === 1 && 'bg-slate-400 text-white',
                         index === 2 && 'bg-amber-600 text-white',
-                        index > 2 && 'bg-gray-200 text-gray-600'
+                        index > 2 && 'bg-slate-200 text-slate-600'
                       )}
                     >
                       {index + 1}
                     </div>
 
                     {/* Avatar */}
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-sm">
                       {candidate.authorAvatar || '👤'}
                     </div>
 
@@ -132,14 +132,14 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
                           {candidate.authorName}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-slate-500 truncate">
                         {candidate.content}
                       </p>
                     </div>
 
                     {/* Score */}
                     <div className="flex-shrink-0 text-right">
-                      <div className="font-mono text-sm font-bold text-[#1DA1F2]">
+                      <div className="font-mono text-sm font-bold text-sky-700">
                         {candidate.newScore.toFixed(3)}
                       </div>
                       {candidate.scoreChange !== undefined && Math.abs(candidate.scoreChange) > 0.001 && (
@@ -180,7 +180,7 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
         </div>
 
         {/* Legend */}
-        <div className="mt-4 pt-4 border-t border-gray-100 flex justify-center gap-6 text-xs text-gray-500">
+        <div className="mt-4 pt-4 border-t border-slate-200 flex justify-center gap-6 text-xs text-slate-600">
           <div className="flex items-center gap-1">
             <TrendingUp className="w-3 h-3 text-green-500" />
             <span>{isZh ? '排名上升' : 'Rank Up'}</span>
@@ -190,7 +190,7 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
             <span>{isZh ? '排名下降' : 'Rank Down'}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Minus className="w-3 h-3 text-gray-400" />
+            <Minus className="w-3 h-3 text-slate-400" />
             <span>{isZh ? '无变化' : 'No Change'}</span>
           </div>
         </div>
