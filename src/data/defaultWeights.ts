@@ -22,6 +22,11 @@ export const DEFAULT_WEIGHTS: WeightConfig = {
   blockAuthorWeight: -5.0,
   muteAuthorWeight: -3.0,
   reportWeight: -10.0,
+  dwellTimeWeight: 0.0003,
+
+  // Weighted scorer controls
+  minVideoDurationMs: 15000,
+  negativeScoresOffset: 1.0,
 
   // Diversity parameters
   authorDiversityDecay: 0.8,
@@ -32,7 +37,15 @@ export const DEFAULT_WEIGHTS: WeightConfig = {
 };
 
 // Weight metadata for UI
-export const WEIGHT_METADATA: Record<keyof Omit<WeightConfig, 'authorDiversityDecay' | 'authorDiversityFloor' | 'oonWeightFactor'>, {
+export const WEIGHT_METADATA: Record<keyof Omit<
+  WeightConfig,
+  | 'authorDiversityDecay'
+  | 'authorDiversityFloor'
+  | 'oonWeightFactor'
+  | 'dwellTimeWeight'
+  | 'minVideoDurationMs'
+  | 'negativeScoresOffset'
+>, {
   name: string;
   nameZh: string;
   description: string;

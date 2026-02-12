@@ -8,14 +8,15 @@
 
 ## English
 
-A fully interactive web simulator for understanding X (Twitter)'s recommendation algorithm. This project visualizes the complete pipeline from tweet creation to ranking, based on the algorithm X open-sourced in 2026.
+A fully interactive web simulator for understanding X's recommendation architecture. This project focuses on **pipeline-level simulation** (not production-level reproduction), aligned with the open-source `home-mixer` flow.
 
 ### Background
 
-In January 2026, X (formerly Twitter) open-sourced their recommendation algorithm. After deep-diving into the source code, we built this simulator to help everyone understand:
+After deep-diving into the open-source code, we built this simulator to help everyone understand:
 
-- **How tweets are filtered** — 12 filtering stages decide what you don't see
-- **How tweets are scored** — 18 behavior predictions determine ranking
+- **How candidates flow through stages** — Query Hydration → Sources → Hydrators → Filters → Scorers → Selector → Post-Selection Filters
+- **How tweets are filtered** — 10 pre-scoring filters + 2 post-selection filters
+- **How tweets are scored** — 18 behavior predictions + 1 continuous dwell-time signal determine ranking
 - **How weights affect ranking** — Adjust parameters and see results in real-time
 
 ### Screenshots
@@ -42,10 +43,11 @@ Analyze any tweet content and predict its performance:
 #### Ranking Simulator
 Watch the complete recommendation pipeline in action:
 
-- **12 Filter Stages** — See how candidates are eliminated step by step
-- **4 Scoring Stages** — Phoenix ML → Weighted Sum → Diversity → OON Balance
+- **Home Mixer-like Stages** — Query Hydrators, Sources, Candidate Hydrators, Pre-Filters, Scorers, Selector, Post-Filters
+- **12 Filter Stages** — 10 pre-scoring filters + 2 post-selection filters
+- **4 Scoring Stages** — Phoenix ML (simulated) → Weighted Sum → Author Diversity → OON Balance
 - **Step-by-Step Animation** — Play, pause, and control the pipeline execution
-- **3 Scenarios** — Following Feed (80% in-network), For You (40% in-network), Trending (20% in-network)
+- **3 Scenarios** — Following Feed (in-network heavy), For You (balanced), Discovery Heavy (out-of-network heavy)
 - **Detailed Statistics** — Input/output counts and tweet details at each stage
 
 #### Weight Laboratory
@@ -123,18 +125,18 @@ src/
 
 | # | Filter | Description |
 |---|--------|-------------|
-| 1 | DropDuplicatesFilter | Keep only first tweet per conversation |
-| 2 | AgeFilter | Remove tweets older than 7 days |
-| 3 | SelfTweetFilter | Remove user's own tweets |
-| 4 | BlockedAuthorFilter | Remove blocked users' tweets |
-| 5 | MutedAuthorFilter | Remove muted users' tweets |
-| 6 | SeenTweetsFilter | Remove already viewed tweets |
-| 7 | NSFWFilter | Filter sensitive content by keywords |
-| 8 | LowQualityFilter | Detect spam patterns (too short, all caps, etc.) |
-| 9 | ConversationDepthFilter | Remove deeply nested replies (depth > 3) |
-| 10 | RetweetOfSeenFilter | Remove retweets of seen content |
-| 11 | AuthorDiversityPreFilter | Limit 3 tweets per author |
-| 12 | NegativeFeedbackFilter | Remove high negative signal tweets |
+| 1 | DropDuplicatesFilter | Remove duplicate tweet IDs |
+| 2 | CoreDataHydrationFilter | Remove candidates missing required core fields |
+| 3 | AgeFilter | Remove tweets older than configured threshold |
+| 4 | SelfTweetFilter | Remove user's own tweets |
+| 5 | RetweetDeduplicationFilter | Deduplicate reposts of the same original tweet |
+| 6 | IneligibleSubscriptionFilter | Remove subscription-only tweets user cannot access |
+| 7 | PreviouslySeenPostsFilter | Remove tweets seen by client/bloom history |
+| 8 | PreviouslyServedPostsFilter | Remove tweets already served in session (bottom requests) |
+| 9 | MutedKeywordFilter | Remove tweets matching muted keywords |
+| 10 | AuthorSocialgraphFilter | Remove blocked/muted authors |
+| 11 | VFFilter | Post-selection visibility filtering |
+| 12 | DedupConversationFilter | Keep highest-scored candidate per conversation |
 
 #### Scorers (4 Stages)
 
@@ -156,6 +158,25 @@ src/
 **Negative Signals (4):**
 - Not Interested, Block Author, Mute Author, Report
 
+### Fidelity and Limits
+
+This project intentionally simulates architecture and control flow, not online production behavior.
+
+- **Simulated faithfully (architecture-level):** pipeline stages, filter/scorer ordering, scoring composition, diversity/OON controls, pre/post filtering separation.
+- **Approximated locally:** retrieval outputs, Phoenix predictions, user features/query hydration, VF decisions, and all service-backed hydration.
+- **Unavailable in open source:** internal `params` values and internal service clients; therefore exact weights/thresholds and score normalization cannot be reproduced 1:1.
+
+### What Can Be Fixed vs. What Cannot Be Fully Reproduced
+
+- **Fixable in this simulator:** stage ordering, filter composition and execution order, scorer combination logic, diversity/OON balancing behavior, deterministic mock data scenarios, and UX-level observability of each pipeline step.
+- **Not fully reproducible with open-source only:** online retrieval quality, production feature stores/service outputs, Phoenix model serving details, internal thresholds/normalization in closed `params`, and live anti-abuse/visibility systems.
+
+### Verification Status (2026-02-12)
+
+- `npm run lint` passed
+- `npm run build` passed
+- Current repository does not define automated unit/E2E test scripts; verification is based on static checks and production build success.
+
 ### Language Support
 
 - English
@@ -165,7 +186,7 @@ Toggle with the globe icon in the header.
 
 ### Related Links
 
-- [X Algorithm Open Source](https://github.com/twitter/the-algorithm)
+- [X Algorithm Open Source](https://github.com/xai-org/x-algorithm)
 
 ### License
 
@@ -177,14 +198,15 @@ MIT
 
 ## 中文
 
-一个完全交互式的 Web 模拟器，帮助理解 X（Twitter）的推荐算法。本项目可视化了从推文创建到排序的完整流程，基于 X 在 2026 年开源的算法实现。
+一个完全交互式的 Web 模拟器，帮助理解 X 推荐架构。本项目强调**流程级模拟**，不是线上效果复现，流程结构对齐开源 `home-mixer`。
 
 ### 项目背景
 
-2026 年 1 月，X（原 Twitter）开源了他们的推荐算法。在深度阅读源码后，我们构建了这个模拟器，帮助大家理解：
+在深度阅读开源源码后，我们构建了这个模拟器，帮助大家理解：
 
-- **推文如何被过滤** — 12 道过滤关卡决定什么不会被展示
-- **推文如何被评分** — 18 种行为预测决定排序
+- **候选内容如何流转** — Query Hydration → Sources → Hydrators → Filters → Scorers → Selector → Post-Selection Filters
+- **推文如何被过滤** — 10 个前置过滤器 + 2 个后置过滤器
+- **推文如何被评分** — 18 种行为预测 + 1 个连续停留时长信号共同决定排序
 - **权重如何影响排名** — 实时调整参数并查看效果
 
 ### 效果截图
@@ -212,10 +234,11 @@ MIT
 
 观看完整的推荐管道运行过程：
 
-- **12 个过滤阶段** — 逐步观察候选推文如何被淘汰
-- **4 个评分阶段** — Phoenix ML → 加权求和 → 多样性惩罚 → 内外网平衡
+- **贴近 Home Mixer 的阶段** — Query Hydrator、Source、Candidate Hydrator、前置过滤、评分、选择器、后置过滤
+- **12 个过滤阶段** — 10 个前置过滤器 + 2 个后置过滤器
+- **4 个评分阶段** — Phoenix ML（模拟）→ 加权求和 → 作者多样性 → 内外网平衡
 - **逐步动画** — 播放、暂停、控制管道执行
-- **3 种场景** — 关注动态（80% 内网）、推荐（40% 内网）、热门（20% 内网）
+- **3 种场景** — 关注动态（内网为主）、推荐（内外网平衡）、探索型推荐（外网占比更高）
 - **详细统计** — 每个阶段的输入输出数量和推文详情
 
 #### 权重实验室
@@ -294,18 +317,18 @@ src/
 
 | # | 过滤器 | 说明 |
 |---|--------|------|
-| 1 | 去重过滤器 | 每个对话只保留第一条推文 |
-| 2 | 时效过滤器 | 过滤超过 7 天的推文 |
-| 3 | 自己推文过滤器 | 移除用户自己的推文 |
-| 4 | 屏蔽作者过滤器 | 过滤被屏蔽用户的推文 |
-| 5 | 静音作者过滤器 | 过滤被静音用户的推文 |
-| 6 | 已看推文过滤器 | 过滤已查看的推文 |
-| 7 | 敏感内容过滤器 | 通过关键词检测敏感内容 |
-| 8 | 低质量过滤器 | 检测垃圾模式（过短、全大写等） |
-| 9 | 深度回复过滤器 | 过滤深度嵌套回复（深度 > 3） |
-| 10 | 已看转发过滤器 | 过滤原推文已看的转发 |
-| 11 | 作者多样性预过滤器 | 限制每个作者最多 3 条推文 |
-| 12 | 负面反馈过滤器 | 过滤高负面信号推文 |
+| 1 | DropDuplicatesFilter | 移除重复推文 ID |
+| 2 | CoreDataHydrationFilter | 过滤缺少核心字段的候选 |
+| 3 | AgeFilter | 按时效阈值过滤旧推文 |
+| 4 | SelfTweetFilter | 移除用户自己的推文 |
+| 5 | RetweetDeduplicationFilter | 对同一原文转推进行去重 |
+| 6 | IneligibleSubscriptionFilter | 移除用户无订阅资格内容 |
+| 7 | PreviouslySeenPostsFilter | 基于 seen/bloom 历史过滤已看内容 |
+| 8 | PreviouslyServedPostsFilter | 在 bottom request 中过滤已下发内容 |
+| 9 | MutedKeywordFilter | 过滤命中静音关键词的推文 |
+| 10 | AuthorSocialgraphFilter | 过滤被屏蔽/静音作者 |
+| 11 | VFFilter | 后置可见性过滤 |
+| 12 | DedupConversationFilter | 每个对话仅保留最高分候选 |
 
 #### 评分器（4 个阶段）
 
@@ -326,6 +349,25 @@ src/
 
 **负向信号（4 种）：**
 - 不感兴趣、屏蔽作者、静音作者、举报
+
+### 模拟精度与边界
+
+本项目刻意做“架构与流程模拟”，而不是线上效果复现：
+
+- **高一致（架构层）**：阶段顺序、过滤器/评分器链路、多样性与内外网平衡、前后置过滤分层。
+- **本地近似（可替代实现）**：召回结果、Phoenix 预测、用户特征补全、可见性决策等服务依赖。
+- **开源不可得（无法 1:1）**：内部 `params` 和内部服务客户端，导致真实权重阈值与归一化细节无法完全复刻。
+
+### 哪些可以修复，哪些无法完全复现
+
+- **可在模拟器中持续修复/改进：** 阶段顺序、过滤器组合与执行顺序、评分器组合逻辑、多样性与内外网平衡策略、可控 mock 场景，以及各阶段可视化可观测性。
+- **仅靠开源代码无法 1:1：** 线上召回质量、生产特征服务输出、Phoenix 模型在线服务细节、闭源 `params` 中的真实阈值与归一化、实时反滥用/可见性系统。
+
+### 当前验证状态（2026-02-12）
+
+- `npm run lint` 已通过
+- `npm run build` 已通过
+- 当前仓库未提供自动化单元测试/E2E 测试脚本；验证基于静态检查与生产构建成功。
 
 ### 语言支持
 

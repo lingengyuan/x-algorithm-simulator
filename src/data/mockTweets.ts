@@ -1,8 +1,7 @@
-import { TweetCandidate, TweetInput, RankingScenario } from '@/core/types';
-import { generateSnowflakeId, generateSnowflakeIdFromAge } from '@/utils/snowflake';
+import { TweetCandidate, TweetInput, RankingScenario, FilterContext } from '@/core/types';
+import { generateSnowflakeIdFromAge } from '@/utils/snowflake';
 import { simulatePhoenixScores } from '@/utils/scoring';
 
-// Mock author data
 const AUTHORS = [
   { id: 'author_1', name: 'Tech News', followers: 1500000, verified: true, avatar: '🤖' },
   { id: 'author_2', name: 'Sarah Dev', followers: 45000, verified: true, avatar: '👩‍💻' },
@@ -14,49 +13,56 @@ const AUTHORS = [
   { id: 'author_8', name: 'Data Scientist', followers: 75000, verified: true, avatar: '📊' },
   { id: 'author_9', name: 'Meme Lord', followers: 350000, verified: false, avatar: '😂' },
   { id: 'author_10', name: 'News Anchor', followers: 2000000, verified: true, avatar: '📺' },
+  { id: 'current_user', name: 'You', followers: 3200, verified: false, avatar: '🙂' },
 ];
 
-// Mock tweet contents
 const TWEET_CONTENTS = [
-  { content: 'Just shipped a new feature! 🚀 The team worked incredibly hard on this. Check out the demo at the link below.', hasImage: true, hasVideo: false },
-  { content: 'Breaking: Major tech company announces layoffs affecting 10% of workforce. More details coming soon.', hasImage: false, hasVideo: false },
-  { content: 'Hot take: The future of AI is not about replacing humans, but augmenting human capabilities. What do you think?', hasImage: false, hasVideo: false },
-  { content: 'New tutorial: Building a recommendation system from scratch. 45 minute video walkthrough.', hasImage: false, hasVideo: true, videoDurationMs: 2700000 },
-  { content: 'This chart shows why we need to pay attention to climate change NOW.', hasImage: true, hasVideo: false },
-  { content: 'I interviewed 100 senior engineers. Here are the 5 skills they all have in common: 🧵', hasImage: false, hasVideo: false },
-  { content: 'Just released my new open source project! Would love your feedback.', hasImage: true, hasVideo: false },
-  { content: 'The market is going crazy today. Here\'s my analysis on what\'s happening.', hasImage: true, hasVideo: false },
-  { content: 'Can someone explain why my code works in development but not in production? 😭', hasImage: false, hasVideo: false },
-  { content: 'Beautiful sunset from my office window today 🌅', hasImage: true, hasVideo: false },
-  { content: 'New research paper just dropped! We achieved state-of-the-art results on 3 benchmarks.', hasImage: true, hasVideo: false },
-  { content: 'Quick thread on the most common mistakes I see in code reviews: 👇', hasImage: false, hasVideo: false },
-  { content: 'Anyone else feeling burned out? Taking a mental health day today.', hasImage: false, hasVideo: false },
-  { content: 'Live demo of our new product! Come join us.', hasImage: false, hasVideo: true, videoDurationMs: 45000 },
+  { content: 'Just shipped a new feature! 🚀 The team worked incredibly hard on this. Check out the demo below.', hasImage: true, hasVideo: false },
+  { content: 'Breaking: Major tech company announces layoffs affecting 10% of workforce.', hasImage: false, hasVideo: false },
+  { content: 'Hot take: The future of AI is about augmenting humans, not replacing them. Thoughts?', hasImage: false, hasVideo: false },
+  { content: 'New tutorial: Building a recommendation system from scratch. Full walkthrough video.', hasImage: false, hasVideo: true, videoDurationMs: 270000 },
+  { content: 'This chart shows why climate trends matter now.', hasImage: true, hasVideo: false },
+  { content: 'I interviewed 100 senior engineers. Here are the top 5 skills. 🧵', hasImage: false, hasVideo: false },
+  { content: 'Just released my new open-source project. Feedback welcome!', hasImage: true, hasVideo: false },
+  { content: 'Market volatility is back. Here is my analysis thread.', hasImage: true, hasVideo: false },
+  { content: 'Can someone explain why this works in dev but fails in prod?', hasImage: false, hasVideo: false },
+  { content: 'Beautiful sunset from the office today 🌅', hasImage: true, hasVideo: false },
+  { content: 'New research paper dropped with SOTA gains on three benchmarks.', hasImage: true, hasVideo: false },
+  { content: 'Quick thread on common code review mistakes 👇', hasImage: false, hasVideo: false },
+  { content: 'Anyone else feeling burned out? Taking a mental health day.', hasImage: false, hasVideo: false },
+  { content: 'Live product demo this evening. Join us.', hasImage: false, hasVideo: true, videoDurationMs: 45000 },
   { content: 'This meme is too accurate 😂💀', hasImage: true, hasVideo: false },
-  { content: '10 years ago I quit my job to start a company. Today we just hit $1B valuation. Never give up on your dreams.', hasImage: false, hasVideo: false },
-  { content: 'Unpopular opinion: TypeScript is overrated for small projects.', hasImage: false, hasVideo: false },
-  { content: 'Just discovered this amazing productivity hack that saves me 2 hours every day!', hasImage: false, hasVideo: false },
-  { content: 'Building in public, day 47: Finally got my first paying customer! 🎉', hasImage: true, hasVideo: false },
-  { content: 'The new iPhone is disappointing. Here\'s why I\'m switching to Android.', hasImage: false, hasVideo: false },
-  { content: 'PSA: There\'s a critical security vulnerability in a popular npm package. Update now!', hasImage: false, hasVideo: false },
-  { content: 'My cat just figured out how to open doors. We\'re doomed.', hasImage: true, hasVideo: false },
-  { content: 'Attended an amazing conference today. The future of tech is bright!', hasImage: true, hasVideo: false },
-  { content: 'Why do recruiters always reach out on Friday afternoons? 🤔', hasImage: false, hasVideo: false },
-  { content: 'Just finished reading "Clean Code". Every developer should read this book.', hasImage: true, hasVideo: false },
+  { content: 'PSA: Critical vulnerability in a popular npm package. Patch now.', hasImage: false, hasVideo: false },
+  { content: 'Crypto markets are wild today. Risk management matters.', hasImage: false, hasVideo: false },
+  { content: 'Giveaway alert! Reply to win a laptop.', hasImage: false, hasVideo: false },
+  { content: 'Spoiler: this new episode ends with a huge twist.', hasImage: false, hasVideo: false },
+  { content: 'Graphic violence footage circulating today. Please avoid resharing.', hasImage: false, hasVideo: false },
 ];
 
-// Generate a random mock tweet candidate
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 9999) * 10000;
+  return x - Math.floor(x);
+}
+
+function pickAuthor(index: number) {
+  return AUTHORS[index % AUTHORS.length];
+}
+
+function pickContent(index: number) {
+  return TWEET_CONTENTS[index % TWEET_CONTENTS.length];
+}
+
 export function generateMockTweet(
   index: number,
   hoursAgo?: number,
   inNetwork?: boolean
 ): TweetCandidate {
-  const author = AUTHORS[index % AUTHORS.length];
-  const tweetContent = TWEET_CONTENTS[index % TWEET_CONTENTS.length];
+  const author = pickAuthor(index);
+  const tweetContent = pickContent(index);
+  const randomAge = seededRandom(index + 7) * 168; // 0-7 days
+  const ageHours = hoursAgo ?? randomAge;
 
-  const ageHours = hoursAgo ?? Math.random() * 168; // 0-7 days
   const id = generateSnowflakeIdFromAge(ageHours);
-
   const tweetInput: TweetInput = {
     content: tweetContent.content,
     hasMedia: tweetContent.hasVideo ? 'video' : tweetContent.hasImage ? 'image' : 'none',
@@ -65,8 +71,7 @@ export function generateMockTweet(
     followerCount: author.followers,
   };
 
-  // Use index as seed for reproducible scores
-  const phoenixScores = simulatePhoenixScores(tweetInput, index * 12345);
+  const phoenixScores = simulatePhoenixScores(tweetInput, index * 12345 + 99);
 
   return {
     id,
@@ -80,76 +85,122 @@ export function generateMockTweet(
     hasVideo: tweetContent.hasVideo,
     videoDurationMs: tweetContent.videoDurationMs,
     createdAt: Date.now() - ageHours * 60 * 60 * 1000,
-    inNetwork: inNetwork ?? Math.random() > 0.4,
-    isRetweet: Math.random() > 0.85,
+    inNetwork: inNetwork ?? seededRandom(index + 19) > 0.4,
+    servedType: undefined,
+    conversationId: undefined,
+    ancestors: [],
+    isRetweet: false,
     originalTweetId: undefined,
+    subscriptionAuthorId: undefined,
+    visibilityFiltered: false,
     phoenixScores,
     filtered: false,
   };
 }
 
-// Generate multiple mock tweets
-export function generateMockTweets(count: number, inNetworkRatio: number = 0.6): TweetCandidate[] {
+function enrichConversationAndRetweets(tweets: TweetCandidate[]): TweetCandidate[] {
+  const enriched = tweets.map((tweet) => ({ ...tweet }));
+
+  for (let i = 0; i < enriched.length; i++) {
+    const convoBucket = Math.floor(i / 4);
+    const defaultConversationId = `conversation_${convoBucket}`;
+
+    if (seededRandom(i + 41) > 0.3) {
+      enriched[i].conversationId = defaultConversationId;
+      enriched[i].ancestors = [defaultConversationId];
+    }
+
+    // deterministic retweet simulation
+    if (i > 2 && seededRandom(i + 53) > 0.84) {
+      const originalIndex = Math.floor(seededRandom(i + 67) * i);
+      const original = enriched[originalIndex];
+      const conversationId = original.conversationId || defaultConversationId;
+      enriched[i].isRetweet = true;
+      enriched[i].originalTweetId = original.id;
+      enriched[i].conversationId = conversationId;
+      enriched[i].ancestors = [conversationId];
+    }
+
+    // deterministic subscription-only marker
+    if (seededRandom(i + 79) > 0.9) {
+      enriched[i].subscriptionAuthorId = enriched[i].authorId;
+    }
+
+    // deterministic VF-style drop signal
+    if (seededRandom(i + 97) > 0.975) {
+      enriched[i].visibilityFiltered = true;
+    }
+  }
+
+  return enriched;
+}
+
+export function generateMockTweets(count: number, inNetworkRatio = 0.6): TweetCandidate[] {
   const tweets: TweetCandidate[] = [];
 
   for (let i = 0; i < count; i++) {
-    const inNetwork = Math.random() < inNetworkRatio;
-    const hoursAgo = Math.random() * 120; // 0-5 days
+    const inNetwork = seededRandom(i + 131) < inNetworkRatio;
+    const hoursAgo = seededRandom(i + 149) * 120; // 0-5 days
     tweets.push(generateMockTweet(i, hoursAgo, inNetwork));
   }
 
-  return tweets;
+  return enrichConversationAndRetweets(tweets);
 }
 
-// Predefined ranking scenarios
 export const RANKING_SCENARIOS: RankingScenario[] = [
   {
     id: 'following_feed',
     name: 'Following Feed',
     nameZh: '关注动态',
-    description: 'Timeline with mostly followed accounts',
-    descriptionZh: '主要来自已关注账号的时间线',
-    candidateCount: 30,
-    inNetworkRatio: 0.8,
+    description: 'Mostly in-network content from followed accounts',
+    descriptionZh: '以关注网络内容为主',
+    candidateCount: 40,
+    inNetworkRatio: 0.82,
   },
   {
     id: 'for_you',
     name: 'For You',
     nameZh: '推荐内容',
-    description: 'Algorithmic recommendations mix',
-    descriptionZh: '算法推荐的混合内容',
-    candidateCount: 50,
-    inNetworkRatio: 0.4,
+    description: 'Balanced in-network and out-of-network recommendations',
+    descriptionZh: '内外网平衡推荐流',
+    candidateCount: 60,
+    inNetworkRatio: 0.45,
   },
   {
-    id: 'trending',
-    name: 'Trending Topics',
-    nameZh: '热门话题',
-    description: 'Popular content from around the platform',
-    descriptionZh: '来自平台各处的热门内容',
-    candidateCount: 40,
-    inNetworkRatio: 0.2,
+    id: 'discovery',
+    name: 'Discovery Heavy',
+    nameZh: '探索型推荐',
+    description: 'Out-of-network heavy recommendation distribution',
+    descriptionZh: '外网探索占比更高',
+    candidateCount: 60,
+    inNetworkRatio: 0.25,
   },
 ];
 
-// Generate tweets for a specific scenario
 export function generateScenarioTweets(scenario: RankingScenario): TweetCandidate[] {
   return generateMockTweets(scenario.candidateCount, scenario.inNetworkRatio);
 }
 
-// Default filter context for simulation
-export function getDefaultFilterContext(): {
-  currentUserId: string;
-  blockedUsers: string[];
-  mutedUsers: string[];
-  seenTweetIds: string[];
-  currentTime: number;
-} {
+export function getDefaultFilterContext(
+  candidates: TweetCandidate[] = [],
+  scenario?: RankingScenario
+): FilterContext {
+  const seenTweetIds = candidates.slice(0, 2).map((candidate) => candidate.id);
+  const servedTweetIds = candidates.slice(2, 4).map((candidate) => candidate.id);
+
   return {
     currentUserId: 'current_user',
-    blockedUsers: ['blocked_author_1'],
-    mutedUsers: ['muted_author_1'],
-    seenTweetIds: [],
+    blockedUsers: ['author_9'],
+    mutedUsers: ['author_4'],
+    mutedKeywords: ['crypto', 'giveaway', 'spoiler'],
+    followedAuthorIds: ['author_1', 'author_2', 'author_3', 'author_5', 'author_7'],
+    subscribedAuthorIds: ['author_1', 'author_3', 'author_10'],
+    seenTweetIds,
+    servedTweetIds,
+    bloomSeenTweetIds: candidates.slice(4, 5).map((candidate) => candidate.id),
+    inNetworkOnly: scenario?.id === 'following_feed',
+    isBottomRequest: scenario?.id === 'discovery',
     currentTime: Date.now(),
+    maxTweetAgeHours: 24 * 7,
   };
 }

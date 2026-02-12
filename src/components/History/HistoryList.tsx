@@ -1,22 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AnalysisHistory, AnalysisResult, TweetInput } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getHistory, clearHistory, deleteHistoryItem } from '@/utils/storage';
 import { getHeatLevel } from '@/utils/scoring';
 import { History, Trash2, FileText, GitCompare, BarChart3, Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/utils/cn';
 
 export function HistoryList() {
   const { t, isZh } = useTranslation();
-  const [histories, setHistories] = useState<AnalysisHistory[]>([]);
-
-  useEffect(() => {
-    setHistories(getHistory());
-  }, []);
+  const [histories, setHistories] = useState<AnalysisHistory[]>(() => getHistory());
 
   const handleClearAll = () => {
     if (window.confirm(isZh ? '确定要清除所有历史记录吗？' : 'Clear all history?')) {

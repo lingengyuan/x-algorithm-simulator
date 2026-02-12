@@ -135,59 +135,39 @@ export function Suggestions({ input }: SuggestionsProps) {
   const filterRisks = useMemo((): FilterRisk[] => {
     const risks: FilterRisk[] = [];
 
-    // Check content for potential issues
+    // Check content for potential filtering risk
     const content = input.content.toLowerCase();
 
-    if (content.length < 5) {
+    if (content.trim().length === 0) {
       risks.push({
-        filterId: 'low_quality',
-        filterName: 'LowQualityFilter',
+        filterId: 'core_data_hydration',
+        filterName: 'CoreDataHydrationFilter',
         risk: 'high',
-        reason: 'Content too short, may be filtered as low quality',
-        reasonZh: '内容过短，可能被判定为低质量',
+        reason: 'Empty content will fail core data hydration checks',
+        reasonZh: '空内容会在核心数据校验阶段被过滤',
       });
     }
 
-    const mentions = content.match(/@\w+/g) || [];
-    if (mentions.length > 10) {
+    const mutedKeywordHints = ['crypto', 'giveaway', 'spoiler'];
+    const hasMutedKeyword = mutedKeywordHints.some((keyword) => content.includes(keyword));
+    if (hasMutedKeyword) {
       risks.push({
-        filterId: 'low_quality',
-        filterName: 'LowQualityFilter',
-        risk: 'high',
-        reason: 'Excessive mentions may trigger spam filter',
-        reasonZh: '过多 @ 可能触发垃圾信息检测',
-      });
-    }
-
-    const hashtags = content.match(/#\w+/g) || [];
-    if (hashtags.length > 10) {
-      risks.push({
-        filterId: 'low_quality',
-        filterName: 'LowQualityFilter',
+        filterId: 'muted_keyword',
+        filterName: 'MutedKeywordFilter',
         risk: 'medium',
-        reason: 'Too many hashtags may reduce distribution',
-        reasonZh: '话题标签过多可能降低分发',
+        reason: 'Content includes common muted-keyword patterns',
+        reasonZh: '内容包含常见的静音关键词模式',
       });
     }
 
-    if (/(.)\1{5,}/.test(input.content)) {
+    const visibilityTerms = ['gore', 'violence', 'graphic'];
+    if (visibilityTerms.some((term) => content.includes(term))) {
       risks.push({
-        filterId: 'low_quality',
-        filterName: 'LowQualityFilter',
-        risk: 'medium',
-        reason: 'Repeated characters may trigger spam detection',
-        reasonZh: '重复字符可能触发垃圾信息检测',
-      });
-    }
-
-    const sensitiveKeywords = ['nsfw', 'explicit', '18+'];
-    if (sensitiveKeywords.some((kw) => content.includes(kw))) {
-      risks.push({
-        filterId: 'nsfw',
-        filterName: 'NSFWFilter',
+        filterId: 'vf',
+        filterName: 'VFFilter',
         risk: 'high',
-        reason: 'Content may be flagged as sensitive',
-        reasonZh: '内容可能被标记为敏感',
+        reason: 'Content may be dropped by visibility filtering policy',
+        reasonZh: '内容可能被可见性策略过滤',
       });
     }
 

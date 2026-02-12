@@ -41,7 +41,26 @@ export function runPhoenixScorer(candidates: TweetCandidate[]): ScorerResult {
     candidateScores: candidates.map(c => ({
       candidateId: c.id,
       scores: { ...c.phoenixScores },
-      finalScore: Object.values(c.phoenixScores).reduce((a, b) => a + b, 0) / 19,
+      finalScore: (
+        c.phoenixScores.favoriteScore +
+        c.phoenixScores.replyScore +
+        c.phoenixScores.retweetScore +
+        c.phoenixScores.photoExpandScore +
+        c.phoenixScores.clickScore +
+        c.phoenixScores.profileClickScore +
+        c.phoenixScores.vqvScore +
+        c.phoenixScores.shareScore +
+        c.phoenixScores.shareViaDmScore +
+        c.phoenixScores.shareViaCopyLinkScore +
+        c.phoenixScores.dwellScore +
+        c.phoenixScores.quoteScore +
+        c.phoenixScores.quotedClickScore +
+        c.phoenixScores.followAuthorScore +
+        c.phoenixScores.notInterestedScore +
+        c.phoenixScores.blockAuthorScore +
+        c.phoenixScores.muteAuthorScore +
+        c.phoenixScores.reportScore
+      ) / 18,
     })),
   };
 }
@@ -52,7 +71,11 @@ export function runWeightedScorer(
   weights: WeightConfig
 ): { result: ScorerResult; updatedCandidates: TweetCandidate[] } {
   const updatedCandidates = candidates.map(candidate => {
-    const weightedScore = computeWeightedScore(candidate.phoenixScores, weights);
+    const weightedScore = computeWeightedScore(
+      candidate.phoenixScores,
+      weights,
+      candidate.videoDurationMs
+    );
     return {
       ...candidate,
       weightedScore,

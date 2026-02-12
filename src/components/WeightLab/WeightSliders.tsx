@@ -23,11 +23,11 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
   };
 
   const positiveWeights = Object.entries(WEIGHT_METADATA)
-    .filter(([_, meta]) => meta.type === 'positive')
+    .filter(([, meta]) => meta.type === 'positive')
     .map(([key]) => key as keyof typeof WEIGHT_METADATA);
 
   const negativeWeights = Object.entries(WEIGHT_METADATA)
-    .filter(([_, meta]) => meta.type === 'negative')
+    .filter(([, meta]) => meta.type === 'negative')
     .map(([key]) => key as keyof typeof WEIGHT_METADATA);
 
   const renderSlider = (key: keyof typeof WEIGHT_METADATA) => {

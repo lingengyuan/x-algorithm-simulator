@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/utils/cn';
-import { Filter, CheckCircle, XCircle, ChevronRight } from 'lucide-react';
+import { Filter, CheckCircle, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface FilterPipelineProps {

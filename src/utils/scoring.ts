@@ -71,8 +71,8 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
   // Check for engagement-boosting patterns
   if (tweet.content.includes('?')) contentQuality += 0.05;  // Questions increase replies
   if (/[!]{2,}/.test(tweet.content)) contentQuality -= 0.02;  // Multiple exclamations
-  if (tweet.content.match(/@\w+/g)?.length || 0 > 3) contentQuality -= 0.05;  // Too many mentions
-  if (tweet.content.match(/#\w+/g)?.length || 0 > 5) contentQuality -= 0.08;  // Too many hashtags
+  if ((tweet.content.match(/@\w+/g)?.length || 0) > 3) contentQuality -= 0.05;  // Too many mentions
+  if ((tweet.content.match(/#\w+/g)?.length || 0) > 5) contentQuality -= 0.08;  // Too many hashtags
 
   // Emoji usage (moderate is good)
   const emojiCount = (tweet.content.match(/[\u{1F300}-\u{1F9FF}]/gu) || []).length;
@@ -143,8 +143,14 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
 }
 
 // Calculate weighted score from Phoenix scores
-export function computeWeightedScore(scores: PhoenixScores, weights: WeightConfig): number {
-  const NEGATIVE_OFFSET = 1; // Offset to ensure positive scores
+export function computeWeightedScore(
+  scores: PhoenixScores,
+  weights: WeightConfig,
+  videoDurationMs?: number
+): number {
+  const vqvWeight = videoDurationMs && videoDurationMs > weights.minVideoDurationMs
+    ? weights.vqvWeight
+    : 0;
 
   const positive =
     scores.favoriteScore * weights.favoriteWeight +
@@ -153,14 +159,15 @@ export function computeWeightedScore(scores: PhoenixScores, weights: WeightConfi
     scores.photoExpandScore * weights.photoExpandWeight +
     scores.clickScore * weights.clickWeight +
     scores.profileClickScore * weights.profileClickWeight +
-    scores.vqvScore * weights.vqvWeight +
+    scores.vqvScore * vqvWeight +
     scores.shareScore * weights.shareWeight +
     scores.shareViaDmScore * weights.shareViaDmWeight +
     scores.shareViaCopyLinkScore * weights.shareViaCopyLinkWeight +
     scores.dwellScore * weights.dwellWeight +
     scores.quoteScore * weights.quoteWeight +
     scores.quotedClickScore * weights.quotedClickWeight +
-    scores.followAuthorScore * weights.followAuthorWeight;
+    scores.followAuthorScore * weights.followAuthorWeight +
+    scores.dwellTime * weights.dwellTimeWeight;
 
   const negative =
     scores.notInterestedScore * weights.notInterestedWeight +
@@ -168,7 +175,39 @@ export function computeWeightedScore(scores: PhoenixScores, weights: WeightConfi
     scores.muteAuthorScore * weights.muteAuthorWeight +
     scores.reportScore * weights.reportWeight;
 
-  return positive + negative + NEGATIVE_OFFSET;
+  const combined = positive + negative;
+  const negativeWeightsMagnitude =
+    Math.abs(weights.notInterestedWeight) +
+    Math.abs(weights.blockAuthorWeight) +
+    Math.abs(weights.muteAuthorWeight) +
+    Math.abs(weights.reportWeight);
+  const positiveWeightsSum =
+    weights.favoriteWeight +
+    weights.replyWeight +
+    weights.retweetWeight +
+    weights.photoExpandWeight +
+    weights.clickWeight +
+    weights.profileClickWeight +
+    vqvWeight +
+    weights.shareWeight +
+    weights.shareViaDmWeight +
+    weights.shareViaCopyLinkWeight +
+    weights.dwellWeight +
+    weights.quoteWeight +
+    weights.quotedClickWeight +
+    weights.followAuthorWeight +
+    Math.abs(weights.dwellTimeWeight);
+  const weightSum = positiveWeightsSum + negativeWeightsMagnitude;
+
+  if (weightSum === 0) {
+    return Math.max(combined, 0);
+  }
+
+  if (combined < 0) {
+    return ((combined + negativeWeightsMagnitude) / weightSum) * weights.negativeScoresOffset;
+  }
+
+  return combined + weights.negativeScoresOffset;
 }
 
 // Calculate heat score (0-100) for UI display

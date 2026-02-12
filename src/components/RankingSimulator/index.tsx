@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { TweetCandidate, PipelineStep, RankingScenario } from '@/core/types';
+import { TweetCandidate, PipelineStep, RankingScenario, FilterResult } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,8 +33,7 @@ import { motion } from 'framer-motion';
 export function RankingSimulator() {
   const { t, isZh } = useTranslation();
 
-  const [selectedScenario, setSelectedScenario] = useState<RankingScenario | null>(null);
-  const [candidates, setCandidates] = useState<TweetCandidate[]>([]);
+  const [selectedScenario, setSelectedScenario] = useState<RankingScenario>(RANKING_SCENARIOS[0]);
   const [steps, setSteps] = useState<PipelineStep[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [currentCandidates, setCurrentCandidates] = useState<TweetCandidate[]>([]);
@@ -51,14 +50,13 @@ export function RankingSimulator() {
   const initializeScenario = useCallback((scenario: RankingScenario) => {
     try {
       const newCandidates = generateScenarioTweets(scenario);
-      setCandidates(newCandidates);
       setCurrentCandidates(newCandidates);
       setSteps([]);
       setCurrentStepIndex(0);
       setIsPlaying(false);
 
       // Initialize pipeline generator
-      const context = getDefaultFilterContext();
+      const context = getDefaultFilterContext(newCandidates, scenario);
       const config = {
         enabledFilters: FILTERS.filter(f => f.enabled).map(f => f.id),
         weights: DEFAULT_WEIGHTS,
@@ -80,18 +78,10 @@ export function RankingSimulator() {
     setInitialized(true);
   }, []);
 
-  // Initialize on mount
-  useEffect(() => {
-    if (RANKING_SCENARIOS && RANKING_SCENARIOS.length > 0) {
-      setSelectedScenario(RANKING_SCENARIOS[0]);
-    }
-  }, []);
-
   // Initialize scenario when selected
   useEffect(() => {
-    if (selectedScenario) {
-      initializeScenario(selectedScenario);
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    initializeScenario(selectedScenario);
   }, [selectedScenario, initializeScenario]);
 
   // Next step function
@@ -138,9 +128,7 @@ export function RankingSimulator() {
   }, [currentStepIndex]);
 
   const reset = useCallback(() => {
-    if (selectedScenario) {
-      initializeScenario(selectedScenario);
-    }
+    initializeScenario(selectedScenario);
   }, [selectedScenario, initializeScenario]);
 
   const togglePlay = () => {
@@ -163,7 +151,7 @@ export function RankingSimulator() {
   }
 
   // Don't render until initialized
-  if (!initialized || !selectedScenario) {
+  if (!initialized) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-400">{t('common.loading')}</div>
@@ -171,7 +159,14 @@ export function RankingSimulator() {
     );
   }
 
-  const filteredCount = candidates.filter((c) => c.filtered).length;
+  const filteredCount = steps.reduce((count, step) => {
+    if (step.type !== 'filter' || !step.details) {
+      return count;
+    }
+
+    const details = step.details as FilterResult;
+    return count + details.filteredCandidates.length;
+  }, 0);
   const currentStep = steps[currentStepIndex];
   const isComplete = steps.length > 0 && steps[steps.length - 1].id === 'final_ranking';
 

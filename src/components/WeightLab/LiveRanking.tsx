@@ -3,7 +3,6 @@ import { TweetCandidate, WeightConfig } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TweetCard } from '@/components/shared/TweetCard';
 import { computeWeightedScore } from '@/utils/scoring';
 import { TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,7 +29,7 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
     // Calculate new scores
     const withNewScores = candidates.map((c) => ({
       ...c,
-      newScore: computeWeightedScore(c.phoenixScores, weights),
+      newScore: computeWeightedScore(c.phoenixScores, weights, c.videoDurationMs),
     }));
 
     // Sort by new score
@@ -40,7 +39,7 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
     if (previousWeights) {
       const previousScores = candidates.map((c) => ({
         id: c.id,
-        score: computeWeightedScore(c.phoenixScores, previousWeights),
+        score: computeWeightedScore(c.phoenixScores, previousWeights, c.videoDurationMs),
       }));
       const previousSorted = [...previousScores].sort((a, b) => b.score - a.score);
 

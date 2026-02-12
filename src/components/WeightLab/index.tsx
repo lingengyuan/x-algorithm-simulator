@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { TweetCandidate, WeightConfig } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Button } from '@/components/ui/button';
@@ -19,38 +19,49 @@ import { SlidersHorizontal, RotateCcw, Save, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function WeightLab() {
-  const { t, isZh } = useTranslation();
+  const { t } = useTranslation();
+
+  const normalizeWeights = (value: Partial<WeightConfig>): WeightConfig => ({
+    ...DEFAULT_WEIGHTS,
+    ...value,
+  });
+
+  const [bootstrap] = useState(() => {
+    try {
+      const mockCandidates = generateMockTweets(30, 0.5);
+      const savedPresetsRaw = getSavedWeights();
+      const savedPresets = Object.fromEntries(
+        Object.entries(savedPresetsRaw).map(([name, preset]) => [
+          name,
+          normalizeWeights(preset),
+        ])
+      );
+
+      return {
+        candidates: mockCandidates,
+        presets: savedPresets,
+        error: null as string | null,
+      };
+    } catch (err) {
+      console.error('Failed to initialize WeightLab:', err);
+      return {
+        candidates: [] as TweetCandidate[],
+        presets: {} as Record<string, WeightConfig>,
+        error: err instanceof Error ? err.message : 'Unknown error',
+      };
+    }
+  });
 
   const [weights, setWeights] = useState<WeightConfig>({ ...DEFAULT_WEIGHTS });
   const [previousWeights, setPreviousWeights] = useState<WeightConfig | undefined>();
-  const [candidates, setCandidates] = useState<TweetCandidate[]>([]);
-  const [presets, setPresets] = useState<Record<string, WeightConfig>>({});
+  const [candidates] = useState<TweetCandidate[]>(bootstrap.candidates);
+  const [presets, setPresets] = useState<Record<string, WeightConfig>>(bootstrap.presets);
   const [selectedPreset, setSelectedPreset] = useState<string>('');
   const [newPresetName, setNewPresetName] = useState('');
   const [showSaveInput, setShowSaveInput] = useState(false);
-  const [initialized, setInitialized] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(bootstrap.error);
 
   const debounceRef = useRef<number | null>(null);
-
-  // Initialize
-  useEffect(() => {
-    try {
-      // Generate sample candidates
-      const mockCandidates = generateMockTweets(30, 0.5);
-      setCandidates(mockCandidates);
-
-      // Load presets
-      const savedPresets = getSavedWeights();
-      setPresets(savedPresets);
-
-      setError(null);
-    } catch (err) {
-      console.error('Failed to initialize WeightLab:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    }
-    setInitialized(true);
-  }, []);
 
   // Handle weight change with debounce
   const handleWeightChange = useCallback((newWeights: WeightConfig) => {
@@ -92,7 +103,7 @@ export function WeightLab() {
     const preset = presets[name];
     if (preset) {
       setPreviousWeights(weights);
-      setWeights(preset);
+      setWeights(normalizeWeights(preset));
       setSelectedPreset(name);
     }
   };
@@ -117,15 +128,6 @@ export function WeightLab() {
         <h2 className="text-xl font-bold text-red-500 mb-4">Error</h2>
         <p className="text-gray-600 mb-4">{error}</p>
         <Button onClick={() => window.location.reload()}>Reload</Button>
-      </div>
-    );
-  }
-
-  // Don't render until initialized
-  if (!initialized) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-400">{t('common.loading')}</div>
       </div>
     );
   }

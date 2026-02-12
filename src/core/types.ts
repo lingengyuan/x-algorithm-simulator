@@ -53,9 +53,13 @@ export interface TweetCandidate {
   // Metadata
   createdAt: number;  // Snowflake timestamp
   inNetwork: boolean;
+  servedType?: 'for_you_in_network' | 'for_you_phoenix_retrieval';
   conversationId?: string;
+  ancestors?: string[];
   isRetweet: boolean;
   originalTweetId?: string;
+  subscriptionAuthorId?: string;
+  visibilityFiltered?: boolean;
 
   // Phoenix predicted scores
   phoenixScores: PhoenixScores;
@@ -94,6 +98,11 @@ export interface WeightConfig {
   blockAuthorWeight: number;
   muteAuthorWeight: number;
   reportWeight: number;
+  dwellTimeWeight: number;
+
+  // Weighted scorer controls
+  minVideoDurationMs: number;
+  negativeScoresOffset: number;
 
   // Diversity parameters
   authorDiversityDecay: number;
@@ -108,8 +117,16 @@ export interface FilterContext {
   currentUserId: string;
   blockedUsers: string[];
   mutedUsers: string[];
+  mutedKeywords: string[];
+  followedAuthorIds: string[];
+  subscribedAuthorIds: string[];
   seenTweetIds: string[];
+  servedTweetIds: string[];
+  bloomSeenTweetIds: string[];
+  inNetworkOnly: boolean;
+  isBottomRequest: boolean;
   currentTime: number;
+  maxTweetAgeHours: number;
 }
 
 // Filter configuration
@@ -139,7 +156,7 @@ export interface PipelineStep {
   nameZh: string;
   description: string;
   descriptionZh: string;
-  type: 'filter' | 'scorer' | 'ranker';
+  type: 'query_hydrator' | 'source' | 'hydrator' | 'filter' | 'scorer' | 'selector' | 'ranker';
   inputCount: number;
   outputCount: number;
   details?: FilterResult | ScorerResult;

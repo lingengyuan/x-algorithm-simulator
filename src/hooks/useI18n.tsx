@@ -221,15 +221,16 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
   },
 };
 
-let cachedTranslations: Record<string, Translations> = { ...DEFAULT_TRANSLATIONS };
+const cachedTranslations: Record<string, Translations> = { ...DEFAULT_TRANSLATIONS };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useI18n() {
   const [language, setLanguageState] = useState<string>(() => getLanguage());
   const locale = language === 'zh' ? 'zh-CN' : 'en-US';
   const [translations, setTranslations] = useState<Translations>(
     () => cachedTranslations[locale] || DEFAULT_TRANSLATIONS['en-US']
   );
-  const [loading, setLoading] = useState(false);
+  const loading = false;
 
   // Load additional translations from file (optional, for extended translations)
   useEffect(() => {
@@ -249,7 +250,7 @@ export function useI18n() {
           cachedTranslations[currentLocale] = merged;
           setTranslations(merged);
         }
-      } catch (error) {
+      } catch {
         // File loading failed, use defaults (already set)
         console.log('Using embedded translations');
       }
@@ -313,6 +314,7 @@ interface I18nContextType {
   isEn: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const I18nContext = createContext<I18nContextType | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -321,6 +323,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   return <I18nContext.Provider value={i18n}>{children}</I18nContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTranslation() {
   const context = useContext(I18nContext);
   if (!context) {
