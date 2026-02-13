@@ -208,6 +208,8 @@ Toggle with the globe icon in the header.
 
 MIT
 
+### FlowImage
+![alt text](docs/architecture/project-flow-2026-02.png)
 ---
 
 <a name="中文"></a>
@@ -416,3 +418,6 @@ src/
 ### 开源协议
 
 MIT
+
+### 流程图
+![alt text](docs/architecture/project-flow-2026-02.png)
