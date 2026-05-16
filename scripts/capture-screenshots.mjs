@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { setTimeout as delay } from 'node:timers/promises';
 
@@ -6,6 +7,15 @@ const BASE_URL = 'http://127.0.0.1:4173';
 const DEBUG_PORT = 9222;
 const SCREENSHOT_DIR = 'docs/screenshots';
 const USER_DATA_DIR = '/tmp/x-sim-chrome-profile';
+const CHROME_CANDIDATES = [
+  process.env.CHROME_PATH,
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+  '/opt/google/chrome/chrome',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium',
+].filter(Boolean);
 
 let commandId = 0;
 let ws;
@@ -299,10 +309,25 @@ async function runForLanguage(lang, labels) {
     (() => {
       const text = document.body.innerText || '';
       const hasTop10 = text.includes('Top 10');
-      const hasFinalLabel = text.includes('Final Ranking') || text.includes('最终排序');
+      const hasFinalLabel =
+        text.includes('Final Timeline') ||
+        text.includes('Final Ranking') ||
+        text.includes('最终首页流') ||
+        text.includes('最终排序');
       return hasTop10 && hasFinalLabel;
     })()
   `, 120000);
+  await waitForExpression(`
+    (() => {
+      const text = document.body.innerText || '';
+      return [
+        'PushToHomeSource',
+        'AdsSource',
+        'WhoToFollowSource',
+        'PromptsSource'
+      ].every((label) => text.includes(label));
+    })()
+  `, 20000);
   await delay(300);
   await screenshot(`after-simulator-final-${labels}.jpg`);
 
@@ -321,7 +346,12 @@ async function runForLanguage(lang, labels) {
 async function main() {
   await mkdir(SCREENSHOT_DIR, { recursive: true });
 
-  const chrome = spawn('/opt/google/chrome/chrome', [
+  const chromePath = CHROME_CANDIDATES.find((candidate) => existsSync(candidate));
+  if (!chromePath) {
+    throw new Error('Chrome executable not found. Set CHROME_PATH to the browser executable.');
+  }
+
+  const chrome = spawn(chromePath, [
     '--headless',
     '--no-sandbox',
     '--disable-gpu',

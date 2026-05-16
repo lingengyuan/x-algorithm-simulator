@@ -107,6 +107,9 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
   const dwellScore = clamp(0.3 + contentLength / 1000 + (rng() - 0.5) * 0.1);
   const quoteScore = clamp(engagement * 0.3 + (rng() - 0.5) * 0.08);
   const quotedClickScore = clamp(0.2 + (rng() - 0.5) * 0.1);
+  const quotedVqvScore = tweet.hasMedia === 'video'
+    ? clamp(vqvScore * 0.45 + (rng() - 0.5) * 0.08)
+    : clamp(quoteScore * 0.18 + (rng() - 0.5) * 0.04);
   const followAuthorScore = clamp(engagement * 0.15 + authorBoost * 0.5 + (rng() - 0.5) * 0.05);
 
   // Negative signals (should be low for good content)
@@ -115,9 +118,11 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
   const blockAuthorScore = clamp(baseNegative * 0.3 + (rng() - 0.5) * 0.02, 0, 0.15);
   const muteAuthorScore = clamp(baseNegative * 0.5 + (rng() - 0.5) * 0.03, 0, 0.2);
   const reportScore = clamp(baseNegative * 0.2 + (rng() - 0.5) * 0.01, 0, 0.1);
+  const notDwelledScore = clamp(0.22 - dwellScore * 0.25 + (rng() - 0.5) * 0.08, 0, 0.35);
 
   // Expected dwell time in ms
   const dwellTime = Math.max(500, contentLength * 50 + (tweet.hasMedia !== 'none' ? 2000 : 0) + rng() * 1000);
+  const clickDwellTime = Math.max(250, dwellTime * clickScore * (0.7 + rng() * 0.6));
 
   return {
     favoriteScore,
@@ -133,12 +138,15 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
     dwellScore,
     quoteScore,
     quotedClickScore,
+    quotedVqvScore,
     followAuthorScore,
     notInterestedScore,
     blockAuthorScore,
     muteAuthorScore,
     reportScore,
+    notDwelledScore,
     dwellTime,
+    clickDwellTime,
   };
 }
 
@@ -146,11 +154,15 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
 export function computeWeightedScore(
   scores: PhoenixScores,
   weights: WeightConfig,
-  videoDurationMs?: number
+  videoDurationMs?: number,
+  quotedVideoDurationMs?: number
 ): number {
   const vqvWeight = videoDurationMs && videoDurationMs > weights.minVideoDurationMs
     ? weights.vqvWeight
     : 0;
+  const quotedVqvEligible = !weights.enableQuotedVqvDurationCheck ||
+    Boolean(quotedVideoDurationMs && quotedVideoDurationMs > weights.minVideoDurationMs);
+  const quotedVqvWeight = quotedVqvEligible ? weights.quotedVqvWeight : 0;
 
   const positive =
     scores.favoriteScore * weights.favoriteWeight +
@@ -166,21 +178,25 @@ export function computeWeightedScore(
     scores.dwellScore * weights.dwellWeight +
     scores.quoteScore * weights.quoteWeight +
     scores.quotedClickScore * weights.quotedClickWeight +
+    scores.quotedVqvScore * quotedVqvWeight +
     scores.followAuthorScore * weights.followAuthorWeight +
-    scores.dwellTime * weights.dwellTimeWeight;
+    scores.dwellTime * weights.dwellTimeWeight +
+    scores.clickDwellTime * weights.clickDwellTimeWeight;
 
   const negative =
     scores.notInterestedScore * weights.notInterestedWeight +
     scores.blockAuthorScore * weights.blockAuthorWeight +
     scores.muteAuthorScore * weights.muteAuthorWeight +
-    scores.reportScore * weights.reportWeight;
+    scores.reportScore * weights.reportWeight +
+    scores.notDwelledScore * weights.notDwelledWeight;
 
   const combined = positive + negative;
   const negativeWeightsMagnitude =
     Math.abs(weights.notInterestedWeight) +
     Math.abs(weights.blockAuthorWeight) +
     Math.abs(weights.muteAuthorWeight) +
-    Math.abs(weights.reportWeight);
+    Math.abs(weights.reportWeight) +
+    Math.abs(weights.notDwelledWeight);
   const positiveWeightsSum =
     weights.favoriteWeight +
     weights.replyWeight +
@@ -195,8 +211,10 @@ export function computeWeightedScore(
     weights.dwellWeight +
     weights.quoteWeight +
     weights.quotedClickWeight +
+    quotedVqvWeight +
     weights.followAuthorWeight +
-    Math.abs(weights.dwellTimeWeight);
+    Math.abs(weights.dwellTimeWeight) +
+    Math.abs(weights.clickDwellTimeWeight);
   const weightSum = positiveWeightsSum + negativeWeightsMagnitude;
 
   if (weightSum === 0) {
@@ -226,7 +244,8 @@ export function calculateHeatScore(scores: PhoenixScores): number {
     scores.notInterestedScore * 2.0 +
     scores.blockAuthorScore * 3.0 +
     scores.muteAuthorScore * 2.5 +
-    scores.reportScore * 4.0;
+    scores.reportScore * 4.0 +
+    scores.notDwelledScore * 1.5;
 
   // Normalize to 0-100 scale
   const rawScore = (positiveSum - negativePenalty) / 7.5 * 100;
@@ -253,7 +272,7 @@ export function getHeatLevel(score: number): {
 }
 
 // Score labels for display
-export const SCORE_LABELS: Record<keyof Omit<PhoenixScores, 'dwellTime'>, {
+export const SCORE_LABELS: Record<keyof Omit<PhoenixScores, 'dwellTime' | 'clickDwellTime'>, {
   name: string;
   nameZh: string;
   type: 'positive' | 'negative';
@@ -271,9 +290,11 @@ export const SCORE_LABELS: Record<keyof Omit<PhoenixScores, 'dwellTime'>, {
   dwellScore: { name: 'Dwell', nameZh: '停留', type: 'positive' },
   quoteScore: { name: 'Quote', nameZh: '引用', type: 'positive' },
   quotedClickScore: { name: 'Quoted Click', nameZh: '点击引用', type: 'positive' },
+  quotedVqvScore: { name: 'Quoted VQV', nameZh: '引用视频观看', type: 'positive' },
   followAuthorScore: { name: 'Follow', nameZh: '关注', type: 'positive' },
   notInterestedScore: { name: 'Not Interested', nameZh: '不感兴趣', type: 'negative' },
   blockAuthorScore: { name: 'Block', nameZh: '屏蔽', type: 'negative' },
   muteAuthorScore: { name: 'Mute', nameZh: '静音', type: 'negative' },
   reportScore: { name: 'Report', nameZh: '举报', type: 'negative' },
+  notDwelledScore: { name: 'Not Dwelled', nameZh: '未停留', type: 'negative' },
 };

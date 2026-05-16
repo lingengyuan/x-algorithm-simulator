@@ -165,7 +165,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
             {t('weightLab.oonParams')}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-slate-700">
@@ -187,6 +187,60 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
                 ? '关注外内容的权重乘数（1 = 与关注内相同）'
                 : 'Multiplier for out-of-network content (1 = same as in-network)'}
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-slate-700">
+                {isZh ? '话题请求关注外权重' : 'Topic OON Factor'}
+              </label>
+              <span className="text-sm font-mono text-blue-600">
+                {weights.topicOonWeightFactor.toFixed(2)}
+              </span>
+            </div>
+            <Slider
+              value={[weights.topicOonWeightFactor]}
+              onValueChange={([v]) => handleWeightChange('topicOonWeightFactor', v)}
+              min={0.1}
+              max={1.2}
+              step={0.05}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-slate-700">
+                {isZh ? '新用户关注外权重' : 'New User OON Factor'}
+              </label>
+              <span className="text-sm font-mono text-blue-600">
+                {weights.newUserOonWeightFactor.toFixed(2)}
+              </span>
+            </div>
+            <Slider
+              value={[weights.newUserOonWeightFactor]}
+              onValueChange={([v]) => handleWeightChange('newUserOonWeightFactor', v)}
+              min={0.1}
+              max={1.2}
+              step={0.05}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-slate-700">
+                {isZh ? 'VM 重排强度' : 'VM Rerank Blend'}
+              </label>
+              <span className="text-sm font-mono text-blue-600">
+                {weights.vmRankerBlendFactor.toFixed(2)}
+              </span>
+            </div>
+            <Slider
+              value={[weights.vmRankerBlendFactor]}
+              onValueChange={([v]) => handleWeightChange('vmRankerBlendFactor', v)}
+              min={0}
+              max={0.5}
+              step={0.05}
+            />
           </div>
         </CardContent>
       </Card>

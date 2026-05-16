@@ -39,6 +39,17 @@ const TWEET_CONTENTS = [
   { content: 'Graphic violence footage circulating today. Please avoid resharing.', hasImage: false, hasVideo: false },
 ];
 
+const TOPICS = {
+  ai: 1001,
+  software: 1002,
+  finance: 2001,
+  crypto: 2002,
+  sports: 3001,
+  media: 4001,
+  safety: 5001,
+  news: 6001,
+};
+
 function seededRandom(seed: number): number {
   const x = Math.sin(seed * 9999) * 10000;
   return x - Math.floor(x);
@@ -50,6 +61,39 @@ function pickAuthor(index: number) {
 
 function pickContent(index: number) {
   return TWEET_CONTENTS[index % TWEET_CONTENTS.length];
+}
+
+function inferTopicIds(content: string): number[] {
+  const text = content.toLowerCase();
+  const topics = new Set<number>();
+
+  if (text.includes('ai') || text.includes('recommendation') || text.includes('research')) {
+    topics.add(TOPICS.ai);
+  }
+  if (text.includes('code') || text.includes('npm') || text.includes('engineer')) {
+    topics.add(TOPICS.software);
+  }
+  if (text.includes('market') || text.includes('startup')) {
+    topics.add(TOPICS.finance);
+  }
+  if (text.includes('crypto')) {
+    topics.add(TOPICS.crypto);
+  }
+  if (text.includes('video') || text.includes('demo') || text.includes('episode')) {
+    topics.add(TOPICS.media);
+  }
+  if (text.includes('vulnerability') || text.includes('violence') || text.includes('scam')) {
+    topics.add(TOPICS.safety);
+  }
+  if (text.includes('breaking') || text.includes('news')) {
+    topics.add(TOPICS.news);
+  }
+
+  if (topics.size === 0) {
+    topics.add(TOPICS.news + (content.length % 5));
+  }
+
+  return [...topics];
 }
 
 export function generateMockTweet(
@@ -72,6 +116,10 @@ export function generateMockTweet(
   };
 
   const phoenixScores = simulatePhoenixScores(tweetInput, index * 12345 + 99);
+  const filteredTopicIds = inferTopicIds(tweetContent.content);
+  const unfilteredTopicIds = [...filteredTopicIds, TOPICS.news + (index % 7)];
+  const isQuote = seededRandom(index + 31) > 0.82;
+  const quotedAuthor = isQuote ? pickAuthor(index + 3) : undefined;
 
   return {
     id,
@@ -87,12 +135,33 @@ export function generateMockTweet(
     createdAt: Date.now() - ageHours * 60 * 60 * 1000,
     inNetwork: inNetwork ?? seededRandom(index + 19) > 0.4,
     servedType: undefined,
+    sourceType: undefined,
     conversationId: undefined,
     ancestors: [],
     isRetweet: false,
     originalTweetId: undefined,
+    retweetedAuthorId: undefined,
+    quotedTweetId: isQuote ? generateSnowflakeIdFromAge(ageHours + 12) : undefined,
+    quotedAuthorId: quotedAuthor?.id,
     subscriptionAuthorId: undefined,
     visibilityFiltered: false,
+    dropAncillaryPosts: false,
+    authorBlocksViewer: false,
+    quotedAuthorBlocksViewer: false,
+    viewerBlocksQuotedAuthor: false,
+    viewerBlocksRetweetedAuthor: false,
+    filteredTopicIds,
+    unfilteredTopicIds,
+    followingRepliedUserIds: [],
+    languageCode: index % 13 === 0 ? 'es' : 'en',
+    favoriteCount: Math.floor(seededRandom(index + 157) * 12000),
+    replyCount: Math.floor(seededRandom(index + 163) * 1800),
+    repostCount: Math.floor(seededRandom(index + 167) * 3000),
+    quoteCount: Math.floor(seededRandom(index + 173) * 900),
+    mutualFollowJaccard: Number((seededRandom(index + 179) * 0.65).toFixed(3)),
+    brandSafetyRisk: filteredTopicIds.includes(TOPICS.safety) ? 'high' : seededRandom(index + 181) > 0.84 ? 'medium' : 'low',
+    safetyLabels: filteredTopicIds.includes(TOPICS.safety) ? ['sensitive_media'] : [],
+    quotedVideoDurationMs: isQuote && seededRandom(index + 191) > 0.5 ? 45000 : undefined,
     phoenixScores,
     filtered: false,
   };
@@ -117,6 +186,7 @@ function enrichConversationAndRetweets(tweets: TweetCandidate[]): TweetCandidate
       const conversationId = original.conversationId || defaultConversationId;
       enriched[i].isRetweet = true;
       enriched[i].originalTweetId = original.id;
+      enriched[i].retweetedAuthorId = original.authorId;
       enriched[i].conversationId = conversationId;
       enriched[i].ancestors = [conversationId];
     }
@@ -129,6 +199,31 @@ function enrichConversationAndRetweets(tweets: TweetCandidate[]): TweetCandidate
     // deterministic VF-style drop signal
     if (seededRandom(i + 97) > 0.975) {
       enriched[i].visibilityFiltered = true;
+    }
+
+    // deterministic ancillary visibility and author-block signals
+    if (seededRandom(i + 103) > 0.965) {
+      enriched[i].dropAncillaryPosts = true;
+    }
+
+    if (seededRandom(i + 109) > 0.975) {
+      enriched[i].authorBlocksViewer = true;
+    }
+
+    if (enriched[i].quotedTweetId && seededRandom(i + 113) > 0.96) {
+      enriched[i].quotedAuthorBlocksViewer = true;
+    }
+
+    if (enriched[i].quotedAuthorId && seededRandom(i + 119) > 0.97) {
+      enriched[i].viewerBlocksQuotedAuthor = true;
+    }
+
+    if (enriched[i].retweetedAuthorId && seededRandom(i + 121) > 0.97) {
+      enriched[i].viewerBlocksRetweetedAuthor = true;
+    }
+
+    if (enriched[i].conversationId && seededRandom(i + 127) > 0.72) {
+      enriched[i].followingRepliedUserIds = ['author_2', 'author_5'].slice(0, i % 2 + 1);
     }
   }
 
@@ -202,5 +297,21 @@ export function getDefaultFilterContext(
     isBottomRequest: scenario?.id === 'discovery',
     currentTime: Date.now(),
     maxTweetAgeHours: 24 * 7,
+    impressedTweetIds: candidates.slice(5, 7).map((candidate) => candidate.id),
+    topicIds: scenario?.id === 'discovery' ? [TOPICS.ai, TOPICS.software] : [],
+    excludedTopicIds: scenario?.id === 'for_you' ? [TOPICS.crypto] : [],
+    newUserTopicIds: scenario?.id === 'for_you' ? [TOPICS.ai, TOPICS.media] : [],
+    excludeVideos: scenario?.id === 'following_feed',
+    isNewUser: scenario?.id === 'for_you',
+    userAccountAgeDays: scenario?.id === 'for_you' ? 5 : 180,
+    followedCount: scenario?.id === 'for_you' ? 18 : 240,
+    topicExpansionMap: {
+      [TOPICS.ai]: [TOPICS.software, TOPICS.news],
+      [TOPICS.software]: [TOPICS.ai, TOPICS.safety],
+      [TOPICS.finance]: [TOPICS.crypto, TOPICS.news],
+      [TOPICS.media]: [TOPICS.news],
+      [TOPICS.safety]: [TOPICS.news],
+    },
+    includeForYouModules: scenario?.id !== 'following_feed',
   };
 }

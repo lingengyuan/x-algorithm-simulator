@@ -21,12 +21,10 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
     switch (stepId) {
       case 'phoenix':
         return '🤖';
-      case 'weighted':
+      case 'ranking':
         return '⚖️';
-      case 'author_diversity':
-        return '👥';
-      case 'oon':
-        return '🌐';
+      case 'vm_ranker':
+        return '📈';
       default:
         return '📊';
     }
@@ -111,26 +109,26 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                 </div>
 
                 {/* Formula Preview */}
-                {isActive && step.id === 'weighted' && (
+                {isActive && step.id === 'ranking' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     className="mt-3 border-t border-slate-200 pt-3"
                   >
                     <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      score = Σ(behavior_i × weight_i) + offset
+                      score = weighted actions → author diversity → OON factor
                     </div>
                   </motion.div>
                 )}
 
-                {isActive && step.id === 'author_diversity' && (
+                {isActive && step.id === 'vm_ranker' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     className="mt-3 border-t border-slate-200 pt-3"
                   >
                     <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      multiplier = (1 - floor) × decay^position + floor
+                      local approximation of the closed VMRanker service
                     </div>
                   </motion.div>
                 )}

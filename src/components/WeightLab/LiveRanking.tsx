@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { computeWeightedScore } from '@/utils/scoring';
+import { normalizeRankingScore } from '@/core/scorers';
 import { TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
@@ -29,7 +30,10 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
     // Calculate new scores
     const withNewScores = candidates.map((c) => ({
       ...c,
-      newScore: computeWeightedScore(c.phoenixScores, weights, c.videoDurationMs),
+      newScore: normalizeRankingScore(
+        c,
+        computeWeightedScore(c.phoenixScores, weights, c.videoDurationMs, c.quotedVideoDurationMs)
+      ),
     }));
 
     // Sort by new score
@@ -39,7 +43,10 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
     if (previousWeights) {
       const previousScores = candidates.map((c) => ({
         id: c.id,
-        score: computeWeightedScore(c.phoenixScores, previousWeights, c.videoDurationMs),
+        score: normalizeRankingScore(
+          c,
+          computeWeightedScore(c.phoenixScores, previousWeights, c.videoDurationMs, c.quotedVideoDurationMs)
+        ),
       }));
       const previousSorted = [...previousScores].sort((a, b) => b.score - a.score);
 

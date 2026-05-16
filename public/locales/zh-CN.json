@@ -53,6 +53,7 @@
     "filterStage": "过滤阶段",
     "scoringStage": "评分阶段",
     "finalRanking": "最终排序",
+    "finalTimeline": "最终首页流",
     "step": "步骤",
     "of": "/",
     "play": "播放",

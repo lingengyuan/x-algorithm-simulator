@@ -15,6 +15,7 @@ export const DEFAULT_WEIGHTS: WeightConfig = {
   dwellWeight: 0.5,
   quoteWeight: 1.5,
   quotedClickWeight: 0.4,
+  quotedVqvWeight: 0.8,
   followAuthorWeight: 3.0,
 
   // Negative weights
@@ -22,10 +23,13 @@ export const DEFAULT_WEIGHTS: WeightConfig = {
   blockAuthorWeight: -5.0,
   muteAuthorWeight: -3.0,
   reportWeight: -10.0,
+  notDwelledWeight: -1.2,
   dwellTimeWeight: 0.0003,
+  clickDwellTimeWeight: 0.00015,
 
   // Weighted scorer controls
   minVideoDurationMs: 15000,
+  enableQuotedVqvDurationCheck: true,
   negativeScoresOffset: 1.0,
 
   // Diversity parameters
@@ -34,6 +38,11 @@ export const DEFAULT_WEIGHTS: WeightConfig = {
 
   // OON (Out of Network) factor
   oonWeightFactor: 0.7,
+  topicOonWeightFactor: 0.85,
+  newUserOonWeightFactor: 0.9,
+
+  // VMRanker simulation factor
+  vmRankerBlendFactor: 0.15,
 };
 
 // Weight metadata for UI
@@ -42,8 +51,13 @@ export const WEIGHT_METADATA: Record<keyof Omit<
   | 'authorDiversityDecay'
   | 'authorDiversityFloor'
   | 'oonWeightFactor'
+  | 'topicOonWeightFactor'
+  | 'newUserOonWeightFactor'
+  | 'vmRankerBlendFactor'
   | 'dwellTimeWeight'
+  | 'clickDwellTimeWeight'
   | 'minVideoDurationMs'
+  | 'enableQuotedVqvDurationCheck'
   | 'negativeScoresOffset'
 >, {
   name: string;
@@ -185,6 +199,16 @@ export const WEIGHT_METADATA: Record<keyof Omit<
     step: 0.1,
     type: 'positive',
   },
+  quotedVqvWeight: {
+    name: 'Quoted Video View',
+    nameZh: '引用视频观看',
+    description: 'Weight for quality views on quoted video content',
+    descriptionZh: '引用视频质量观看的权重',
+    min: 0,
+    max: 5,
+    step: 0.1,
+    type: 'positive',
+  },
   followAuthorWeight: {
     name: 'Follow Author',
     nameZh: '关注作者',
@@ -231,6 +255,16 @@ export const WEIGHT_METADATA: Record<keyof Omit<
     description: 'Weight for report signal',
     descriptionZh: '举报信号的权重',
     min: -20,
+    max: 0,
+    step: 0.1,
+    type: 'negative',
+  },
+  notDwelledWeight: {
+    name: 'Not Dwelled',
+    nameZh: '未停留',
+    description: 'Weight for predicted skip/no-dwell behavior',
+    descriptionZh: '预测未停留行为的权重',
+    min: -10,
     max: 0,
     step: 0.1,
     type: 'negative',

@@ -59,6 +59,14 @@ export const PRE_SCORING_FILTERS: FilterConfig[] = [
     enabled: true,
   },
   {
+    id: 'previously_seen_posts_backup',
+    name: 'PreviouslySeenPostsBackupFilter',
+    nameZh: '已曝光内容备用过滤器',
+    description: 'Remove posts from impressed history backup',
+    descriptionZh: '移除备用曝光历史中的内容',
+    enabled: true,
+  },
+  {
     id: 'previously_served_posts',
     name: 'PreviouslyServedPostsFilter',
     nameZh: '已下发内容过滤器',
@@ -82,6 +90,30 @@ export const PRE_SCORING_FILTERS: FilterConfig[] = [
     descriptionZh: '移除来自屏蔽/静音作者的内容',
     enabled: true,
   },
+  {
+    id: 'video',
+    name: 'VideoFilter',
+    nameZh: '视频过滤器',
+    description: 'Remove videos when request excludes video content',
+    descriptionZh: '请求排除视频时移除视频内容',
+    enabled: true,
+  },
+  {
+    id: 'topic_ids',
+    name: 'TopicIdsFilter',
+    nameZh: '话题过滤器',
+    description: 'Keep requested topics and remove excluded topics',
+    descriptionZh: '保留请求话题并移除排除话题',
+    enabled: true,
+  },
+  {
+    id: 'new_user_topic_ids',
+    name: 'NewUserTopicIdsFilter',
+    nameZh: '新用户话题过滤器',
+    description: 'For new users, keep OON posts tied to inferred topics',
+    descriptionZh: '新用户场景保留匹配推断话题的关注外内容',
+    enabled: true,
+  },
 ];
 
 export const POST_SELECTION_FILTERS: FilterConfig[] = [
@@ -91,6 +123,14 @@ export const POST_SELECTION_FILTERS: FilterConfig[] = [
     nameZh: '可见性过滤器',
     description: 'Drop posts failed by visibility filtering',
     descriptionZh: '移除未通过可见性过滤的内容',
+    enabled: true,
+  },
+  {
+    id: 'ancillary_vf',
+    name: 'AncillaryVFFilter',
+    nameZh: '附属内容可见性过滤器',
+    description: 'Drop ancillary posts marked by visibility checks',
+    descriptionZh: '移除可见性检查标记的附属内容',
     enabled: true,
   },
   {
@@ -146,6 +186,35 @@ function getCandidateScore(candidate: TweetCandidate): number {
     candidate.weightedScore ??
     0
   );
+}
+
+function intersects(left: readonly number[] = [], right: readonly number[] = []): boolean {
+  if (!left.length || !right.length) {
+    return false;
+  }
+
+  const rightSet = new Set(right);
+  return left.some((value) => rightSet.has(value));
+}
+
+function expandTopicIds(topicIds: readonly number[], context: FilterContext): number[] {
+  const expanded = new Set<number>();
+
+  for (const topicId of topicIds) {
+    expanded.add(topicId);
+    for (const relatedTopicId of context.topicExpansionMap[topicId] || []) {
+      expanded.add(relatedTopicId);
+    }
+  }
+
+  return [...expanded];
+}
+
+function collectCandidateTopicIds(candidate: TweetCandidate): number[] {
+  return [
+    ...(candidate.filteredTopicIds || []),
+    ...(candidate.unfilteredTopicIds || []),
+  ];
 }
 
 function markFiltered(candidate: TweetCandidate, filter: FilterConfig): TweetCandidate {
@@ -252,6 +321,7 @@ export function runFilter(
 
   const normalizedMutedKeywords = context.mutedKeywords.map(normalizeText);
   const seenIds = new Set<string>([...context.seenTweetIds, ...context.bloomSeenTweetIds]);
+  const impressedIds = new Set<string>(context.impressedTweetIds);
   const servedIds = new Set<string>(context.servedTweetIds);
 
   switch (filterId) {
@@ -270,7 +340,7 @@ export function runFilter(
       return runBasicFilter(
         candidates,
         filter,
-        (candidate) => Boolean(candidate.authorId.trim()) && Boolean(candidate.content.trim())
+        (candidate) => Boolean(candidate.id.trim()) && Boolean(candidate.authorId.trim())
       );
 
     case 'age':
@@ -308,6 +378,22 @@ export function runFilter(
         return !relatedIds.some((id) => seenIds.has(id));
       });
 
+    case 'previously_seen_posts_backup':
+      if (!impressedIds.size) {
+        return {
+          filterId,
+          filterName: filter.name,
+          inputCount: candidates.length,
+          outputCount: candidates.length,
+          filteredCandidates: [],
+          passedCandidates: candidates,
+        };
+      }
+      return runBasicFilter(candidates, filter, (candidate) => {
+        const relatedIds = getRelatedTweetIds(candidate);
+        return !relatedIds.some((id) => impressedIds.has(id));
+      });
+
     case 'previously_served_posts':
       if (!context.isBottomRequest) {
         return {
@@ -342,11 +428,91 @@ export function runFilter(
 
     case 'author_socialgraph':
       return runBasicFilter(candidates, filter, (candidate) => {
-        return !context.blockedUsers.includes(candidate.authorId) && !context.mutedUsers.includes(candidate.authorId);
+        return (
+          !context.blockedUsers.includes(candidate.authorId) &&
+          !context.mutedUsers.includes(candidate.authorId) &&
+          !(candidate.quotedAuthorId && context.blockedUsers.includes(candidate.quotedAuthorId)) &&
+          !(candidate.retweetedAuthorId && context.blockedUsers.includes(candidate.retweetedAuthorId)) &&
+          !candidate.authorBlocksViewer &&
+          !candidate.quotedAuthorBlocksViewer &&
+          !candidate.viewerBlocksQuotedAuthor &&
+          !candidate.viewerBlocksRetweetedAuthor
+        );
       });
+
+    case 'video':
+      if (!context.excludeVideos) {
+        return {
+          filterId,
+          filterName: filter.name,
+          inputCount: candidates.length,
+          outputCount: candidates.length,
+          filteredCandidates: [],
+          passedCandidates: candidates,
+        };
+      }
+      return runBasicFilter(candidates, filter, (candidate) => !candidate.hasVideo && !candidate.videoDurationMs);
+
+    case 'topic_ids': {
+      if (!context.topicIds.length && !context.excludedTopicIds.length) {
+        return {
+          filterId,
+          filterName: filter.name,
+          inputCount: candidates.length,
+          outputCount: candidates.length,
+          filteredCandidates: [],
+          passedCandidates: candidates,
+        };
+      }
+
+      const expandedTopicIds = expandTopicIds(context.topicIds, context);
+      const expandedExcludedTopicIds = expandTopicIds(context.excludedTopicIds, context);
+
+      return runBasicFilter(candidates, filter, (candidate) => {
+        const candidateTopics = collectCandidateTopicIds(candidate);
+
+        if (expandedExcludedTopicIds.length && !candidateTopics.length) {
+          return false;
+        }
+
+        if (expandedExcludedTopicIds.length && intersects(candidateTopics, expandedExcludedTopicIds)) {
+          return false;
+        }
+
+        if (!expandedTopicIds.length) {
+          return true;
+        }
+
+        return intersects(candidateTopics, expandedTopicIds);
+      });
+    }
+
+    case 'new_user_topic_ids': {
+      if (!context.isNewUser || !context.newUserTopicIds.length || context.topicIds.length) {
+        return {
+          filterId,
+          filterName: filter.name,
+          inputCount: candidates.length,
+          outputCount: candidates.length,
+          filteredCandidates: [],
+          passedCandidates: candidates,
+        };
+      }
+      const expandedNewUserTopics = expandTopicIds(context.newUserTopicIds, context);
+      return runBasicFilter(candidates, filter, (candidate) => {
+        if (candidate.inNetwork) {
+          return true;
+        }
+
+        return intersects(collectCandidateTopicIds(candidate), expandedNewUserTopics);
+      });
+    }
 
     case 'vf':
       return runBasicFilter(candidates, filter, (candidate) => !candidate.visibilityFiltered);
+
+    case 'ancillary_vf':
+      return runBasicFilter(candidates, filter, (candidate) => !candidate.dropAncillaryPosts);
 
     default:
       return {

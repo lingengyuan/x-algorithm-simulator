@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { TweetCandidate, PipelineStep, RankingScenario, FilterResult } from '@/core/types';
+import { FeedItem, TweetCandidate, PipelineStep, RankingScenario, FilterResult } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,23 +27,29 @@ import {
   SkipBack,
   RotateCcw,
   BarChart3,
+  Layers3,
+  Shuffle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function RankingSimulator() {
   const { t, isZh } = useTranslation();
 
-  const [selectedScenario, setSelectedScenario] = useState<RankingScenario>(RANKING_SCENARIOS[0]);
+  const [selectedScenario, setSelectedScenario] = useState<RankingScenario>(
+    () => RANKING_SCENARIOS.find((scenario) => scenario.id === 'for_you') || RANKING_SCENARIOS[0]
+  );
   const [steps, setSteps] = useState<PipelineStep[]>([]);
+  const [stepSnapshots, setStepSnapshots] = useState<Array<{ candidates: TweetCandidate[]; feedItems?: FeedItem[] }>>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [currentCandidates, setCurrentCandidates] = useState<TweetCandidate[]>([]);
+  const [currentFeedItems, setCurrentFeedItems] = useState<FeedItem[] | undefined>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
   const [selectedTweetId, setSelectedTweetId] = useState<string | undefined>();
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const pipelineGeneratorRef = useRef<Generator<{ step: PipelineStep; candidates: TweetCandidate[] }> | null>(null);
+  const pipelineGeneratorRef = useRef<Generator<{ step: PipelineStep; candidates: TweetCandidate[]; feedItems?: FeedItem[] }> | null>(null);
   const playIntervalRef = useRef<number | null>(null);
 
   // Initialize scenario function
@@ -51,7 +57,9 @@ export function RankingSimulator() {
     try {
       const newCandidates = generateScenarioTweets(scenario);
       setCurrentCandidates(newCandidates);
+      setCurrentFeedItems(undefined);
       setSteps([]);
+      setStepSnapshots([]);
       setCurrentStepIndex(0);
       setIsPlaying(false);
 
@@ -69,6 +77,11 @@ export function RankingSimulator() {
       if (!firstResult.done && firstResult.value) {
         setSteps([firstResult.value.step]);
         setCurrentCandidates(firstResult.value.candidates);
+        setCurrentFeedItems(firstResult.value.feedItems);
+        setStepSnapshots([{
+          candidates: firstResult.value.candidates,
+          feedItems: firstResult.value.feedItems,
+        }]);
       }
       setError(null);
     } catch (err) {
@@ -96,8 +109,19 @@ export function RankingSimulator() {
 
     if (result.value) {
       setSteps((prev) => [...prev, result.value.step]);
+      setStepSnapshots((prev) => [
+        ...prev,
+        {
+          candidates: result.value.candidates,
+          feedItems: result.value.feedItems,
+        },
+      ]);
       setCurrentCandidates(result.value.candidates);
+      setCurrentFeedItems(result.value.feedItems);
       setCurrentStepIndex((prev) => prev + 1);
+      if (result.value.step.id === 'final_ranking') {
+        setIsPlaying(false);
+      }
     }
   }, []);
 
@@ -123,9 +147,15 @@ export function RankingSimulator() {
 
   const prevStep = useCallback(() => {
     if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
+      const targetIndex = currentStepIndex - 1;
+      const snapshot = stepSnapshots[targetIndex];
+      if (snapshot) {
+        setCurrentCandidates(snapshot.candidates);
+        setCurrentFeedItems(snapshot.feedItems);
+      }
+      setCurrentStepIndex(targetIndex);
     }
-  }, [currentStepIndex]);
+  }, [currentStepIndex, stepSnapshots]);
 
   const reset = useCallback(() => {
     initializeScenario(selectedScenario);
@@ -136,6 +166,11 @@ export function RankingSimulator() {
   };
 
   const handleStepClick = (index: number) => {
+    const snapshot = stepSnapshots[index];
+    if (snapshot) {
+      setCurrentCandidates(snapshot.candidates);
+      setCurrentFeedItems(snapshot.feedItems);
+    }
     setCurrentStepIndex(index);
   };
 
@@ -169,6 +204,19 @@ export function RankingSimulator() {
   }, 0);
   const currentStep = steps[currentStepIndex];
   const isComplete = steps.length > 0 && steps[steps.length - 1].id === 'final_ranking';
+  const feedModuleCounts = currentFeedItems?.reduce(
+    (counts, item) => ({
+      ...counts,
+      [item.type]: counts[item.type] + 1,
+    }),
+    {
+      post: 0,
+      ad: 0,
+      who_to_follow: 0,
+      prompt: 0,
+      push_to_home: 0,
+    }
+  );
 
   return (
     <div className="space-y-8">
@@ -282,6 +330,43 @@ export function RankingSimulator() {
         </CardContent>
       </Card>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-lg border border-slate-200 bg-white/80 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <Layers3 className="h-4 w-4 text-sky-600" />
+            {isZh ? 'Scored Posts 层' : 'Scored Posts Layer'}
+          </div>
+          <p className="mt-1 text-xs text-slate-600">
+            {isZh
+              ? '先完成帖子召回、过滤、评分和排序。'
+              : 'Ranks post candidates before final timeline blending.'}
+          </p>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white/80 p-4">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <Shuffle className="h-4 w-4 text-violet-600" />
+            {isZh ? 'For You 混排层' : 'For You Blend Layer'}
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Badge variant="secondary">
+              {isZh ? '帖子' : 'Posts'} {feedModuleCounts?.post ?? 0}
+            </Badge>
+            <Badge variant="secondary">
+              {isZh ? '广告' : 'Ads'} {feedModuleCounts?.ad ?? 0}
+            </Badge>
+            <Badge variant="secondary">
+              {isZh ? '推荐关注' : 'Who to follow'} {feedModuleCounts?.who_to_follow ?? 0}
+            </Badge>
+            <Badge variant="secondary">
+              Prompt {feedModuleCounts?.prompt ?? 0}
+            </Badge>
+            <Badge variant="secondary">
+              Push {feedModuleCounts?.push_to_home ?? 0}
+            </Badge>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Candidate Pool */}
@@ -309,14 +394,14 @@ export function RankingSimulator() {
           />
         </div>
 
-        {/* Right Column - Final Ranking */}
+        {/* Right Column - Final Timeline */}
         <div className="lg:col-span-1">
           {isComplete ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <FinalRanking candidates={currentCandidates} topK={10} />
+              <FinalRanking candidates={currentCandidates} feedItems={currentFeedItems} topK={10} />
             </motion.div>
           ) : (
             <Card className="h-full flex items-center justify-center border-dashed border-slate-900/20">
@@ -324,8 +409,8 @@ export function RankingSimulator() {
                 <BarChart3 className="mx-auto mb-4 h-12 w-12 text-slate-400" />
                 <p className="text-slate-500">
                   {isZh
-                    ? '完成所有步骤后显示最终排序'
-                    : 'Final ranking will appear after all steps'}
+                    ? '完成所有步骤后显示最终首页流'
+                    : 'Final timeline will appear after all steps'}
                 </p>
               </CardContent>
             </Card>

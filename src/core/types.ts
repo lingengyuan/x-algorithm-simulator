@@ -1,4 +1,4 @@
-// Phoenix Scores - 18 behavior predictions
+// Phoenix Scores - behavior predictions plus continuous engagement values.
 export interface PhoenixScores {
   // Positive behaviors
   favoriteScore: number;        // Like probability
@@ -14,6 +14,7 @@ export interface PhoenixScores {
   dwellScore: number;           // Dwell time score
   quoteScore: number;           // Quote tweet probability
   quotedClickScore: number;     // Click quoted content probability
+  quotedVqvScore: number;       // Video quality view on quoted content
   followAuthorScore: number;    // Follow author probability
 
   // Negative behaviors
@@ -21,9 +22,11 @@ export interface PhoenixScores {
   blockAuthorScore: number;     // Block author probability
   muteAuthorScore: number;      // Mute author probability
   reportScore: number;          // Report probability
+  notDwelledScore: number;      // Not dwelled probability
 
-  // Continuous value
+  // Continuous values
   dwellTime: number;            // Expected dwell time in ms
+  clickDwellTime: number;       // Expected dwell time after click in ms
 }
 
 // Tweet input for analysis
@@ -54,17 +57,47 @@ export interface TweetCandidate {
   createdAt: number;  // Snowflake timestamp
   inNetwork: boolean;
   servedType?: 'for_you_in_network' | 'for_you_phoenix_retrieval';
+  sourceType?:
+    | 'thunder'
+    | 'tweet_mixer'
+    | 'phoenix'
+    | 'phoenix_topics'
+    | 'phoenix_moe'
+    | 'cached_posts';
   conversationId?: string;
   ancestors?: string[];
   isRetweet: boolean;
   originalTweetId?: string;
+  retweetedAuthorId?: string;
+  quotedTweetId?: string;
+  quotedAuthorId?: string;
   subscriptionAuthorId?: string;
   visibilityFiltered?: boolean;
+  dropAncillaryPosts?: boolean;
+  authorBlocksViewer?: boolean;
+  quotedAuthorBlocksViewer?: boolean;
+  viewerBlocksQuotedAuthor?: boolean;
+  viewerBlocksRetweetedAuthor?: boolean;
+
+  // Hydrated candidate features from the 2026 X algorithm release
+  filteredTopicIds?: number[];
+  unfilteredTopicIds?: number[];
+  followingRepliedUserIds?: string[];
+  languageCode?: string;
+  favoriteCount?: number;
+  replyCount?: number;
+  repostCount?: number;
+  quoteCount?: number;
+  mutualFollowJaccard?: number;
+  brandSafetyRisk?: 'low' | 'medium' | 'high';
+  safetyLabels?: string[];
+  quotedVideoDurationMs?: number;
 
   // Phoenix predicted scores
   phoenixScores: PhoenixScores;
 
   // Computed scores
+  rawWeightedScore?: number;
   weightedScore?: number;
   diversityAdjustedScore?: number;
   finalScore?: number;
@@ -98,10 +131,14 @@ export interface WeightConfig {
   blockAuthorWeight: number;
   muteAuthorWeight: number;
   reportWeight: number;
+  quotedVqvWeight: number;
+  notDwelledWeight: number;
   dwellTimeWeight: number;
+  clickDwellTimeWeight: number;
 
   // Weighted scorer controls
   minVideoDurationMs: number;
+  enableQuotedVqvDurationCheck: boolean;
   negativeScoresOffset: number;
 
   // Diversity parameters
@@ -110,6 +147,11 @@ export interface WeightConfig {
 
   // In/Out network balance
   oonWeightFactor: number;
+  topicOonWeightFactor: number;
+  newUserOonWeightFactor: number;
+
+  // Optional value-model reranking simulation
+  vmRankerBlendFactor: number;
 }
 
 // Filter context
@@ -127,6 +169,16 @@ export interface FilterContext {
   isBottomRequest: boolean;
   currentTime: number;
   maxTweetAgeHours: number;
+  impressedTweetIds: string[];
+  topicIds: number[];
+  excludedTopicIds: number[];
+  newUserTopicIds: number[];
+  excludeVideos: boolean;
+  isNewUser: boolean;
+  userAccountAgeDays: number;
+  followedCount: number;
+  topicExpansionMap: Record<number, number[]>;
+  includeForYouModules: boolean;
 }
 
 // Filter configuration
@@ -156,10 +208,10 @@ export interface PipelineStep {
   nameZh: string;
   description: string;
   descriptionZh: string;
-  type: 'query_hydrator' | 'source' | 'hydrator' | 'filter' | 'scorer' | 'selector' | 'ranker';
+  type: 'query_hydrator' | 'source' | 'hydrator' | 'filter' | 'scorer' | 'selector' | 'blender' | 'ranker';
   inputCount: number;
   outputCount: number;
-  details?: FilterResult | ScorerResult;
+  details?: FilterResult | ScorerResult | FeedBlendResult;
 }
 
 // Scorer result
@@ -171,6 +223,34 @@ export interface ScorerResult {
     scores: Record<string, number>;
     finalScore: number;
   }[];
+}
+
+export type FeedItemType = 'post' | 'ad' | 'who_to_follow' | 'prompt' | 'push_to_home';
+
+export interface FeedItem {
+  id: string;
+  type: FeedItemType;
+  rank: number;
+  tweet?: TweetCandidate;
+  score?: number;
+  label: string;
+  labelZh: string;
+  title: string;
+  titleZh: string;
+  description: string;
+  descriptionZh: string;
+  source: string;
+}
+
+export interface FeedBlendResult {
+  blenderId: string;
+  blenderName: string;
+  postCount: number;
+  adCount: number;
+  whoToFollowCount: number;
+  promptCount: number;
+  pushToHomeCount: number;
+  feedItems: FeedItem[];
 }
 
 // Analysis result
