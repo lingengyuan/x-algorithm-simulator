@@ -244,8 +244,8 @@ Toggle with the globe icon in the header.
 
 MIT
 
-### FlowImage
-![alt text](docs/architecture/project-flow-2026-02.png)
+### Current Architecture Flow
+![Current architecture flow](docs/architecture/project-flow-2026-05.svg)
 ---
 
 <a name="中文"></a>
@@ -491,5 +491,5 @@ src/
 
 MIT
 
-### 流程图
-![alt text](docs/architecture/project-flow-2026-02.png)
+### 最新架构流程图
+![最新架构流程图](docs/architecture/project-flow-2026-05.svg)

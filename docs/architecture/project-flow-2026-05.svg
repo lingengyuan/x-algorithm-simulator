@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="760" viewBox="0 0 1840 760">
+  <defs>
+    <style>
+      .title{font:700 28px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}
+      .small{font:500 15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#334155}
+      .label{font:700 18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#0f172a}
+      .note{font:500 14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;fill:#475569}
+      .box{stroke:#0f172a;stroke-width:1.5;rx:14;ry:14}
+      .arrow{stroke:#334155;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <rect width="1840" height="760" fill="#f8fafc"/>
+  <text x="40" y="44" class="title">X Algorithm Simulator - Current Flow (May 2026)</text>
+  <text x="40" y="72" class="small">Pipeline-level approximation of the public x-algorithm flow. Closed services and production data are marked as local approximations.</text>
+
+  <rect x="40" y="110" width="160" height="70" class="box" fill="#dbeafe"/>
+  <text x="64" y="142" class="label">App Router</text>
+  <text x="64" y="166" class="note">src/App.tsx</text>
+
+  <rect x="250" y="110" width="190" height="70" class="box" fill="#fef3c7"/>
+  <text x="286" y="153" class="label">TweetAnalyzer</text>
+
+  <rect x="490" y="110" width="210" height="70" class="box" fill="#fef3c7"/>
+  <text x="527" y="153" class="label">RankingSimulator</text>
+
+  <rect x="750" y="110" width="180" height="70" class="box" fill="#fef3c7"/>
+  <text x="793" y="153" class="label">WeightLab</text>
+
+  <rect x="980" y="110" width="180" height="70" class="box" fill="#fef3c7"/>
+  <text x="1015" y="153" class="label">HistoryList</text>
+
+  <rect x="1210" y="110" width="250" height="70" class="box" fill="#dcfce7"/>
+  <text x="1238" y="142" class="label">LocalStorage</text>
+  <text x="1238" y="166" class="note">history / language / presets</text>
+
+  <line x1="200" y1="145" x2="250" y2="145" class="arrow"/>
+  <line x1="440" y1="145" x2="490" y2="145" class="arrow"/>
+  <line x1="700" y1="145" x2="750" y2="145" class="arrow"/>
+  <line x1="930" y1="145" x2="980" y2="145" class="arrow"/>
+  <line x1="1160" y1="145" x2="1210" y2="145" class="arrow"/>
+
+  <text x="40" y="252" class="title">Scored Posts Layer</text>
+  <text x="40" y="280" class="small">Ranks post candidates before the final timeline blend.</text>
+
+  <rect x="40" y="320" width="165" height="74" class="box" fill="#e0f2fe"/>
+  <text x="66" y="362" class="label">Candidate Pool</text>
+
+  <rect x="245" y="320" width="210" height="74" class="box" fill="#e0f2fe"/>
+  <text x="270" y="350" class="label">Query Hydrators</text>
+  <text x="270" y="374" class="note">15 public stages</text>
+
+  <rect x="495" y="320" width="245" height="74" class="box" fill="#e0f2fe"/>
+  <text x="520" y="350" class="label">Sources</text>
+  <text x="520" y="374" class="note">Thunder, TweetMixer, Phoenix, Topics, MoE, cache</text>
+
+  <rect x="780" y="320" width="230" height="74" class="box" fill="#e0f2fe"/>
+  <text x="805" y="350" class="label">Candidate Hydrators</text>
+  <text x="805" y="374" class="note">quote, media, topics, socialgraph</text>
+
+  <rect x="1050" y="320" width="185" height="74" class="box" fill="#e0f2fe"/>
+  <text x="1076" y="350" class="label">Pre Filters</text>
+  <text x="1076" y="374" class="note">14 stages</text>
+
+  <rect x="1275" y="320" width="220" height="74" class="box" fill="#e0f2fe"/>
+  <text x="1302" y="350" class="label">Scorers</text>
+  <text x="1302" y="374" class="note">Phoenix approx, Ranking, VM approx</text>
+
+  <rect x="1535" y="320" width="190" height="74" class="box" fill="#e0f2fe"/>
+  <text x="1562" y="350" class="label">TopK Selector</text>
+  <text x="1562" y="374" class="note">post ranking output</text>
+
+  <line x1="205" y1="357" x2="245" y2="357" class="arrow"/>
+  <line x1="455" y1="357" x2="495" y2="357" class="arrow"/>
+  <line x1="740" y1="357" x2="780" y2="357" class="arrow"/>
+  <line x1="1010" y1="357" x2="1050" y2="357" class="arrow"/>
+  <line x1="1235" y1="357" x2="1275" y2="357" class="arrow"/>
+  <line x1="1495" y1="357" x2="1535" y2="357" class="arrow"/>
+
+  <rect x="500" y="435" width="240" height="64" class="box" fill="#ede9fe"/>
+  <text x="526" y="461" class="label">data/mockTweets.ts</text>
+  <text x="526" y="484" class="note">deterministic local candidates</text>
+
+  <rect x="785" y="435" width="225" height="64" class="box" fill="#ede9fe"/>
+  <text x="811" y="461" class="label">core/pipeline.ts</text>
+  <text x="811" y="484" class="note">stage orchestration</text>
+
+  <rect x="1050" y="435" width="230" height="64" class="box" fill="#ede9fe"/>
+  <text x="1076" y="461" class="label">core/filters/index.ts</text>
+  <text x="1076" y="484" class="note">14 + 3 filter stages</text>
+
+  <rect x="1305" y="435" width="230" height="64" class="box" fill="#ede9fe"/>
+  <text x="1331" y="461" class="label">core/scorers/index.ts</text>
+  <text x="1331" y="484" class="note">local scorer approximation</text>
+
+  <line x1="617" y1="394" x2="617" y2="435" class="arrow"/>
+  <line x1="895" y1="394" x2="895" y2="435" class="arrow"/>
+  <line x1="1142" y1="394" x2="1142" y2="435" class="arrow"/>
+  <line x1="1385" y1="394" x2="1385" y2="435" class="arrow"/>
+
+  <text x="40" y="580" class="title">For You Blend Layer</text>
+  <text x="40" y="608" class="small">Builds the final visible timeline from ranked posts and local approximations of open-source For You modules.</text>
+
+  <rect x="420" y="635" width="190" height="70" class="box" fill="#fce7f3"/>
+  <text x="456" y="666" class="label">Scored Posts</text>
+  <text x="456" y="689" class="note">post ranking result</text>
+
+  <rect x="660" y="635" width="210" height="70" class="box" fill="#fce7f3"/>
+  <text x="693" y="666" class="label">ForYou Blender</text>
+  <text x="693" y="689" class="note">core/feed.ts</text>
+
+  <rect x="920" y="620" width="260" height="100" class="box" fill="#fee2e2"/>
+  <text x="950" y="648" class="label">Local modules</text>
+  <text x="950" y="672" class="note">AdsSource</text>
+  <text x="950" y="694" class="note">WhoToFollowSource, PromptsSource</text>
+  <text x="950" y="716" class="note">PushToHomeSource</text>
+
+  <rect x="1240" y="635" width="220" height="70" class="box" fill="#bfdbfe"/>
+  <text x="1276" y="666" class="label">Final Timeline</text>
+  <text x="1276" y="689" class="note">posts + modules</text>
+
+  <line x1="1725" y1="357" x2="1760" y2="357" class="arrow"/>
+  <line x1="1760" y1="357" x2="1760" y2="670" class="arrow"/>
+  <line x1="1760" y1="670" x2="1460" y2="670" class="arrow"/>
+  <line x1="610" y1="670" x2="660" y2="670" class="arrow"/>
+  <line x1="870" y1="670" x2="920" y2="670" class="arrow"/>
+  <line x1="1180" y1="670" x2="1240" y2="670" class="arrow"/>
+
+  <rect x="40" y="635" width="330" height="70" class="box" fill="#f1f5f9"/>
+  <text x="66" y="662" class="label">Documentation</text>
+  <text x="66" y="685" class="note">README bilingual, screenshots, verification status</text>
+</svg>
