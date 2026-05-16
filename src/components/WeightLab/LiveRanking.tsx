@@ -3,8 +3,8 @@ import { TweetCandidate, WeightConfig } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { computeWeightedScore } from '@/utils/scoring';
-import { normalizeRankingScore } from '@/core/scorers';
+import { runAllScorers } from '@/core/scorers';
+import { getDefaultFilterContext } from '@/data/mockTweets';
 import { TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
@@ -27,26 +27,21 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
   const { t, isZh } = useTranslation();
 
   const rankedCandidates = useMemo((): RankedCandidate[] => {
-    // Calculate new scores
-    const withNewScores = candidates.map((c) => ({
-      ...c,
-      newScore: normalizeRankingScore(
-        c,
-        computeWeightedScore(c.phoenixScores, weights, c.videoDurationMs, c.quotedVideoDurationMs)
-      ),
-    }));
+    const scoreCandidates = (weightConfig: WeightConfig) => {
+      const context = getDefaultFilterContext(candidates);
+      const { finalCandidates } = runAllScorers(candidates, weightConfig, context);
+      return finalCandidates.map((candidate) => ({
+        ...candidate,
+        newScore: candidate.finalScore || 0,
+      }));
+    };
 
-    // Sort by new score
-    const sorted = [...withNewScores].sort((a, b) => b.newScore - a.newScore);
+    const sorted = scoreCandidates(weights);
 
-    // If we have previous weights, calculate changes
     if (previousWeights) {
-      const previousScores = candidates.map((c) => ({
-        id: c.id,
-        score: normalizeRankingScore(
-          c,
-          computeWeightedScore(c.phoenixScores, previousWeights, c.videoDurationMs, c.quotedVideoDurationMs)
-        ),
+      const previousScores = scoreCandidates(previousWeights).map((candidate) => ({
+        id: candidate.id,
+        score: candidate.newScore,
       }));
       const previousSorted = [...previousScores].sort((a, b) => b.score - a.score);
 
@@ -86,6 +81,9 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
           <BarChart3 className="w-5 h-5 text-sky-600" />
           {t('weightLab.liveRanking')}
           <Badge variant="secondary">Top 15</Badge>
+          <Badge variant={weights.enableVMRanker ? 'default' : 'outline'}>
+            {weights.enableVMRanker ? (isZh ? 'VM 已启用' : 'VM on') : (isZh ? 'VM 关闭' : 'VM off')}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>

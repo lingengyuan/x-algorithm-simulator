@@ -46,6 +46,7 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
             const isActive = globalIndex === currentStepIndex;
             const isPassed = globalIndex < currentStepIndex;
             const scorerResult = step.details as ScorerResult | undefined;
+            const summary = scorerResult?.summary;
 
             return (
               <motion.div
@@ -109,6 +110,29 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                 </div>
 
                 {/* Formula Preview */}
+                {isActive && step.id === 'phoenix' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-3 border-t border-slate-200 pt-3"
+                  >
+                    <div className="space-y-2 overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
+                      <div>
+                      {isZh
+                        ? '候选可看用户和历史；候选之间互不可见；候选可看自己'
+                        : 'candidates attend to user/history + self, not other candidates'}
+                      </div>
+                      {summary && (
+                        <div>
+                          {isZh
+                            ? `年龄桶 ${summary.postAgeBucketMin}-${summary.postAgeBucketMax}；停留按 ${summary.continuousNormScaleSeconds}s 归一化`
+                            : `age buckets ${summary.postAgeBucketMin}-${summary.postAgeBucketMax}; dwell normalized to ${summary.continuousNormScaleSeconds}s`}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+
                 {isActive && step.id === 'ranking' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}

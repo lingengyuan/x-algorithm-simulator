@@ -1,4 +1,4 @@
-import { FeedItem, TweetCandidate } from '@/core/types';
+import type { FeedItem, TweetCandidate } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +19,7 @@ export function FinalRanking({ candidates, feedItems, topK = 10 }: FinalRankingP
     .filter((c) => !c.filtered && c.finalScore !== undefined)
     .sort((a, b) => (b.finalScore || 0) - (a.finalScore || 0))
     .slice(0, topK);
-  const timelineItems = feedItems?.length
+  const timelineItems: FeedItem[] = feedItems?.length
     ? feedItems
     : rankedCandidates.map((candidate, index) => ({
       id: `post-${candidate.id}`,
@@ -34,6 +34,7 @@ export function FinalRanking({ candidates, feedItems, topK = 10 }: FinalRankingP
       description: candidate.content,
       descriptionZh: candidate.content,
       source: 'ScoredPostsSource',
+      sourceZh: '帖子排序来源',
     }));
 
   const moduleIcon = (type: FeedItem['type']) => {
@@ -48,6 +49,27 @@ export function FinalRanking({ candidates, feedItems, topK = 10 }: FinalRankingP
         return <Pin className="h-4 w-4 text-emerald-600" />;
       default:
         return null;
+    }
+  };
+
+  const moduleSourceLabel = (item: FeedItem) => {
+    if (isZh) {
+      return item.sourceZh || item.source;
+    }
+
+    switch (item.source) {
+      case 'PushToHomeSource':
+        return 'Pinned module source';
+      case 'AdsSource':
+        return 'Ads source';
+      case 'WhoToFollowSource':
+        return 'Who-to-follow source';
+      case 'PromptsSource':
+        return 'Prompt source';
+      case 'ScoredPostsSource':
+        return 'Scored posts source';
+      default:
+        return item.source;
     }
   };
 
@@ -94,14 +116,17 @@ export function FinalRanking({ candidates, feedItems, topK = 10 }: FinalRankingP
                     {item.type === 'post' && item.tweet ? (
                       <TweetCard tweet={item.tweet} showScores compact />
                     ) : (
-                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <div
+                        className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+                        data-source={item.source}
+                      >
                         <div className="flex items-center gap-2">
                           {moduleIcon(item.type)}
                           <Badge variant="outline" className="text-[10px]">
                             {isZh ? item.labelZh : item.label}
                           </Badge>
                           <span className="truncate text-xs text-slate-500">
-                            {item.source}
+                            {moduleSourceLabel(item)}
                           </span>
                         </div>
                         <h3 className="mt-2 text-sm font-semibold text-slate-900">

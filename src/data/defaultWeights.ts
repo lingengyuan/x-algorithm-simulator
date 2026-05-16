@@ -42,6 +42,7 @@ export const DEFAULT_WEIGHTS: WeightConfig = {
   newUserOonWeightFactor: 0.9,
 
   // VMRanker simulation factor
+  enableVMRanker: false,
   vmRankerBlendFactor: 0.15,
 };
 
@@ -53,6 +54,7 @@ export const WEIGHT_METADATA: Record<keyof Omit<
   | 'oonWeightFactor'
   | 'topicOonWeightFactor'
   | 'newUserOonWeightFactor'
+  | 'enableVMRanker'
   | 'vmRankerBlendFactor'
   | 'dwellTimeWeight'
   | 'clickDwellTimeWeight'

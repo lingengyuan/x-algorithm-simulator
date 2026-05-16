@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TweetCard } from '@/components/shared/TweetCard';
 import { Users, Globe, Filter } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface CandidatePoolProps {
   candidates: TweetCandidate[];
@@ -57,28 +57,24 @@ export function CandidatePool({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2">
-          <AnimatePresence mode="popLayout">
-            {candidates
-              .filter((c) => showFiltered || !c.filtered)
-              .map((candidate, index) => (
-                <motion.div
-                  key={candidate.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9, x: -50 }}
-                  transition={{ duration: 0.2, delay: index * 0.02 }}
-                >
-                  <TweetCard
-                    tweet={candidate}
-                    compact
-                    highlighted={candidate.id === selectedId}
-                    showFiltered={showFiltered}
-                    onClick={() => onSelect?.(candidate.id)}
-                  />
-                </motion.div>
-              ))}
-          </AnimatePresence>
+          {candidates
+            .filter((c) => showFiltered || !c.filtered)
+            .map((candidate, index) => (
+              <motion.div
+                key={candidate.id}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.15, delay: index * 0.01 }}
+              >
+                <TweetCard
+                  tweet={candidate}
+                  compact
+                  highlighted={candidate.id === selectedId}
+                  showFiltered={showFiltered}
+                  onClick={() => onSelect?.(candidate.id)}
+                />
+              </motion.div>
+            ))}
         </div>
       </CardContent>
     </Card>

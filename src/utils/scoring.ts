@@ -1,8 +1,46 @@
-import { PhoenixScores, TweetInput, WeightConfig } from '@/core/types';
+import type { PhoenixScores, TweetInput, WeightConfig } from '@/core/types';
 
 // Clamp value between 0 and 1
 function clamp(value: number, min = 0, max = 1): number {
   return Math.max(min, Math.min(max, value));
+}
+
+const POST_AGE_MAX_MINUTES = 4800;
+
+export function computePostAgeBucketMs(
+  impressionTimestampMs: number,
+  postCreationTimestampMs: number,
+  granularityMinutes = 60
+): number {
+  const normalBucketCount = Math.floor(POST_AGE_MAX_MINUTES / granularityMinutes);
+  const overflowBucket = normalBucketCount + 1;
+
+  if (!impressionTimestampMs || !postCreationTimestampMs) {
+    return 0;
+  }
+
+  const ageMinutes = Math.floor((impressionTimestampMs - postCreationTimestampMs) / 60000);
+  if (ageMinutes < 0) {
+    return 0;
+  }
+
+  const bucket = Math.floor(ageMinutes / granularityMinutes) + 1;
+  return Math.max(0, Math.min(bucket, overflowBucket));
+}
+
+export function normalizeContinuousValueMs(
+  valueMs: number,
+  normScaleSeconds = 30,
+  useLog = false
+): number {
+  const valueSeconds = Math.max(0, valueMs / 1000);
+  const clamped = Math.min(valueSeconds, normScaleSeconds);
+
+  if (useLog) {
+    return Math.log1p(clamped) / Math.log1p(normScaleSeconds);
+  }
+
+  return clamped / normScaleSeconds;
 }
 
 // Simple hash function for strings

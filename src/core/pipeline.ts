@@ -4,6 +4,7 @@ import {
   WeightConfig,
   FilterContext,
   PipelineStep,
+  SideEffectResult,
 } from './types';
 import {
   FILTERS,
@@ -466,6 +467,149 @@ function sortByFinalScore(candidates: TweetCandidate[]): TweetCandidate[] {
   return [...candidates].sort((a, b) => (b.finalScore || 0) - (a.finalScore || 0));
 }
 
+function summarizeScoredPostsSideEffects(
+  selectedCandidates: TweetCandidate[],
+  nonSelectedCandidates: TweetCandidate[],
+  context: FilterContext
+): SideEffectResult {
+  return {
+    sideEffectId: 'scored_posts_side_effects',
+    sideEffectName: 'Scored Posts Side Effects',
+    actions: [
+      {
+        name: 'PhoenixExperimentsSideEffect',
+        nameZh: 'Phoenix 实验记录',
+        count: selectedCandidates.length,
+        description: 'Record scored post candidates and experiment metadata',
+        descriptionZh: '记录已评分帖子和实验元数据',
+      },
+      {
+        name: 'RerankingKafkaSideEffect',
+        nameZh: '重排结果记录',
+        count: selectedCandidates.length,
+        description: 'Publish reranking candidates for downstream inspection',
+        descriptionZh: '发布重排候选，供后续检查使用',
+      },
+      {
+        name: 'RedisPostCandidateCacheSideEffect',
+        nameZh: '候选缓存记录',
+        count: selectedCandidates.length + nonSelectedCandidates.length,
+        description: 'Cache selected and non-selected post candidates',
+        descriptionZh: '缓存已选择和未选择的帖子候选',
+      },
+      {
+        name: 'ScoredStatsSideEffect',
+        nameZh: '评分统计记录',
+        count: selectedCandidates.length,
+        description: 'Record scored-post response statistics',
+        descriptionZh: '记录帖子排序响应统计',
+      },
+      {
+        name: 'PhoenixRequestCacheSideEffect',
+        nameZh: 'Phoenix 请求缓存',
+        count: context.isBottomRequest ? 1 : 0,
+        description: 'Cache request data for bottom requests when applicable',
+        descriptionZh: '在适用时缓存下拉请求数据',
+      },
+    ],
+  };
+}
+
+function countFeedItems(feedItems: FeedItem[], type: FeedItem['type']): number {
+  return feedItems.filter((item) => item.type === type).length;
+}
+
+function summarizeForYouSideEffects(
+  feedItems: FeedItem[],
+  context: FilterContext
+): SideEffectResult {
+  const postCount = countFeedItems(feedItems, 'post');
+  const adCount = countFeedItems(feedItems, 'ad');
+  const moduleCount = feedItems.length - postCount;
+  const servedHistoryEntryCount = feedItems.reduce((count, item) => {
+    if (item.type === 'post' && item.tweet) {
+      return count + Math.max(1, (item.tweet.ancestors || []).length + 1);
+    }
+    if (item.type === 'push_to_home') {
+      return count + 2;
+    }
+    return count + 1;
+  }, 0);
+
+  return {
+    sideEffectId: 'for_you_side_effects',
+    sideEffectName: 'For You Side Effects',
+    actions: [
+      {
+        name: 'AdsInjectionLoggingSideEffect',
+        nameZh: '广告插入记录',
+        count: adCount,
+        description: 'Record ad insertion and safe-gap placement',
+        descriptionZh: '记录广告插入和安全间隔位置',
+      },
+      {
+        name: 'PublishSeenIdsToKafkaSideEffect',
+        nameZh: '已看内容发布',
+        count: context.seenTweetIds.length + context.bloomSeenTweetIds.length,
+        description: 'Publish seen IDs for impression tracking',
+        descriptionZh: '发布已看内容 ID，用于曝光跟踪',
+      },
+      {
+        name: 'ServedCandidatesKafkaSideEffect',
+        nameZh: '已下发候选记录',
+        count: feedItems.length,
+        description: 'Record served timeline candidates',
+        descriptionZh: '记录已下发的首页流候选',
+      },
+      {
+        name: 'ForYouResponseStatsSideEffect',
+        nameZh: 'For You 响应统计',
+        count: postCount + adCount + moduleCount,
+        description: 'Record response counts for posts, ads, and modules',
+        descriptionZh: '记录帖子、广告和模块的响应数量',
+      },
+      {
+        name: 'UpdateServedHistorySideEffect',
+        nameZh: '已服务历史更新',
+        count: servedHistoryEntryCount,
+        description: 'Write feed items into served history',
+        descriptionZh: '把首页流元素写入已服务历史',
+      },
+      {
+        name: 'TruncateServedHistorySideEffect',
+        nameZh: '已服务历史裁剪',
+        count: 1,
+        description: 'Keep served history bounded after the response',
+        descriptionZh: '响应后控制已服务历史长度',
+      },
+    ],
+  };
+}
+
+function createSideEffectStep(
+  id: string,
+  name: string,
+  nameZh: string,
+  description: string,
+  descriptionZh: string,
+  inputCount: number,
+  details: SideEffectResult
+): PipelineStep {
+  const outputCount = details.actions.reduce((total, action) => total + action.count, 0);
+
+  return {
+    id,
+    name,
+    nameZh,
+    description,
+    descriptionZh,
+    type: 'side_effect',
+    inputCount,
+    outputCount,
+    details,
+  };
+}
+
 // Run the complete ranking pipeline
 export function runPipeline(
   rawCandidates: TweetCandidate[],
@@ -855,18 +999,46 @@ export function runPipeline(
   }
 
   const finalCandidates = sortByFinalScore(postFilteredCandidates);
+  const scoredSideEffects = summarizeScoredPostsSideEffects(
+    finalCandidates,
+    scoredCandidates.filter(
+      (candidate) => !selectedCandidates.some((selected) => selected.id === candidate.id)
+    ),
+    context
+  );
+  steps.push(createSideEffectStep(
+    'scored_posts_side_effects',
+    'Scored Posts Side Effects',
+    '帖子排序副作用',
+    'Record scored-post cache, stats, and reranking outputs',
+    '记录帖子排序的缓存、统计和重排输出',
+    finalCandidates.length,
+    scoredSideEffects
+  ));
+
   const feedBlendResult = buildForYouFeed(finalCandidates, context, config.topK);
   steps.push({
     id: 'for_you_blender',
     name: 'BlenderSelector',
     nameZh: '最终混排选择器',
-    description: 'Blend scored posts with ads, prompts, who-to-follow, and push-to-home modules',
-    descriptionZh: '将已排序帖子与广告、提示、推荐关注、push-to-home 模块混排',
+    description: 'Blend scored posts with safe-gap ads, prompts, who-to-follow, and push-to-home modules',
+    descriptionZh: '将已排序帖子与安全间隔广告、提示、推荐关注、置顶回流模块混排',
     type: 'blender',
     inputCount: finalCandidates.length,
     outputCount: feedBlendResult.feedItems.length,
     details: feedBlendResult,
   });
+
+  const forYouSideEffects = summarizeForYouSideEffects(feedBlendResult.feedItems, context);
+  steps.push(createSideEffectStep(
+    'for_you_side_effects',
+    'For You Side Effects',
+    'For You 副作用',
+    'Record impressions, served history, and response stats after blending',
+    '混排后记录曝光、已服务历史和响应统计',
+    feedBlendResult.feedItems.length,
+    forYouSideEffects
+  ));
 
   steps.push({
     id: 'final_ranking',
@@ -1243,26 +1415,28 @@ export function* runPipelineStepByStep(
     candidates: currentCandidates,
   };
 
-  const { result: vmResult, updatedCandidates: vmCandidates } = runVMRanker(
-    currentCandidates,
-    config.weights
-  );
-  currentCandidates = vmCandidates;
+  if (config.weights.enableVMRanker && config.weights.vmRankerBlendFactor > 0) {
+    const { result: vmResult, updatedCandidates: vmCandidates } = runVMRanker(
+      currentCandidates,
+      config.weights
+    );
+    currentCandidates = vmCandidates;
 
-  yield {
-    step: {
-      id: 'vm_ranker',
-      name: 'VMRanker Approximation',
-      nameZh: 'VM 重排近似模拟',
-      description: 'Show where VMRanker reranking occurs with a local approximation',
-      descriptionZh: '用本地近似规则展示 VMRanker 重排所处位置',
-      type: 'scorer',
-      inputCount: currentCandidates.length,
-      outputCount: currentCandidates.length,
-      details: vmResult,
-    },
-    candidates: currentCandidates,
-  };
+    yield {
+      step: {
+        id: 'vm_ranker',
+        name: 'VMRanker Approximation',
+        nameZh: 'VM 重排近似模拟',
+        description: 'Show where optional VMRanker reranking occurs with a local approximation',
+        descriptionZh: '用本地近似规则展示可选 VMRanker 重排所处位置',
+        type: 'scorer',
+        inputCount: currentCandidates.length,
+        outputCount: currentCandidates.length,
+        details: vmResult,
+      },
+      candidates: currentCandidates,
+    };
+  }
 
   let selectedCandidates = sortByFinalScore(currentCandidates).slice(0, config.topK);
   yield {
@@ -1388,6 +1562,24 @@ export function* runPipelineStepByStep(
   }
 
   currentCandidates = sortByFinalScore(currentCandidates);
+  const scoredSideEffects = summarizeScoredPostsSideEffects(
+    currentCandidates,
+    [],
+    context
+  );
+  yield {
+    step: createSideEffectStep(
+      'scored_posts_side_effects',
+      'Scored Posts Side Effects',
+      '帖子排序副作用',
+      'Record scored-post cache, stats, and reranking outputs',
+      '记录帖子排序的缓存、统计和重排输出',
+      currentCandidates.length,
+      scoredSideEffects
+    ),
+    candidates: currentCandidates,
+  };
+
   const feedBlendResult = buildForYouFeed(currentCandidates, context, config.topK);
 
   yield {
@@ -1395,13 +1587,28 @@ export function* runPipelineStepByStep(
       id: 'for_you_blender',
       name: 'BlenderSelector',
       nameZh: '最终混排选择器',
-      description: 'Blend scored posts with ads, prompts, who-to-follow, and push-to-home modules',
-      descriptionZh: '将已排序帖子与广告、提示、推荐关注、push-to-home 模块混排',
+      description: 'Blend scored posts with safe-gap ads, prompts, who-to-follow, and push-to-home modules',
+      descriptionZh: '将已排序帖子与安全间隔广告、提示、推荐关注、置顶回流模块混排',
       type: 'blender',
       inputCount: currentCandidates.length,
       outputCount: feedBlendResult.feedItems.length,
       details: feedBlendResult,
     },
+    candidates: currentCandidates,
+    feedItems: feedBlendResult.feedItems,
+  };
+
+  const forYouSideEffects = summarizeForYouSideEffects(feedBlendResult.feedItems, context);
+  yield {
+    step: createSideEffectStep(
+      'for_you_side_effects',
+      'For You Side Effects',
+      'For You 副作用',
+      'Record impressions, served history, and response stats after blending',
+      '混排后记录曝光、已服务历史和响应统计',
+      feedBlendResult.feedItems.length,
+      forYouSideEffects
+    ),
     candidates: currentCandidates,
     feedItems: feedBlendResult.feedItems,
   };

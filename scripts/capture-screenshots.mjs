@@ -108,6 +108,13 @@ async function goto(path) {
 }
 
 async function screenshot(file) {
+  await send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved',
+    x: 8,
+    y: 8,
+  });
+  await delay(150);
+
   const pageHeightResult = await evalJs(`
     (() => {
       const root = document.documentElement;
@@ -279,6 +286,75 @@ async function setSimulatorSpeedMax() {
   await delay(350);
 }
 
+async function verifyFinalTimeline(labels) {
+  await waitForExpression(`
+    (() => {
+      const text = document.body.innerText || '';
+      return ![
+        'PushToHomeSource',
+        'AdsSource',
+        'WhoToFollowSource',
+        'PromptsSource'
+      ].some((label) => text.includes(label));
+    })()
+  `, 20000);
+
+  await waitForExpression(`
+    (() => {
+      return [
+        'PushToHomeSource',
+        'AdsSource',
+        'WhoToFollowSource',
+        'PromptsSource'
+      ].every((label) => document.querySelector('[data-source="' + label + '"]'));
+    })()
+  `, 20000);
+
+  await waitForExpression(`
+    (() => {
+      const text = document.body.innerText || '';
+      const required = ${labels === 'zh'
+        ? JSON.stringify(['帖子 6', '广告 1', '推荐关注 1', '提示 1', '置顶 1'])
+        : JSON.stringify(['Posts 6', 'Ads 1', 'Who to follow 1', 'Prompt 1', 'Push 1'])};
+      return required.every((label) => text.includes(label));
+    })()
+  `, 20000);
+}
+
+async function verifyVMRankerFlow(labels) {
+  await evalJs(`
+    (() => {
+      const switchButton = document.querySelector('button[role="switch"]');
+      if (!switchButton) throw new Error('VMRanker switch not found');
+      if (switchButton.getAttribute('aria-checked') !== 'true') {
+        switchButton.click();
+      }
+      return true;
+    })();
+  `);
+
+  await waitForText([labels === 'zh' ? '已启用' : 'Enabled'], 10000);
+  await setSimulatorSpeedMax();
+  await clickButtonByText([labels === 'zh' ? '播放' : 'Play']);
+
+  await waitForExpression(`
+    (() => {
+      const text = document.body.innerText || '';
+      const hasFinalLabel =
+        text.includes('Final Timeline') ||
+        text.includes('最终首页流');
+      const hasVmStep =
+        text.includes('Step 64 of 64') ||
+        text.includes('步骤 64 / 64');
+      return hasFinalLabel && hasVmStep;
+    })()
+  `, 120000);
+
+  await verifyFinalTimeline(labels);
+  await delay(1200);
+  await screenshot(`after-simulator-final-vm-${labels}.jpg`);
+}
+
 async function runForLanguage(lang, labels) {
   await setLanguage(lang);
 
@@ -315,19 +391,10 @@ async function runForLanguage(lang, labels) {
       return hasTop10 && hasFinalLabel;
     })()
   `, 120000);
-  await waitForExpression(`
-    (() => {
-      const text = document.body.innerText || '';
-      return [
-        'PushToHomeSource',
-        'AdsSource',
-        'WhoToFollowSource',
-        'PromptsSource'
-      ].every((label) => text.includes(label));
-    })()
-  `, 20000);
+  await verifyFinalTimeline(labels);
   await delay(300);
   await screenshot(`after-simulator-final-${labels}.jpg`);
+  await verifyVMRankerFlow(labels);
 
   await goto('/weights');
   await waitForText([labels === 'zh' ? '权重实验室' : 'Weight Laboratory']);

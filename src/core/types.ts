@@ -151,6 +151,7 @@ export interface WeightConfig {
   newUserOonWeightFactor: number;
 
   // Optional value-model reranking simulation
+  enableVMRanker: boolean;
   vmRankerBlendFactor: number;
 }
 
@@ -208,20 +209,42 @@ export interface PipelineStep {
   nameZh: string;
   description: string;
   descriptionZh: string;
-  type: 'query_hydrator' | 'source' | 'hydrator' | 'filter' | 'scorer' | 'selector' | 'blender' | 'ranker';
+  type:
+    | 'query_hydrator'
+    | 'source'
+    | 'hydrator'
+    | 'filter'
+    | 'scorer'
+    | 'selector'
+    | 'blender'
+    | 'side_effect'
+    | 'ranker';
   inputCount: number;
   outputCount: number;
-  details?: FilterResult | ScorerResult | FeedBlendResult;
+  details?: FilterResult | ScorerResult | FeedBlendResult | SideEffectResult;
 }
 
 // Scorer result
 export interface ScorerResult {
   scorerId: string;
   scorerName: string;
+  summary?: Record<string, number | string | boolean>;
   candidateScores: {
     candidateId: string;
     scores: Record<string, number>;
     finalScore: number;
+  }[];
+}
+
+export interface SideEffectResult {
+  sideEffectId: string;
+  sideEffectName: string;
+  actions: {
+    name: string;
+    nameZh: string;
+    count: number;
+    description: string;
+    descriptionZh: string;
   }[];
 }
 
@@ -240,6 +263,7 @@ export interface FeedItem {
   description: string;
   descriptionZh: string;
   source: string;
+  sourceZh?: string;
 }
 
 export interface FeedBlendResult {

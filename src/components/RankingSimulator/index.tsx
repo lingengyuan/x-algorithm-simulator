@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -15,6 +16,7 @@ import {
 import { CandidatePool } from './CandidatePool';
 import { FilterPipeline } from './FilterPipeline';
 import { ScorerPipeline } from './ScorerPipeline';
+import { SideEffectPipeline } from './SideEffectPipeline';
 import { FinalRanking } from './FinalRanking';
 import { RANKING_SCENARIOS, generateScenarioTweets, getDefaultFilterContext } from '@/data/mockTweets';
 import { FILTERS } from '@/core/filters';
@@ -45,6 +47,7 @@ export function RankingSimulator() {
   const [currentFeedItems, setCurrentFeedItems] = useState<FeedItem[] | undefined>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
+  const [enableVMRanker, setEnableVMRanker] = useState(false);
   const [selectedTweetId, setSelectedTweetId] = useState<string | undefined>();
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +56,7 @@ export function RankingSimulator() {
   const playIntervalRef = useRef<number | null>(null);
 
   // Initialize scenario function
-  const initializeScenario = useCallback((scenario: RankingScenario) => {
+  const initializeScenario = useCallback((scenario: RankingScenario, useVMRanker: boolean) => {
     try {
       const newCandidates = generateScenarioTweets(scenario);
       setCurrentCandidates(newCandidates);
@@ -67,7 +70,10 @@ export function RankingSimulator() {
       const context = getDefaultFilterContext(newCandidates, scenario);
       const config = {
         enabledFilters: FILTERS.filter(f => f.enabled).map(f => f.id),
-        weights: DEFAULT_WEIGHTS,
+        weights: {
+          ...DEFAULT_WEIGHTS,
+          enableVMRanker: useVMRanker,
+        },
         topK: 10,
       };
       pipelineGeneratorRef.current = runPipelineStepByStep(newCandidates, context, config);
@@ -94,8 +100,8 @@ export function RankingSimulator() {
   // Initialize scenario when selected
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    initializeScenario(selectedScenario);
-  }, [selectedScenario, initializeScenario]);
+    initializeScenario(selectedScenario, enableVMRanker);
+  }, [selectedScenario, enableVMRanker, initializeScenario]);
 
   // Next step function
   const nextStep = useCallback(() => {
@@ -158,8 +164,8 @@ export function RankingSimulator() {
   }, [currentStepIndex, stepSnapshots]);
 
   const reset = useCallback(() => {
-    initializeScenario(selectedScenario);
-  }, [selectedScenario, initializeScenario]);
+    initializeScenario(selectedScenario, enableVMRanker);
+  }, [selectedScenario, enableVMRanker, initializeScenario]);
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
@@ -326,6 +332,22 @@ export function RankingSimulator() {
               />
               <span className="text-sm font-medium w-8">{playSpeed}x</span>
             </div>
+
+            <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+              <Switch
+                checked={enableVMRanker}
+                onCheckedChange={setEnableVMRanker}
+                aria-label={isZh ? '启用 VMRanker 近似重排' : 'Enable VMRanker approximation'}
+              />
+              <div className="text-xs leading-tight">
+                <div className="font-semibold text-slate-700">
+                  {isZh ? 'VMRanker 近似' : 'VMRanker Approx'}
+                </div>
+                <div className="text-slate-500">
+                  {enableVMRanker ? (isZh ? '已启用' : 'Enabled') : (isZh ? '默认关闭' : 'Off by default')}
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -358,10 +380,10 @@ export function RankingSimulator() {
               {isZh ? '推荐关注' : 'Who to follow'} {feedModuleCounts?.who_to_follow ?? 0}
             </Badge>
             <Badge variant="secondary">
-              Prompt {feedModuleCounts?.prompt ?? 0}
+              {isZh ? '提示' : 'Prompt'} {feedModuleCounts?.prompt ?? 0}
             </Badge>
             <Badge variant="secondary">
-              Push {feedModuleCounts?.push_to_home ?? 0}
+              {isZh ? '置顶' : 'Push'} {feedModuleCounts?.push_to_home ?? 0}
             </Badge>
           </div>
         </div>
@@ -388,6 +410,11 @@ export function RankingSimulator() {
             onStepClick={handleStepClick}
           />
           <ScorerPipeline
+            steps={steps}
+            currentStepIndex={currentStepIndex}
+            onStepClick={handleStepClick}
+          />
+          <SideEffectPipeline
             steps={steps}
             currentStepIndex={currentStepIndex}
             onStepClick={handleStepClick}

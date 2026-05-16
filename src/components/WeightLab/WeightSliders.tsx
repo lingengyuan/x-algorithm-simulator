@@ -2,6 +2,7 @@ import { WeightConfig } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { WEIGHT_METADATA, DEFAULT_WEIGHTS } from '@/data/defaultWeights';
 import { cn } from '@/utils/cn';
@@ -15,7 +16,7 @@ interface WeightSlidersProps {
 export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
   const { t, isZh } = useTranslation();
 
-  const handleWeightChange = (key: keyof WeightConfig, value: number) => {
+  const handleWeightChange = (key: keyof WeightConfig, value: WeightConfig[keyof WeightConfig]) => {
     onChange({
       ...weights,
       [key]: value,
@@ -80,7 +81,6 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
 
   return (
     <div className="space-y-4">
-      {/* Positive Weights */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
@@ -94,7 +94,6 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
         </CardContent>
       </Card>
 
-      {/* Negative Weights */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
@@ -108,7 +107,6 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
         </CardContent>
       </Card>
 
-      {/* Diversity Parameters */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
@@ -157,7 +155,6 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
         </CardContent>
       </Card>
 
-      {/* OON Parameters */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
@@ -225,22 +222,43 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700">
-                {isZh ? 'VM 重排强度' : 'VM Rerank Blend'}
-              </label>
-              <span className="text-sm font-mono text-blue-600">
-                {weights.vmRankerBlendFactor.toFixed(2)}
-              </span>
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <div>
+                <label className="text-sm font-medium text-slate-700">
+                  {isZh ? '启用 VMRanker 近似重排' : 'Enable VMRanker Approximation'}
+                </label>
+                <p className="mt-1 text-xs text-slate-500">
+                  {isZh
+                    ? '上游 VMRanker 是可选服务；默认关闭，只在这里打开时参与本地近似重排。'
+                    : 'Upstream VMRanker is optional; it is off by default and only joins the local approximation when enabled here.'}
+                </p>
+              </div>
+              <Switch
+                checked={weights.enableVMRanker}
+                onCheckedChange={(checked) => handleWeightChange('enableVMRanker', checked)}
+                aria-label={isZh ? '启用 VMRanker 近似重排' : 'Enable VMRanker approximation'}
+              />
             </div>
-            <Slider
-              value={[weights.vmRankerBlendFactor]}
-              onValueChange={([v]) => handleWeightChange('vmRankerBlendFactor', v)}
-              min={0}
-              max={0.5}
-              step={0.05}
-            />
+
+            <div className={cn('space-y-2', !weights.enableVMRanker && 'opacity-50')}>
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-slate-700">
+                  {isZh ? 'VM 重排强度' : 'VM Rerank Blend'}
+                </label>
+                <span className="text-sm font-mono text-blue-600">
+                  {weights.vmRankerBlendFactor.toFixed(2)}
+                </span>
+              </div>
+              <Slider
+                value={[weights.vmRankerBlendFactor]}
+                onValueChange={([v]) => handleWeightChange('vmRankerBlendFactor', v)}
+                min={0}
+                max={0.5}
+                step={0.05}
+                disabled={!weights.enableVMRanker}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

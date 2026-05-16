@@ -1,5 +1,9 @@
 import { TweetCandidate, WeightConfig, ScorerResult, FilterContext } from '@/core/types';
-import { computeWeightedScore } from '@/utils/scoring';
+import {
+  computePostAgeBucketMs,
+  computeWeightedScore,
+  normalizeContinuousValueMs,
+} from '@/utils/scoring';
 
 export const SCORERS = [
   {
@@ -25,13 +29,58 @@ export const SCORERS = [
   },
 ];
 
+function maxOrZero(values: number[]): number {
+  return values.length ? Math.max(...values) : 0;
+}
+
+function minOrZero(values: number[]): number {
+  return values.length ? Math.min(...values) : 0;
+}
+
 export function runPhoenixScorer(candidates: TweetCandidate[]): ScorerResult {
+  const historyTokenCount = 3;
+  const candidateStartOffset = historyTokenCount + 1;
+  const sequenceLength = candidateStartOffset + candidates.length;
+  const impressionTimestampMs = Date.now();
+  const ageBuckets = candidates.map((candidate) =>
+    computePostAgeBucketMs(impressionTimestampMs, candidate.createdAt)
+  );
+  const normalizedDwellTimes = candidates.map((candidate) =>
+    normalizeContinuousValueMs(candidate.phoenixScores.dwellTime)
+  );
+  const normalizedClickDwellTimes = candidates.map((candidate) =>
+    normalizeContinuousValueMs(candidate.phoenixScores.clickDwellTime)
+  );
+
   return {
     scorerId: 'phoenix',
     scorerName: 'Phoenix Scorer Approximation',
-    candidateScores: candidates.map((c) => ({
+    summary: {
+      historyTokenCount,
+      candidateStartOffset,
+      sequenceLength,
+      candidateToCandidateAttention: 0,
+      candidateSelfAttention: 1,
+      candidateUserHistoryAttention: 1,
+      postAgeGranularityMinutes: 60,
+      postAgeMaxMinutes: 4800,
+      postAgeBucketMin: minOrZero(ageBuckets),
+      postAgeBucketMax: maxOrZero(ageBuckets),
+      continuousNormScaleSeconds: 30,
+      normalizedDwellTimeMax: maxOrZero(normalizedDwellTimes),
+      normalizedClickDwellTimeMax: maxOrZero(normalizedClickDwellTimes),
+    },
+    candidateScores: candidates.map((c, index) => ({
       candidateId: c.id,
-      scores: { ...c.phoenixScores },
+      scores: {
+        ...c.phoenixScores,
+        candidateToCandidateAttention: 0,
+        candidateSelfAttention: 1,
+        candidateUserHistoryAttention: 1,
+        postAgeBucket: ageBuckets[index],
+        normalizedDwellTime: normalizedDwellTimes[index],
+        normalizedClickDwellTime: normalizedClickDwellTimes[index],
+      },
       finalScore: (
         c.phoenixScores.favoriteScore +
         c.phoenixScores.replyScore +
@@ -245,8 +294,13 @@ export function runAllScorers(
   results.push(rankingResult);
 
   const { result: vmResult, updatedCandidates: finalCandidates } =
-    runVMRanker(rankingCandidates, weights);
-  results.push(vmResult);
+    weights.enableVMRanker && weights.vmRankerBlendFactor > 0
+      ? runVMRanker(rankingCandidates, weights)
+      : { result: undefined, updatedCandidates: rankingCandidates };
+
+  if (vmResult) {
+    results.push(vmResult);
+  }
 
   finalCandidates.sort((a, b) => (b.finalScore || 0) - (a.finalScore || 0));
 
