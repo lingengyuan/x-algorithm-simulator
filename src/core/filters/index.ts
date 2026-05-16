@@ -217,6 +217,10 @@ function collectCandidateTopicIds(candidate: TweetCandidate): number[] {
   ];
 }
 
+function collectFilteredTopicIds(candidate: TweetCandidate): number[] {
+  return candidate.filteredTopicIds || [];
+}
+
 function markFiltered(candidate: TweetCandidate, filter: FilterConfig): TweetCandidate {
   return {
     ...candidate,
@@ -470,12 +474,13 @@ export function runFilter(
 
       return runBasicFilter(candidates, filter, (candidate) => {
         const candidateTopics = collectCandidateTopicIds(candidate);
+        const filteredTopics = collectFilteredTopicIds(candidate);
 
-        if (expandedExcludedTopicIds.length && !candidateTopics.length) {
+        if (expandedExcludedTopicIds.length && !filteredTopics.length) {
           return false;
         }
 
-        if (expandedExcludedTopicIds.length && intersects(candidateTopics, expandedExcludedTopicIds)) {
+        if (expandedExcludedTopicIds.length && intersects(filteredTopics, expandedExcludedTopicIds)) {
           return false;
         }
 
@@ -504,7 +509,7 @@ export function runFilter(
           return true;
         }
 
-        return intersects(collectCandidateTopicIds(candidate), expandedNewUserTopics);
+        return intersects(collectFilteredTopicIds(candidate), expandedNewUserTopics);
       });
     }
 

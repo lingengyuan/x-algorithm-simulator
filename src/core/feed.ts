@@ -1,5 +1,9 @@
 import { FeedBlendResult, FeedItem, FilterContext, TweetCandidate } from '@/core/types';
 
+const MIN_POSTS_FOR_ADS = 5;
+const DEFAULT_AD_INSERT_AFTER_POSTS = 3;
+const WHO_TO_FOLLOW_POSITION = 5;
+
 function createPostItem(tweet: TweetCandidate, rank: number): FeedItem {
   return {
     id: `post-${tweet.id}`,
@@ -71,8 +75,8 @@ function createPromptItem(rank: number): FeedItem {
     labelZh: '提示',
     title: 'Conversation starter',
     titleZh: '互动提示',
-    description: 'A prompt module inserted after enough organic context is available.',
-    descriptionZh: '在已有足够自然内容后插入的互动提示模块。',
+    description: 'A prompt module inserted near the start of the blended timeline.',
+    descriptionZh: '插入到混排首页流前部的互动提示模块。',
     source: 'PromptsSource',
   };
 }
@@ -90,7 +94,6 @@ export function buildForYouFeed(
   context: FilterContext,
   topK: number
 ): FeedBlendResult {
-  const feedItems: FeedItem[] = [];
   const postItems = rankedPosts.map((tweet, index) => createPostItem(tweet, index + 1));
 
   if (!context.includeForYouModules) {
@@ -111,42 +114,34 @@ export function buildForYouFeed(
     };
   }
 
-  feedItems.push(createPushToHomeItem(feedItems.length + 1));
-
+  const blended: FeedItem[] = [];
+  const shouldInsertAd = postItems.length >= MIN_POSTS_FOR_ADS;
   let adInserted = false;
-  let whoToFollowInserted = false;
-  let promptInserted = false;
 
   for (const postItem of postItems) {
-    feedItems.push({
+    blended.push({
       ...postItem,
-      rank: feedItems.length + 1,
+      rank: blended.length + 1,
     });
 
-    const organicPostsSoFar = feedItems.filter((item) => item.type === 'post').length;
-    const previousPost = postItem.tweet;
-
-    if (!adInserted && organicPostsSoFar >= 2 && isBrandSafeForAdGap(previousPost)) {
-      feedItems.push(createAdItem(feedItems.length + 1));
+    const organicPostsSoFar = blended.filter((item) => item.type === 'post').length;
+    if (
+      shouldInsertAd &&
+      !adInserted &&
+      organicPostsSoFar >= DEFAULT_AD_INSERT_AFTER_POSTS &&
+      isBrandSafeForAdGap(postItem.tweet)
+    ) {
+      blended.push(createAdItem(blended.length + 1));
       adInserted = true;
-    }
-
-    if (!whoToFollowInserted && organicPostsSoFar >= 4) {
-      feedItems.push(createWhoToFollowItem(feedItems.length + 1));
-      whoToFollowInserted = true;
-    }
-
-    if (!promptInserted && organicPostsSoFar >= 6) {
-      feedItems.push(createPromptItem(feedItems.length + 1));
-      promptInserted = true;
-    }
-
-    if (feedItems.length >= topK) {
-      break;
     }
   }
 
-  const finalItems = feedItems.slice(0, topK).map((item, index) => ({
+  blended.splice(0, 0, createPromptItem(1));
+  const whoToFollowIndex = Math.min(Math.max(WHO_TO_FOLLOW_POSITION - 1, 0), blended.length);
+  blended.splice(whoToFollowIndex, 0, createWhoToFollowItem(whoToFollowIndex + 1));
+  blended.splice(0, 0, createPushToHomeItem(1));
+
+  const finalItems = blended.slice(0, topK).map((item, index) => ({
     ...item,
     rank: index + 1,
   }));

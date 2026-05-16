@@ -311,9 +311,7 @@ async function runForLanguage(lang, labels) {
       const hasTop10 = text.includes('Top 10');
       const hasFinalLabel =
         text.includes('Final Timeline') ||
-        text.includes('Final Ranking') ||
-        text.includes('最终首页流') ||
-        text.includes('最终排序');
+        text.includes('最终首页流');
       return hasTop10 && hasFinalLabel;
     })()
   `, 120000);

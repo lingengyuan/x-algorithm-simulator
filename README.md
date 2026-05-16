@@ -42,14 +42,16 @@ The upstream `xai-org/x-algorithm` repository added a larger For You feed implem
 | ![Weight Laboratory Adjusted](docs/screenshots/after-weights-adjusted-en.jpg) | After adjusting weights and observing ranking changes |
 | ![History Populated](docs/screenshots/after-history-populated-en.jpg) | History page populated by completed analysis runs |
 
-#### Before vs After (UI Redesign, 2026-02-12)
+#### Historical UI Comparison (2026-02-12)
 
-| Page | Before | After |
-|------|--------|-------|
-| Tweet Analyzer | ![before analyzer](docs/screenshots/before-analyzer-en.jpg) | ![after analyzer result](docs/screenshots/after-analyzer-result-en.jpg) |
-| Ranking Simulator | ![before simulator](docs/screenshots/before-simulator-en.jpg) | ![after simulator final](docs/screenshots/after-simulator-final-en.jpg) |
-| Weight Laboratory | ![before weights](docs/screenshots/before-weights-en.jpg) | ![after weights adjusted](docs/screenshots/after-weights-adjusted-en.jpg) |
-| History | ![before history](docs/screenshots/before-history-en.jpg) | ![after history populated](docs/screenshots/after-history-populated-en.jpg) |
+These before/after screenshots show the February 2026 UI redesign. They are kept as project history and are not intended to describe the current May 2026 algorithm flow.
+
+| Page | Before | Current |
+|------|--------|---------|
+| Tweet Analyzer | ![before analyzer](docs/screenshots/before-analyzer-en.jpg) | ![current analyzer result](docs/screenshots/after-analyzer-result-en.jpg) |
+| Ranking Simulator | ![before simulator](docs/screenshots/before-simulator-en.jpg) | ![current simulator final](docs/screenshots/after-simulator-final-en.jpg) |
+| Weight Laboratory | ![before weights](docs/screenshots/before-weights-en.jpg) | ![current weights adjusted](docs/screenshots/after-weights-adjusted-en.jpg) |
+| History | ![before history](docs/screenshots/before-history-en.jpg) | ![current history populated](docs/screenshots/after-history-populated-en.jpg) |
 
 To regenerate all interaction screenshots:
 
@@ -286,14 +288,16 @@ MIT
 | ![权重实验室调参后](docs/screenshots/after-weights-adjusted-zh.jpg) | 调整滑块后实时排名变化 |
 | ![历史记录有数据](docs/screenshots/after-history-populated-zh.jpg) | 分析执行后历史记录页出现条目 |
 
-#### 前后对比（UI 重设计，2026-02-12）
+#### 历史 UI 对比（2026-02-12）
 
-| 页面 | 重设计前 | 重设计后 |
+下面的前后对比用于保留 2026 年 2 月 UI 重设计的项目历史，不代表当前 2026 年 5 月算法流程。
+
+| 页面 | 重设计前 | 当前版本 |
 |------|----------|----------|
-| 推文分析器 | ![重设计前-分析器](docs/screenshots/before-analyzer-zh.jpg) | ![重设计后-分析器结果](docs/screenshots/after-analyzer-result-zh.jpg) |
-| 排序模拟器 | ![重设计前-模拟器](docs/screenshots/before-simulator-zh.jpg) | ![重设计后-模拟器最终态](docs/screenshots/after-simulator-final-zh.jpg) |
-| 权重实验室 | ![重设计前-权重](docs/screenshots/before-weights-zh.jpg) | ![重设计后-权重调参后](docs/screenshots/after-weights-adjusted-zh.jpg) |
-| 历史记录 | ![重设计前-历史](docs/screenshots/before-history-zh.jpg) | ![重设计后-历史有数据](docs/screenshots/after-history-populated-zh.jpg) |
+| 推文分析器 | ![重设计前-分析器](docs/screenshots/before-analyzer-zh.jpg) | ![当前-分析器结果](docs/screenshots/after-analyzer-result-zh.jpg) |
+| 排序模拟器 | ![重设计前-模拟器](docs/screenshots/before-simulator-zh.jpg) | ![当前-模拟器最终态](docs/screenshots/after-simulator-final-zh.jpg) |
+| 权重实验室 | ![重设计前-权重](docs/screenshots/before-weights-zh.jpg) | ![当前-权重调参后](docs/screenshots/after-weights-adjusted-zh.jpg) |
+| 历史记录 | ![重设计前-历史](docs/screenshots/before-history-zh.jpg) | ![当前-历史有数据](docs/screenshots/after-history-populated-zh.jpg) |
 
 重新生成交互截图可执行：
 
