@@ -125,8 +125,8 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                       {summary && (
                         <div>
                           {isZh
-                            ? `年龄桶 ${summary.postAgeBucketMin}-${summary.postAgeBucketMax}；停留按 ${summary.continuousNormScaleSeconds}s 归一化`
-                            : `age buckets ${summary.postAgeBucketMin}-${summary.postAgeBucketMax}; dwell normalized to ${summary.continuousNormScaleSeconds}s`}
+                            ? `${summary.outputHeadCount} 个输出头；dwell/click-dwell 以秒返回；本地为确定性测试数据`
+                            : `${summary.outputHeadCount} output heads; dwell/click-dwell return seconds; local values are deterministic fixtures`}
                         </div>
                       )}
                     </div>
@@ -140,7 +140,7 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                     className="mt-3 border-t border-slate-200 pt-3"
                   >
                     <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      score = weighted actions → author diversity → OON factor
+                      score = weighted actions → author cold-start → author diversity → OON factor
                     </div>
                   </motion.div>
                 )}
@@ -152,7 +152,7 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                     className="mt-3 border-t border-slate-200 pt-3"
                   >
                     <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      local approximation of the closed VMRanker service
+                      published DPP selection · deterministic local fixture embeddings
                     </div>
                   </motion.div>
                 )}

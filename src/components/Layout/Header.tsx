@@ -3,6 +3,7 @@ import { useTranslation } from '@/hooks/useI18n';
 import { LanguageSwitch } from './LanguageSwitch';
 import { cn } from '@/utils/cn';
 import { FileText, BarChart3, SlidersHorizontal, History } from 'lucide-react';
+import { UPSTREAM_SNAPSHOT } from '@/data/upstreamSnapshot';
 
 export function Header() {
   const { t } = useTranslation();
@@ -46,6 +47,14 @@ export function Header() {
               <span className="block truncate text-sm font-bold text-slate-900 sm:text-base">
                 {t('common.appName')}
               </span>
+              <a
+                href={`${UPSTREAM_SNAPSHOT.repository}/commit/${UPSTREAM_SNAPSHOT.commit}`}
+                target="_blank"
+                rel="noreferrer"
+                className="hidden text-[10px] font-mono text-sky-700 hover:underline sm:block"
+              >
+                upstream {UPSTREAM_SNAPSHOT.shortCommit}
+              </a>
             </div>
           </div>
 

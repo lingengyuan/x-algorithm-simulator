@@ -14,12 +14,13 @@ interface FinalRankingProps {
 
 export function FinalRanking({ candidates, feedItems, topK = 10 }: FinalRankingProps) {
   const { t, isZh } = useTranslation();
+  const hasFeedItems = feedItems !== undefined;
 
   const rankedCandidates = [...candidates]
     .filter((c) => !c.filtered && c.finalScore !== undefined)
     .sort((a, b) => (b.finalScore || 0) - (a.finalScore || 0))
     .slice(0, topK);
-  const timelineItems: FeedItem[] = feedItems?.length
+  const timelineItems: FeedItem[] = hasFeedItems
     ? feedItems
     : rankedCandidates.map((candidate, index) => ({
       id: `post-${candidate.id}`,
@@ -74,12 +75,14 @@ export function FinalRanking({ candidates, feedItems, topK = 10 }: FinalRankingP
   };
 
   return (
-    <Card>
+    <Card data-testid={hasFeedItems ? 'final-timeline' : 'final-ranking'}>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Trophy className="w-5 h-5 text-yellow-500" />
-          {feedItems?.length ? t('simulator.finalTimeline') : t('simulator.finalRanking')}
-          <Badge variant="default">Top {topK}</Badge>
+          {hasFeedItems ? t('simulator.finalTimeline') : t('simulator.finalRanking')}
+          <Badge variant="default">
+            {hasFeedItems ? `${timelineItems.length} ${isZh ? '项' : 'items'}` : `Top ${topK}`}
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>

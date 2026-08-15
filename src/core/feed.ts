@@ -1,22 +1,128 @@
-import type { FeedBlendResult, FeedItem, FilterContext, TweetCandidate } from '@/core/types';
+import type {
+  AdFixture,
+  FeedBlendResult,
+  FeedItem,
+  FilterContext,
+  TweetCandidate,
+} from '@/core/types';
+import { BLENDING_DEFAULTS } from '@/data/upstreamSnapshot';
+import { containsKeywordSequence, tokenizePostText } from '@/utils/textTokens';
 
 const MIN_POSTS_FOR_ADS = 5;
-const DEFAULT_AD_SPACING = {
-  requested: 3,
-  min: 2,
-};
-const DEFAULT_FIRST_AD_IDEAL_POSITION = 3;
-const WHO_TO_FOLLOW_POSITION = 5;
+const DEFAULT_REQUESTED_SPACING = 3;
+const PTOS_CUTOFF_TWEET_ID = 2_054_275_414_225_846_272n;
 
-function createPostItem(tweet: TweetCandidate, rank: number): FeedItem {
+const MEDIUM_RISK_LABELS = new Set([
+  'NSFW_HIGH_PRECISION',
+  'NSFW_HIGH_RECALL',
+  'NSFA_HIGH_PRECISION',
+  'NSFA_KEYWORDS_HIGH_PRECISION',
+  'GORE_AND_VIOLENCE_HIGH_PRECISION',
+  'NSFW_REPORTED_HEURISTICS',
+  'GORE_AND_VIOLENCE_REPORTED_HEURISTICS',
+  'NSFW_CARD_IMAGE',
+  'DO_NOT_AMPLIFY',
+  'MALICIOUS_URL',
+  'NSFA_COMMUNITY_NOTE',
+  'PDNA',
+  'EGREGIOUS_NSFW',
+  'GROK_NSFA',
+  'NSFW_TEXT',
+]);
+
+const LOW_RISK_LABELS = new Set([
+  'NSFA_LIMITED_INVENTORY',
+  'GROK_NSFA_LIMITED',
+  'NSFA_HIGH_RECALL',
+]);
+
+export function computeBrandSafetyVerdict(
+  candidate: TweetCandidate
+): NonNullable<TweetCandidate['brandSafetyVerdict']> {
+  return hydrateBrandSafety(candidate).verdict ?? 'medium_risk';
+}
+
+type BrandSafetyVerdict = NonNullable<TweetCandidate['brandSafetyVerdict']>;
+
+const VERDICT_SEVERITY: Record<BrandSafetyVerdict, number> = {
+  unspecified: 0,
+  safe: 1,
+  low_risk: 2,
+  medium_risk: 3,
+};
+
+function worstVerdict(left: BrandSafetyVerdict, right: BrandSafetyVerdict): BrandSafetyVerdict {
+  return VERDICT_SEVERITY[left] >= VERDICT_SEVERITY[right] ? left : right;
+}
+
+function verdictForLabels(
+  id: string,
+  safetyLabels: readonly string[] = []
+): BrandSafetyVerdict {
+  const labels = new Set(safetyLabels.map((label) => label.toUpperCase()));
+  if ([...MEDIUM_RISK_LABELS].some((label) => labels.has(label))) return 'medium_risk';
+
+  const scoredByGrok = labels.has('GROK_SFA') || labels.has('GROK_NSFA_LIMITED');
+  if (!scoredByGrok) return 'medium_risk';
+
+  try {
+    if (BigInt(id) >= PTOS_CUTOFF_TWEET_ID && !labels.has('PTOS_REVIEWED')) {
+      return 'medium_risk';
+    }
+  } catch {
+    return 'unspecified';
+  }
+
+  if ([...LOW_RISK_LABELS].some((label) => labels.has(label))) return 'low_risk';
+  return 'safe';
+}
+
+export function hydrateBrandSafety(candidate: TweetCandidate): {
+  verdict: TweetCandidate['brandSafetyVerdict'];
+  safetyLabels: string[];
+} {
+  const primaryId = candidate.originalTweetId || candidate.id;
+  const primary = candidate.originalTweetId ? candidate.relatedPosts?.[primaryId] : undefined;
+  const primaryLabels = primary?.safetyLabels || (
+    candidate.originalTweetId ? [] : candidate.safetyLabels || []
+  );
+  if (primary?.brandSafetyLookupFailed || candidate.brandSafetyLookupFailed) {
+    return {
+      verdict: candidate.brandSafetyVerdict,
+      safetyLabels: [...(candidate.safetyLabels || [])],
+    };
+  }
+  let verdict = verdictForLabels(primaryId, primaryLabels);
+  const combinedLabels = [...primaryLabels];
+
+  const relatedIds = [candidate.quotedTweetId, ...(candidate.ancestors || [])]
+    .filter((id): id is string => Boolean(id));
+  for (const id of relatedIds) {
+    const related = candidate.relatedPosts?.[id];
+    const relatedLabels = related?.safetyLabels || [];
+    verdict = worstVerdict(
+      verdict,
+      related?.brandSafetyLookupFailed ? 'medium_risk' : verdictForLabels(id, relatedLabels)
+    );
+    combinedLabels.push(...relatedLabels);
+  }
+
+  if (candidate.nsfwAuthorAds) verdict = worstVerdict(verdict, 'medium_risk');
+  return {
+    verdict,
+    safetyLabels: [...new Set(combinedLabels.map((label) => label.toUpperCase()))].sort(),
+  };
+}
+
+function createPostItem(tweet: TweetCandidate): FeedItem {
   return {
     id: `post-${tweet.id}`,
     type: 'post',
-    rank,
+    rank: 0,
     tweet,
     score: tweet.finalScore,
-    label: 'Post',
-    labelZh: '帖子',
+    label: tweet.visibilityAction === 'interstitial' ? 'Post · Interstitial' : 'Post',
+    labelZh: tweet.visibilityAction === 'interstitial' ? '帖子 · 警示遮罩' : '帖子',
     title: tweet.authorName,
     titleZh: tweet.authorName,
     description: tweet.content,
@@ -26,209 +132,277 @@ function createPostItem(tweet: TweetCandidate, rank: number): FeedItem {
   };
 }
 
-function createPushToHomeItem(rank: number): FeedItem {
+function createModuleItem(
+  type: Exclude<FeedItem['type'], 'post'>,
+  id: string,
+  title: string,
+  titleZh: string,
+  source: string
+): FeedItem {
+  const labels: Record<Exclude<FeedItem['type'], 'post'>, [string, string]> = {
+    ad: ['Ad', '广告'],
+    who_to_follow: ['Who to follow', '推荐关注'],
+    prompt: ['Prompt', '提示'],
+    push_to_home: ['Push to home', '置顶回流'],
+    frame: ['Jetfuel frame', 'Jetfuel 框架'],
+    feed_survey: ['Feed survey', '信息流问卷'],
+  };
   return {
-    id: 'module-push-to-home',
-    type: 'push_to_home',
-    rank,
-    label: 'Pinned Module',
-    labelZh: '置顶模块',
-    title: 'Push-to-home module',
-    titleZh: '置顶回流模块',
-    description: 'Pinned module inserted before the organic feed when available.',
-    descriptionZh: '可用时插入到自然内容前的置顶模块。',
-    source: 'PushToHomeSource',
-    sourceZh: '置顶回流来源',
+    id,
+    type,
+    rank: 0,
+    label: labels[type][0],
+    labelZh: labels[type][1],
+    title,
+    titleZh,
+    description: `${source} fixture`,
+    descriptionZh: `${source} 测试数据`,
+    source,
+    sourceZh: source,
   };
 }
 
-function createAdItem(rank: number): FeedItem {
-  return {
-    id: `module-ad-${rank}`,
-    type: 'ad',
-    rank,
-    label: 'Ad',
-    labelZh: '广告',
-    title: 'Brand-safe promoted post',
-    titleZh: '品牌安全广告内容',
-    description: 'Inserted with a safe organic gap instead of being ranked as a normal post.',
-    descriptionZh: '按安全间隔插入，不作为普通帖子参与排序。',
-    source: 'AdsSource',
-    sourceZh: '广告来源',
-  };
+function createAdItem(ad: AdFixture): FeedItem {
+  return createModuleItem(
+    'ad',
+    `module-ad-${ad.id}`,
+    'Promoted post fixture',
+    '推广内容测试数据',
+    'AdsSource'
+  );
 }
 
-function createWhoToFollowItem(rank: number): FeedItem {
-  return {
-    id: 'module-who-to-follow',
-    type: 'who_to_follow',
-    rank,
-    label: 'Who to follow',
-    labelZh: '推荐关注',
-    title: 'Suggested accounts',
-    titleZh: '推荐关注账号',
-    description: 'A follow recommendation module blended into the timeline.',
-    descriptionZh: '混入时间线的关注推荐模块。',
-    source: 'WhoToFollowSource',
-    sourceZh: '推荐关注来源',
-  };
+function hasAvoid(candidate: TweetCandidate): boolean {
+  return candidate.brandSafetyVerdict === 'medium_risk';
 }
 
-function createPromptItem(rank: number): FeedItem {
-  return {
-    id: 'module-prompt',
-    type: 'prompt',
-    rank,
-    label: 'Prompt',
-    labelZh: '提示',
-    title: 'Conversation starter',
-    titleZh: '互动提示',
-    description: 'A prompt module inserted near the start of the blended timeline.',
-    descriptionZh: '插入到混排首页流前部的互动提示模块。',
-    source: 'PromptsSource',
-    sourceZh: '互动提示来源',
-  };
+function requestedSpacing(ads: readonly AdFixture[]): number {
+  if (ads.length < 2) return DEFAULT_REQUESTED_SPACING;
+  const positions = ads.slice(0, 4)
+    .map((ad) => ad.insertPosition)
+    .sort((left, right) => left - right);
+  const positiveDiffs = positions.slice(1)
+    .map((position, index) => position - positions[index])
+    .filter((difference) => difference > 0);
+  const minimum = positiveDiffs.length ? Math.min(...positiveDiffs) : undefined;
+  return minimum !== undefined && minimum >= 3 ? minimum : DEFAULT_REQUESTED_SPACING;
 }
 
-function isBrandSafeForAdGap(tweet?: TweetCandidate): boolean {
-  if (!tweet) {
-    return true;
-  }
-
-  return tweet.brandSafetyRisk !== 'high' && !tweet.visibilityFiltered && !tweet.safetyLabels?.length;
+function lowRiskAdRejected(
+  ad: AdFixture,
+  above: TweetCandidate,
+  below: TweetCandidate
+): boolean {
+  if (ad.brandSafetyRisk !== 'low' && ad.brandSafetyRisk !== 'ias') return false;
+  return above.brandSafetyVerdict === 'low_risk' || below.brandSafetyVerdict === 'low_risk';
 }
 
-function hasAdAvoidance(tweet?: TweetCandidate): boolean {
-  return !isBrandSafeForAdGap(tweet) || tweet?.brandSafetyRisk === 'medium';
+function handleRejected(
+  ad: AdFixture,
+  above: TweetCandidate,
+  below: TweetCandidate
+): boolean {
+  if (!ad.handles.length) return false;
+  const handles = new Set(ad.handles.filter((id) => id !== '0'));
+  const matches = (post: TweetCandidate) => [
+    post.authorId,
+    post.retweetedAuthorId,
+    post.quotedAuthorId,
+    ...(post.ancestorUserIds || []),
+  ].some((id) => Boolean(id && handles.has(id)));
+  return matches(above) || matches(below);
 }
 
-function findSafeAdGaps(postItems: FeedItem[]): number[] {
-  const safeGaps: number[] = [];
+function keywordRejected(
+  ad: AdFixture,
+  above: TweetCandidate,
+  below: TweetCandidate
+): boolean {
+  const keywords = ad.keywords.map(tokenizePostText).filter((tokens) => tokens.length > 0);
+  if (!keywords.length) return false;
+  return [above, below].some((post) => {
+    const postTokens = tokenizePostText(post.content);
+    return keywords.some((keyword) => containsKeywordSequence(postTokens, keyword));
+  });
+}
 
-  for (let gap = 1; gap < postItems.length; gap += 1) {
-    const above = postItems[gap - 1]?.tweet;
-    const below = postItems[gap]?.tweet;
+/** Mirrors the pinned PartitionOrganicAdsBlender over explicit local ad fixtures. */
+function partitionOrganic(
+  scoredPosts: TweetCandidate[],
+  ads: AdFixture[]
+): FeedItem[] {
+  const postItems = scoredPosts.map(createPostItem);
+  const postCount = scoredPosts.length;
+  if (ads.length === 0 || postCount < MIN_POSTS_FOR_ADS) return postItems;
 
-    if (hasAdAvoidance(above) || hasAdAvoidance(below)) {
+  const safeCount = scoredPosts.filter((post) => !hasAvoid(post)).length;
+  const expectedFromSpacing = Math.floor(
+    Math.max(0, postCount - 1) / requestedSpacing(ads)
+  );
+  const actualAds = Math.min(ads.length, expectedFromSpacing, Math.floor(safeCount / 2));
+  if (actualAds === 0) return postItems;
+
+  const safe = scoredPosts.filter((post) => !hasAvoid(post));
+  const unsafe = scoredPosts.filter(hasAvoid);
+  const groupSize = Math.floor(safe.length / actualAds);
+  const remainingSafe = safe.map((post) => post as TweetCandidate | undefined);
+  const triples: Array<{ ad: AdFixture; above: TweetCandidate; below: TweetCandidate }> = [];
+
+  let group = 0;
+  for (const ad of ads) {
+    if (group >= actualAds) break;
+    const start = group * groupSize;
+    const above = remainingSafe[start];
+    const below = remainingSafe[start + 1];
+    if (!above || !below) break;
+    if (
+      lowRiskAdRejected(ad, above, below) ||
+      handleRejected(ad, above, below) ||
+      keywordRejected(ad, above, below)
+    ) {
       continue;
     }
-
-    safeGaps.push(gap);
+    remainingSafe[start] = undefined;
+    remainingSafe[start + 1] = undefined;
+    triples.push({ ad, above, below });
+    group += 1;
   }
 
-  return safeGaps;
-}
-
-function findBestSafeGap(gaps: number[], ideal: number, min: number): number | undefined {
-  const candidates = gaps.filter((gap) => gap >= min);
-  if (!candidates.length) {
-    return undefined;
+  if (!triples.length) {
+    return [...remainingSafe.filter((post): post is TweetCandidate => Boolean(post)), ...unsafe]
+      .sort((left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0))
+      .map(createPostItem);
   }
 
-  return candidates.reduce((best, gap) => (
-    Math.abs(gap - ideal) < Math.abs(best - ideal) ? gap : best
-  ), candidates[0]);
-}
+  const filler = [
+    ...remainingSafe.filter((post): post is TweetCandidate => Boolean(post)),
+    ...unsafe,
+  ].sort((left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0));
+  const fillerPerGap = Math.floor(filler.length / triples.length);
+  const remainder = filler.length % triples.length;
+  let fillerIndex = 0;
+  const items: FeedItem[] = [];
 
-function assignAdGaps(postItems: FeedItem[], adCount: number): number[] {
-  const safeGaps = findSafeAdGaps(postItems);
-  const placements: number[] = [];
-  let previousIdeal = DEFAULT_FIRST_AD_IDEAL_POSITION;
-
-  for (let index = 0; index < adCount; index += 1) {
-    const ideal = index === 0
-      ? DEFAULT_FIRST_AD_IDEAL_POSITION
-      : previousIdeal + DEFAULT_AD_SPACING.requested;
-    const min = index === 0
-      ? 1
-      : Math.max(previousIdeal + DEFAULT_AD_SPACING.min, (placements[index - 1] || 0) + DEFAULT_AD_SPACING.min);
-    const availableGaps = safeGaps.filter((gap) => !placements.includes(gap));
-    const placement = findBestSafeGap(availableGaps, ideal, min);
-
-    if (placement === undefined) {
-      break;
+  triples.forEach((triple, index) => {
+    items.push(createPostItem(triple.above), createAdItem(triple.ad), createPostItem(triple.below));
+    const count = fillerPerGap + (index >= triples.length - remainder ? 1 : 0);
+    for (let offset = 0; offset < count && fillerIndex < filler.length; offset += 1) {
+      items.push(createPostItem(filler[fillerIndex]));
+      fillerIndex += 1;
     }
+  });
 
-    placements.push(placement);
-    previousIdeal = ideal;
-  }
-
-  return placements;
+  const truncated = items.slice(0, BLENDING_DEFAULTS.resultSize);
+  if (truncated.at(-1)?.type === 'ad') truncated.pop();
+  return truncated;
 }
 
-function interleaveAdsBySafeGap(postItems: FeedItem[]): FeedItem[] {
-  if (postItems.length < MIN_POSTS_FOR_ADS) {
-    return [...postItems];
-  }
+function insertModules(items: FeedItem[], context: FilterContext): FeedItem[] {
+  const blended = [...items];
 
-  const adPlacements = assignAdGaps(postItems, 1);
-  if (!adPlacements.length) {
-    return [...postItems];
-  }
-
-  const blended: FeedItem[] = [];
-  for (let index = 0; index < postItems.length; index += 1) {
-    if (adPlacements.includes(index)) {
-      blended.push(createAdItem(blended.length + 1));
+  if (BLENDING_DEFAULTS.enablePrompts) {
+    for (let index = 0; index < context.promptCount; index += 1) {
+      blended.splice(index, 0, createModuleItem(
+        'prompt',
+        `module-prompt-${index}`,
+        'Conversation starter',
+        '互动提示',
+        'PromptsSource'
+      ));
     }
-    blended.push(postItems[index]);
   }
 
-  if (blended.at(-1)?.type === 'ad') {
-    blended.pop();
+  if (BLENDING_DEFAULTS.enableWhoToFollow && context.whoToFollowEligible) {
+    const index = Math.min(BLENDING_DEFAULTS.whoToFollowPosition - 1, blended.length);
+    blended.splice(index, 0, createModuleItem(
+      'who_to_follow',
+      'module-who-to-follow',
+      'Suggested accounts',
+      '推荐关注账号',
+      'WhoToFollowSource'
+    ));
   }
 
-  return blended;
+  if (context.pushToHomeTweetId) {
+    blended.unshift(createModuleItem(
+      'push_to_home',
+      `module-push-to-home-${context.pushToHomeTweetId}`,
+      'Push-to-home post',
+      '置顶回流帖子',
+      'PushToHomeSource'
+    ));
+  }
+
+  if (BLENDING_DEFAULTS.enableJetfuelFrames) {
+    const frameCount = Math.min(
+      context.jetfuelFrameCount,
+      BLENDING_DEFAULTS.maxJetfuelFramesPerResponse
+    );
+    for (let index = 0; index < frameCount; index += 1) {
+      const slot = Math.min((index + 1) * 4, blended.length);
+      blended.splice(slot, 0, createModuleItem(
+        'frame',
+        `module-frame-${index}`,
+        'Jetfuel frame',
+        'Jetfuel 框架',
+        'JetfuelFrameSource'
+      ));
+    }
+  }
+
+  if (BLENDING_DEFAULTS.enableFeedSurvey && context.feedSurveyEligible) {
+    const index = Math.min(BLENDING_DEFAULTS.feedSurveyPosition - 1, blended.length);
+    blended.splice(index, 0, createModuleItem(
+      'feed_survey',
+      'module-feed-survey',
+      'Feed survey',
+      '信息流问卷',
+      'FeedSurveySource'
+    ));
+  }
+
+  return blended.slice(0, BLENDING_DEFAULTS.resultSize + BLENDING_DEFAULTS.feedModuleSlots +
+    BLENDING_DEFAULTS.maxJetfuelFramesPerResponse);
+}
+
+function count(items: FeedItem[], type: FeedItem['type']): number {
+  return items.filter((item) => item.type === type).length;
 }
 
 export function buildForYouFeed(
   rankedPosts: TweetCandidate[],
-  context: FilterContext,
-  topK: number
+  context: FilterContext
 ): FeedBlendResult {
-  const postItems = rankedPosts.map((tweet, index) => createPostItem(tweet, index + 1));
-
-  if (!context.includeForYouModules) {
-    const items = postItems.slice(0, topK).map((item, index) => ({
-      ...item,
-      rank: index + 1,
-    }));
-
-    return {
-      blenderId: 'post_only_feed',
-      blenderName: 'ScoredPosts timeline',
-      postCount: items.length,
-      adCount: 0,
-      whoToFollowCount: 0,
-      promptCount: 0,
-      pushToHomeCount: 0,
-      feedItems: items,
-    };
-  }
-
-  const blended = interleaveAdsBySafeGap(postItems).map((item, index) => ({
-    ...item,
-    rank: index + 1,
+  // ScoredPostsServer serializes missing values before For You consumes the posts.
+  const scoredPostCandidates = rankedPosts.map((post) => ({
+    ...post,
+    inNetwork: post.inNetwork ?? false,
+    brandSafetyVerdict: post.brandSafetyVerdict ?? 'medium_risk',
   }));
-
-  blended.splice(0, 0, createPromptItem(1));
-  const whoToFollowIndex = Math.min(Math.max(WHO_TO_FOLLOW_POSITION - 1, 0), blended.length);
-  blended.splice(whoToFollowIndex, 0, createWhoToFollowItem(whoToFollowIndex + 1));
-  blended.splice(0, 0, createPushToHomeItem(1));
-
-  const finalItems = blended.slice(0, topK).map((item, index) => ({
+  const dedupedPosts = context.pushToHomeTweetId
+    ? scoredPostCandidates.filter((post) =>
+        post.id !== context.pushToHomeTweetId && post.originalTweetId !== context.pushToHomeTweetId
+      )
+    : scoredPostCandidates;
+  const organicAndAds = partitionOrganic(
+    dedupedPosts,
+    BLENDING_DEFAULTS.enableAds ? context.adFixtures : []
+  );
+  const feedItems = insertModules(organicAndAds, context).map((item, index) => ({
     ...item,
     rank: index + 1,
   }));
 
   return {
-    blenderId: 'for_you_blender',
-    blenderName: 'ForYou BlenderSelector approximation',
-    postCount: finalItems.filter((item) => item.type === 'post').length,
-    adCount: finalItems.filter((item) => item.type === 'ad').length,
-    whoToFollowCount: finalItems.filter((item) => item.type === 'who_to_follow').length,
-    promptCount: finalItems.filter((item) => item.type === 'prompt').length,
-    pushToHomeCount: finalItems.filter((item) => item.type === 'push_to_home').length,
-    feedItems: finalItems,
+    blenderId: BLENDING_DEFAULTS.adsBlender,
+    blenderName: 'BlenderSelector / PartitionOrganicAdsBlender',
+    postCount: count(feedItems, 'post'),
+    adCount: count(feedItems, 'ad'),
+    whoToFollowCount: count(feedItems, 'who_to_follow'),
+    promptCount: count(feedItems, 'prompt'),
+    pushToHomeCount: count(feedItems, 'push_to_home'),
+    frameCount: count(feedItems, 'frame'),
+    feedSurveyCount: count(feedItems, 'feed_survey'),
+    feedItems,
   };
 }

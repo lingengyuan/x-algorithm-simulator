@@ -5,7 +5,9 @@ export interface PhoenixScores {
   replyScore: number;           // Reply probability
   retweetScore: number;         // Retweet probability
   photoExpandScore: number;     // Photo expand probability
+  videoOpenScore: number;       // Video open probability
   clickScore: number;           // Click probability
+  openLinkScore: number;        // External link open probability
   profileClickScore: number;    // Profile click probability
   vqvScore: number;             // Video quality view score
   shareScore: number;           // Share probability
@@ -16,6 +18,7 @@ export interface PhoenixScores {
   quotedClickScore: number;     // Click quoted content probability
   quotedVqvScore: number;       // Video quality view on quoted content
   followAuthorScore: number;    // Follow author probability
+  postUnexploredScore: number;  // Probability that the post is under-explored
 
   // Negative behaviors
   notInterestedScore: number;   // Not interested probability
@@ -25,8 +28,83 @@ export interface PhoenixScores {
   notDwelledScore: number;      // Not dwelled probability
 
   // Continuous values
-  dwellTime: number;            // Expected dwell time in ms
-  clickDwellTime: number;       // Expected dwell time after click in ms
+  dwellTime: number;            // Predicted continuous dwell value in seconds
+  clickDwellTime: number;       // Predicted continuous click-dwell value in seconds
+  activeSecs5mResidualNorm: number;
+}
+
+export type VisibilityAction = 'allow' | 'drop' | 'interstitial';
+
+export type CandidateSourceType =
+  | 'thunder'
+  | 'tweet_mixer'
+  | 'simclusters'
+  | 'phoenix'
+  | 'phoenix_topics'
+  | 'phoenix_moe'
+  | 'cached_posts';
+
+export type ServedType =
+  | 'ranked_following'
+  | 'for_you_in_network'
+  | 'for_you_tweet_mixer'
+  | 'for_you_simclusters'
+  | 'for_you_phoenix_retrieval'
+  | 'for_you_phoenix_retrieval_moe';
+
+export interface VisibilityFeatures {
+  authorState?: 'active' | 'suspended' | 'deactivated' | 'erased' | 'offboarded';
+  authorProtected?: boolean;
+  authorNsfwUser?: boolean;
+  authorNsfwAdmin?: boolean;
+  authorSafetyLabels?: string[];
+  viewerMutesRetweetsFromAuthor?: boolean;
+  nullcasted?: boolean;
+  communityTweet?: boolean;
+  stale?: boolean;
+  hasSourceTweet?: boolean;
+  legalTakedownCountries?: string[];
+  localLawTakedownCountries?: string[];
+  exclusiveContent?: boolean;
+  viewerCanSeeExclusiveContent?: boolean;
+  dmcaMedia?: boolean;
+  geoAllowCountries?: string[];
+  geoDenyCountries?: string[];
+  tweetNsfwUser?: boolean;
+  tweetNsfwAdmin?: boolean;
+}
+
+export interface RelatedPostFixture {
+  id: string;
+  authorId: string;
+  hasImage: boolean;
+  hasVideo: boolean;
+  isRetweet: boolean;
+  safetyLabels?: string[];
+  nsfwAuthor?: boolean;
+  visibilityFeatures?: VisibilityFeatures;
+  brandSafetyLookupFailed?: boolean;
+}
+
+export interface SlateContext {
+  k: number;
+  poolRank: number;
+  poolRankGap?: number;
+  fatigue: number;
+  preDiversityScore: number;
+}
+
+export type ViewerAge =
+  | { status: 'known'; age: number }
+  | { status: 'not_stated' }
+  | { status: 'unknown' };
+
+export interface AdFixture {
+  id: string;
+  insertPosition: number;
+  brandSafetyRisk: 'unknown' | 'low' | 'ias' | 'high';
+  handles: string[];
+  keywords: string[];
 }
 
 // Tweet input for analysis
@@ -44,7 +122,7 @@ export interface TweetCandidate {
   content: string;
   authorId: string;
   authorName: string;
-  authorFollowers: number;
+  authorFollowers?: number;
   authorVerified: boolean;
   authorAvatar?: string;
 
@@ -55,43 +133,54 @@ export interface TweetCandidate {
 
   // Metadata
   createdAt: number;  // Snowflake timestamp
-  inNetwork: boolean;
-  servedType?: 'for_you_in_network' | 'for_you_phoenix_retrieval';
-  sourceType?:
-    | 'thunder'
-    | 'tweet_mixer'
-    | 'phoenix'
-    | 'phoenix_topics'
-    | 'phoenix_moe'
-    | 'cached_posts';
+  inNetwork?: boolean;
+  servedType?: ServedType;
+  sourceType?: CandidateSourceType;
   conversationId?: string;
   ancestors?: string[];
+  tombstoneAncestorIds?: string[];
+  ancestorUserIds?: string[];
+  inReplyToTweetId?: string;
   isRetweet: boolean;
   originalTweetId?: string;
   retweetedAuthorId?: string;
   quotedTweetId?: string;
   quotedAuthorId?: string;
   subscriptionAuthorId?: string;
-  visibilityFiltered?: boolean;
+  visibilityAction?: VisibilityAction;
+  visibilityReason?: string;
+  visibilityDecidedBy?: string;
   dropAncillaryPosts?: boolean;
   authorBlocksViewer?: boolean;
   quotedAuthorBlocksViewer?: boolean;
-  viewerBlocksQuotedAuthor?: boolean;
-  viewerBlocksRetweetedAuthor?: boolean;
 
   // Hydrated candidate features from the 2026 X algorithm release
-  filteredTopicIds?: number[];
-  unfilteredTopicIds?: number[];
+  filteredTopicIds?: string[];
+  unfilteredTopicIds?: string[];
   followingRepliedUserIds?: string[];
   languageCode?: string;
   favoriteCount?: number;
   replyCount?: number;
   repostCount?: number;
   quoteCount?: number;
+  viewCount?: number;
+  bookmarkCount?: number;
   mutualFollowJaccard?: number;
-  brandSafetyRisk?: 'low' | 'medium' | 'high';
+  isMutualFollowAuthor?: boolean;
+  authorFollowsViewer?: boolean;
+  nsfwAuthor?: boolean;
+  brandSafetyVerdict?: 'unspecified' | 'safe' | 'low_risk' | 'medium_risk';
   safetyLabels?: string[];
+  visibilityFeatures?: VisibilityFeatures;
+  semanticIds?: string[];
+  embedding?: number[];
+  topicFeedbackTopic?: string;
+  topicFeedbackTopicId?: string;
   quotedVideoDurationMs?: number;
+  relatedPosts?: Record<string, RelatedPostFixture>;
+  nsfwAuthorAds?: boolean;
+  brandSafetyLookupFailed?: boolean;
+  tweetTypeMetrics?: number[];
 
   // Phoenix predicted scores
   phoenixScores: PhoenixScores;
@@ -99,8 +188,12 @@ export interface TweetCandidate {
   // Computed scores
   rawWeightedScore?: number;
   weightedScore?: number;
+  coldStartAdjustedScore?: number;
   diversityAdjustedScore?: number;
   finalScore?: number;
+  coldStartBoosted?: boolean;
+  vmRankerSelected?: boolean;
+  slateContext?: SlateContext;
 
   // Filter status
   filtered: boolean;
@@ -113,9 +206,13 @@ export interface WeightConfig {
   // Positive weights
   favoriteWeight: number;
   replyWeight: number;
+  bidirectionalFollowReplyWeightBoost: number;
+  bidirectionalFollowDwellWeightBoost: number;
   retweetWeight: number;
   photoExpandWeight: number;
+  videoOpenWeight: number;
   clickWeight: number;
+  openLinkWeight: number;
   profileClickWeight: number;
   vqvWeight: number;
   shareWeight: number;
@@ -125,6 +222,7 @@ export interface WeightConfig {
   quoteWeight: number;
   quotedClickWeight: number;
   followAuthorWeight: number;
+  postUnexploredWeight: number;
 
   // Negative weights
   notInterestedWeight: number;
@@ -135,13 +233,23 @@ export interface WeightConfig {
   notDwelledWeight: number;
   dwellTimeWeight: number;
   clickDwellTimeWeight: number;
+  activeSecs5mResidualNormWeight: number;
 
   // Weighted scorer controls
   minVideoDurationMs: number;
   enableQuotedVqvDurationCheck: boolean;
   negativeScoresOffset: number;
+  enableMultiplicativePostUnexplored: boolean;
+  multiplicativePostUnexploredAlpha: number;
+  postUnexploredInNetworkOnly: boolean;
+  enableClickDwellLowFavRatePenalty: boolean;
+  clickDwellLowFavRatePenaltyBaseline: number;
+  clickDwellLowFavRatePenaltyAlpha: number;
+  clickDwellLowFavRatePenaltyFloor: number;
+  clickDwellLowFavRatePenaltyCap: number;
 
   // Diversity parameters
+  enableAuthorDiversity: boolean;
   authorDiversityDecay: number;
   authorDiversityFloor: number;
 
@@ -149,10 +257,24 @@ export interface WeightConfig {
   oonWeightFactor: number;
   topicOonWeightFactor: number;
   newUserOonWeightFactor: number;
+  newUserAgeThresholdSecs: number;
+  newUserMinFollowing: number;
+  enableOonRescoreForInNetworkRepliesRetweets: boolean;
 
-  // Optional value-model reranking simulation
+  // Author cold-start boost
+  enableAuthorColdStart: boolean;
+  coldStartImpressionThreshold: number;
+  coldStartSlotMin: number;
+  coldStartSlotMax: number;
+  coldStartFollowerCap: number;
+  coldStartMaxPostAgeSecs: number;
+  lowImpressionsMaxPositionRatio: number;
+
+  // DPP reranking
   enableVMRanker: boolean;
-  vmRankerBlendFactor: number;
+  vmRankerTheta: number;
+  vmRankerTopK: number;
+  vmRankerMaxSelectedRank: number;
 }
 
 // Filter context
@@ -166,20 +288,45 @@ export interface FilterContext {
   seenTweetIds: string[];
   servedTweetIds: string[];
   bloomSeenTweetIds: string[];
+  cachedPostIds: string[];
   inNetworkOnly: boolean;
   isBottomRequest: boolean;
+  hasPostEngagementSignals: boolean;
   currentTime: number;
   maxTweetAgeHours: number;
   impressedTweetIds: string[];
-  topicIds: number[];
-  excludedTopicIds: number[];
-  newUserTopicIds: number[];
+  topicIds: string[];
+  excludedTopicIds: string[];
+  isBulkTopicRequest: boolean;
   excludeVideos: boolean;
-  isNewUser: boolean;
-  userAccountAgeDays: number;
+  userAccountAgeSeconds: number;
+  resurrectionAgeSeconds?: number;
   followedCount: number;
-  topicExpansionMap: Record<number, number[]>;
-  includeForYouModules: boolean;
+  viewerFollowerCount: number;
+  enableServedFilterAllRequests: boolean;
+  enableNewUserMinEngagementFilter: boolean;
+  newUserMinEngagementMetric: 'fav' | 'engagement' | 'view';
+  newUserMinEngagementUseRatio: boolean;
+  newUserMinEngagementThreshold: number;
+  newUserMinEngagementMaxAccountAgeSecs: number;
+  newUserMinEngagementMaxResurrectionAgeSecs: number;
+  enableInventoryHoldout: boolean;
+  inventoryHoldoutOriginalsPercent: number;
+  inventoryHoldoutRepliesPercent: number;
+  inventoryHoldoutRetweetsPercent: number;
+  engagedSemanticIds: string[];
+  whoToFollowEligible: boolean;
+  feedSurveyEligible: boolean;
+  pushToHomeTweetId?: string;
+  adFixtures: AdFixture[];
+  promptCount: number;
+  jetfuelFrameCount: number;
+  viewerLoggedOut: boolean;
+  viewerAge: ViewerAge;
+  viewerAccountCountryCode?: string;
+  viewerCountryCode?: string;
+  ipAddress?: string;
+  viewerAllowsSensitiveMedia: boolean;
 }
 
 // Filter configuration
@@ -239,16 +386,24 @@ export interface ScorerResult {
 export interface SideEffectResult {
   sideEffectId: string;
   sideEffectName: string;
+  execution: 'registered_only';
   actions: {
     name: string;
     nameZh: string;
-    count: number;
+    status: 'registered_only';
     description: string;
     descriptionZh: string;
   }[];
 }
 
-export type FeedItemType = 'post' | 'ad' | 'who_to_follow' | 'prompt' | 'push_to_home';
+export type FeedItemType =
+  | 'post'
+  | 'ad'
+  | 'who_to_follow'
+  | 'prompt'
+  | 'push_to_home'
+  | 'frame'
+  | 'feed_survey';
 
 export interface FeedItem {
   id: string;
@@ -274,6 +429,8 @@ export interface FeedBlendResult {
   whoToFollowCount: number;
   promptCount: number;
   pushToHomeCount: number;
+  frameCount: number;
+  feedSurveyCount: number;
   feedItems: FeedItem[];
 }
 

@@ -3,7 +3,7 @@ import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScoreBar } from '@/components/shared/ScoreBar';
-import { SCORE_LABELS } from '@/utils/scoring';
+import { CONTINUOUS_OUTPUT_LABELS, SCORE_LABELS } from '@/utils/scoring';
 import {
   RadarChart,
   PolarGrid,
@@ -51,6 +51,9 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
     value: scores[key],
     type: 'negative' as const,
   }));
+  const continuousKeys = Object.keys(CONTINUOUS_OUTPUT_LABELS) as Array<
+    keyof typeof CONTINUOUS_OUTPUT_LABELS
+  >;
 
   return (
     <div className="space-y-4">
@@ -146,6 +149,35 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
           </CardContent>
         </Card>
       </div>
+
+      <Card data-testid="continuous-phoenix-outputs">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            {isZh ? '连续输出' : 'Continuous Outputs'}
+            <Badge variant="secondary">{continuousKeys.length}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-3">
+          {continuousKeys.map((key) => {
+            const label = CONTINUOUS_OUTPUT_LABELS[key];
+            return (
+              <div key={key} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <div className="text-xs text-slate-500">
+                  {isZh ? label.nameZh : label.name}
+                </div>
+                <div className="mt-1 font-mono text-lg font-semibold text-slate-900">
+                  {scores[key].toFixed(3)}{label.unit}
+                </div>
+                {compareScores && (
+                  <div className="mt-1 font-mono text-xs text-sky-700">
+                    B: {compareScores[key].toFixed(3)}{label.unit}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
     </div>
   );
 }

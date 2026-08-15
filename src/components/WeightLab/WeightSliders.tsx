@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { WEIGHT_METADATA, DEFAULT_WEIGHTS } from '@/data/defaultWeights';
+import { DEFAULT_WEIGHTS, formatWeight, WEIGHT_METADATA } from '@/data/defaultWeights';
 import { cn } from '@/utils/cn';
 import { ThumbsUp, ThumbsDown, Users, Globe } from 'lucide-react';
 
@@ -35,7 +35,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
     const meta = WEIGHT_METADATA[key];
     const value = weights[key as keyof WeightConfig] as number;
     const defaultValue = DEFAULT_WEIGHTS[key as keyof WeightConfig] as number;
-    const isModified = Math.abs(value - defaultValue) > 0.01;
+    const isModified = Math.abs(value - defaultValue) >= meta.step / 2;
 
     return (
       <div key={key} className="space-y-2">
@@ -46,7 +46,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
           <div className="flex items-center gap-2">
             {isModified && (
               <Badge variant="secondary" className="text-[10px]">
-                {value > defaultValue ? '+' : ''}{(value - defaultValue).toFixed(1)}
+                {value > defaultValue ? '+' : ''}{formatWeight(value - defaultValue, meta.step)}
               </Badge>
             )}
             <span
@@ -55,7 +55,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
                 meta.type === 'positive' ? 'text-green-600' : 'text-red-600'
               )}
             >
-              {value.toFixed(1)}
+              {formatWeight(value, meta.step)}
             </span>
           </div>
         </div>
@@ -204,60 +204,47 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700">
-                {isZh ? '新用户关注外权重' : 'New User OON Factor'}
-              </label>
-              <span className="text-sm font-mono text-blue-600">
-                {weights.newUserOonWeightFactor.toFixed(2)}
-              </span>
-            </div>
-            <Slider
-              value={[weights.newUserOonWeightFactor]}
-              onValueChange={([v]) => handleWeightChange('newUserOonWeightFactor', v)}
-              min={0.1}
-              max={1.2}
-              step={0.05}
-            />
-          </div>
-
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
               <div>
                 <label className="text-sm font-medium text-slate-700">
-                  {isZh ? '启用 VMRanker 近似重排' : 'Enable VMRanker Approximation'}
+                  {isZh ? '启用 VMRanker DPP' : 'Enable VMRanker DPP'}
                 </label>
                 <p className="mt-1 text-xs text-slate-500">
                   {isZh
-                    ? '上游 VMRanker 是可选服务；默认关闭，只在这里打开时参与本地近似重排。'
-                    : 'Upstream VMRanker is optional; it is off by default and only joins the local approximation when enabled here.'}
+                    ? '公开默认值为开启；本地使用同一 DPP 选择算法和确定性测试向量。'
+                    : 'Enabled by the published defaults; local execution uses the same DPP selection with deterministic fixture embeddings.'}
                 </p>
               </div>
               <Switch
                 checked={weights.enableVMRanker}
                 onCheckedChange={(checked) => handleWeightChange('enableVMRanker', checked)}
-                aria-label={isZh ? '启用 VMRanker 近似重排' : 'Enable VMRanker approximation'}
+                aria-label={isZh ? '启用 VMRanker DPP' : 'Enable VMRanker DPP'}
               />
             </div>
 
             <div className={cn('space-y-2', !weights.enableVMRanker && 'opacity-50')}>
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-slate-700">
-                  {isZh ? 'VM 重排强度' : 'VM Rerank Blend'}
+                  {isZh ? 'DPP theta' : 'DPP theta'}
                 </label>
                 <span className="text-sm font-mono text-blue-600">
-                  {weights.vmRankerBlendFactor.toFixed(2)}
+                  {weights.vmRankerTheta.toFixed(2)}
                 </span>
               </div>
               <Slider
-                value={[weights.vmRankerBlendFactor]}
-                onValueChange={([v]) => handleWeightChange('vmRankerBlendFactor', v)}
+                value={[weights.vmRankerTheta]}
+                onValueChange={([v]) => handleWeightChange('vmRankerTheta', v)}
                 min={0}
-                max={0.5}
-                step={0.05}
+                max={0.99}
+                step={0.01}
                 disabled={!weights.enableVMRanker}
               />
+              <p className="text-xs text-slate-500">
+                {isZh
+                  ? `选择 Top ${weights.vmRankerTopK}；候选池最多 ${weights.vmRankerMaxSelectedRank}`
+                  : `Select Top ${weights.vmRankerTopK} from at most ${weights.vmRankerMaxSelectedRank} candidates`}
+              </p>
             </div>
           </div>
         </CardContent>

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { TweetCandidate, WeightConfig } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Button } from '@/components/ui/button';
@@ -63,15 +63,25 @@ export function WeightLab() {
 
   const debounceRef = useRef<number | null>(null);
 
-  // Handle weight change with debounce
+  const clearComparisonWindow = useCallback(() => {
+    if (debounceRef.current !== null) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearComparisonWindow, [clearComparisonWindow]);
+
+  // Keep the weights from the start of one slider gesture as the comparison baseline.
   const handleWeightChange = useCallback((newWeights: WeightConfig) => {
-    // Store previous weights for comparison
-    if (debounceRef.current) {
+    if (debounceRef.current === null) {
+      setPreviousWeights(weights);
+    } else {
       clearTimeout(debounceRef.current);
     }
 
     debounceRef.current = window.setTimeout(() => {
-      setPreviousWeights(weights);
+      debounceRef.current = null;
     }, 500);
 
     setWeights(newWeights);
@@ -79,6 +89,7 @@ export function WeightLab() {
 
   // Reset to defaults
   const handleReset = () => {
+    clearComparisonWindow();
     setPreviousWeights(weights);
     setWeights({ ...DEFAULT_WEIGHTS });
     setSelectedPreset('');
@@ -102,6 +113,7 @@ export function WeightLab() {
   const handleLoadPreset = (name: string) => {
     const preset = presets[name];
     if (preset) {
+      clearComparisonWindow();
       setPreviousWeights(weights);
       setWeights(normalizeWeights(preset));
       setSelectedPreset(name);

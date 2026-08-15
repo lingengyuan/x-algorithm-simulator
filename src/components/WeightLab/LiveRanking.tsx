@@ -54,7 +54,7 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
           previousScore,
           previousRank: previousIndex,
           rankChange: previousIndex !== -1 ? previousIndex - newRank : 0,
-          scoreChange: previousScore ? c.newScore - previousScore : 0,
+          scoreChange: previousScore !== undefined ? c.newScore - previousScore : 0,
         };
       });
     }

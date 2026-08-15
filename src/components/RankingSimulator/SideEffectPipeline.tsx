@@ -25,7 +25,7 @@ export function SideEffectPipeline({ steps, currentStepIndex, onStepClick }: Sid
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Activity className="w-5 h-5 text-cyan-600" />
-          {isZh ? '副作用记录' : 'Side Effects'}
+          {isZh ? '副作用检查点' : 'Side-effect Checkpoints'}
           <Badge variant="secondary">{sideEffectSteps.length}</Badge>
         </CardTitle>
       </CardHeader>
@@ -78,7 +78,7 @@ export function SideEffectPipeline({ steps, currentStepIndex, onStepClick }: Sid
                     </div>
                     {details && (
                       <div className="text-cyan-600 font-medium">
-                        {details.actions.length} {isZh ? '动作' : 'actions'}
+                        {details.actions.length} {isZh ? '已登记' : 'registered'}
                       </div>
                     )}
                   </div>
@@ -101,7 +101,9 @@ export function SideEffectPipeline({ steps, currentStepIndex, onStepClick }: Sid
                           <span className="truncate font-medium text-slate-700">
                             {isZh ? action.nameZh : action.name}
                           </span>
-                          <span className="font-mono text-cyan-700">{action.count}</span>
+                          <span className="font-mono text-cyan-700">
+                            {isZh ? '未执行' : 'not run'}
+                          </span>
                         </div>
                       ))}
                     </div>

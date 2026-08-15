@@ -16,10 +16,11 @@ import { Image, Video, FileX, Sparkles } from 'lucide-react';
 
 interface InputFormProps {
   onAnalyze: (input: TweetInput) => void;
+  onInputChange?: () => void;
   initialValue?: TweetInput;
 }
 
-export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
+export function InputForm({ onAnalyze, onInputChange, initialValue }: InputFormProps) {
   const { t } = useTranslation();
 
   const [content, setContent] = useState(initialValue?.content || '');
@@ -33,7 +34,7 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
     initialValue?.authorType || 'normal'
   );
   const [followerCount, setFollowerCount] = useState(
-    initialValue?.followerCount || 10000
+    initialValue?.followerCount ?? 10000
   );
 
   const handleSubmit = () => {
@@ -69,7 +70,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
           <Textarea
             placeholder={t('analyzer.inputPlaceholder')}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => {
+              setContent(e.target.value);
+              onInputChange?.();
+            }}
             className="min-h-[120px] resize-none"
             maxLength={280}
           />
@@ -88,7 +92,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
               type="button"
               variant={hasMedia === 'none' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setHasMedia('none')}
+              onClick={() => {
+                setHasMedia('none');
+                onInputChange?.();
+              }}
               className="flex-1"
             >
               <FileX className="w-4 h-4 mr-2" />
@@ -98,7 +105,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
               type="button"
               variant={hasMedia === 'image' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setHasMedia('image')}
+              onClick={() => {
+                setHasMedia('image');
+                onInputChange?.();
+              }}
               className="flex-1"
             >
               <Image className="w-4 h-4 mr-2" />
@@ -108,7 +118,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
               type="button"
               variant={hasMedia === 'video' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setHasMedia('video')}
+              onClick={() => {
+                setHasMedia('video');
+                onInputChange?.();
+              }}
               className="flex-1"
             >
               <Video className="w-4 h-4 mr-2" />
@@ -128,7 +141,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
             </div>
             <Slider
               value={[videoDuration]}
-              onValueChange={([value]) => setVideoDuration(value)}
+              onValueChange={([value]) => {
+                setVideoDuration(value);
+                onInputChange?.();
+              }}
               min={5}
               max={300}
               step={5}
@@ -141,7 +157,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
           <label className="text-sm font-medium text-slate-700">
             {t('analyzer.authorType')}
           </label>
-          <Select value={authorType} onValueChange={(v) => setAuthorType(v as typeof authorType)}>
+          <Select value={authorType} onValueChange={(v) => {
+            setAuthorType(v as typeof authorType);
+            onInputChange?.();
+          }}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -165,7 +184,10 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
           </div>
           <Slider
             value={[Math.log10(followerCount + 1)]}
-            onValueChange={([value]) => setFollowerCount(Math.max(0, Math.round(Math.pow(10, value) - 1)))}
+            onValueChange={([value]) => {
+              setFollowerCount(Math.max(0, Math.round(Math.pow(10, value) - 1)));
+              onInputChange?.();
+            }}
             min={0}
             max={7}
             step={0.1}
@@ -173,7 +195,13 @@ export function InputForm({ onAnalyze, initialValue }: InputFormProps) {
         </div>
 
         {/* Analyze Button */}
-        <Button onClick={handleSubmit} className="w-full" size="lg" disabled={!content.trim()}>
+        <Button
+          data-testid="analyzer-submit"
+          onClick={handleSubmit}
+          className="w-full"
+          size="lg"
+          disabled={!content.trim()}
+        >
           <Sparkles className="w-4 h-4 mr-2" />
           {t('analyzer.analyzeButton')}
         </Button>

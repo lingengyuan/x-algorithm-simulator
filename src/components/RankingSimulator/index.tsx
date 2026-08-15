@@ -21,6 +21,7 @@ import { FinalRanking } from './FinalRanking';
 import { RANKING_SCENARIOS, generateScenarioTweets, getDefaultFilterContext } from '@/data/mockTweets';
 import { FILTERS } from '@/core/filters';
 import { DEFAULT_WEIGHTS } from '@/data/defaultWeights';
+import { BLENDING_DEFAULTS } from '@/data/upstreamSnapshot';
 import { runPipelineStepByStep } from '@/core/pipeline';
 import {
   Play,
@@ -47,7 +48,7 @@ export function RankingSimulator() {
   const [currentFeedItems, setCurrentFeedItems] = useState<FeedItem[] | undefined>();
   const [isPlaying, setIsPlaying] = useState(false);
   const [playSpeed, setPlaySpeed] = useState(1);
-  const [enableVMRanker, setEnableVMRanker] = useState(false);
+  const [enableVMRanker, setEnableVMRanker] = useState(DEFAULT_WEIGHTS.enableVMRanker);
   const [selectedTweetId, setSelectedTweetId] = useState<string | undefined>();
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +75,7 @@ export function RankingSimulator() {
           ...DEFAULT_WEIGHTS,
           enableVMRanker: useVMRanker,
         },
-        topK: 10,
+        topK: BLENDING_DEFAULTS.topKPosts,
       };
       pipelineGeneratorRef.current = runPipelineStepByStep(newCandidates, context, config);
 
@@ -107,6 +108,18 @@ export function RankingSimulator() {
   const nextStep = useCallback(() => {
     if (!pipelineGeneratorRef.current) return;
 
+    if (currentStepIndex < stepSnapshots.length - 1) {
+      const targetIndex = currentStepIndex + 1;
+      const snapshot = stepSnapshots[targetIndex];
+      setCurrentCandidates(snapshot.candidates);
+      setCurrentFeedItems(snapshot.feedItems);
+      setCurrentStepIndex(targetIndex);
+      if (steps[targetIndex]?.id === 'final_ranking') {
+        setIsPlaying(false);
+      }
+      return;
+    }
+
     const result = pipelineGeneratorRef.current.next();
     if (result.done) {
       setIsPlaying(false);
@@ -129,7 +142,7 @@ export function RankingSimulator() {
         setIsPlaying(false);
       }
     }
-  }, []);
+  }, [currentStepIndex, stepSnapshots, steps]);
 
   // Auto-play logic
   useEffect(() => {
@@ -200,7 +213,7 @@ export function RankingSimulator() {
     );
   }
 
-  const filteredCount = steps.reduce((count, step) => {
+  const filteredCount = steps.slice(0, currentStepIndex + 1).reduce((count, step) => {
     if (step.type !== 'filter' || !step.details) {
       return count;
     }
@@ -209,7 +222,7 @@ export function RankingSimulator() {
     return count + details.filteredCandidates.length;
   }, 0);
   const currentStep = steps[currentStepIndex];
-  const isComplete = steps.length > 0 && steps[steps.length - 1].id === 'final_ranking';
+  const isComplete = currentStep?.id === 'final_ranking';
   const feedModuleCounts = currentFeedItems?.reduce(
     (counts, item) => ({
       ...counts,
@@ -221,6 +234,8 @@ export function RankingSimulator() {
       who_to_follow: 0,
       prompt: 0,
       push_to_home: 0,
+      frame: 0,
+      feed_survey: 0,
     }
   );
 
@@ -337,14 +352,14 @@ export function RankingSimulator() {
               <Switch
                 checked={enableVMRanker}
                 onCheckedChange={setEnableVMRanker}
-                aria-label={isZh ? '启用 VMRanker 近似重排' : 'Enable VMRanker approximation'}
+                aria-label={isZh ? '启用 VMRanker DPP' : 'Enable VMRanker DPP'}
               />
               <div className="text-xs leading-tight">
                 <div className="font-semibold text-slate-700">
-                  {isZh ? 'VMRanker 近似' : 'VMRanker Approx'}
+                  {isZh ? 'VMRanker DPP' : 'VMRanker DPP'}
                 </div>
                 <div className="text-slate-500">
-                  {enableVMRanker ? (isZh ? '已启用' : 'Enabled') : (isZh ? '默认关闭' : 'Off by default')}
+                  {enableVMRanker ? (isZh ? '公开默认开启' : 'Published default') : (isZh ? '手动关闭' : 'Manually off')}
                 </div>
               </div>
             </div>
@@ -384,6 +399,12 @@ export function RankingSimulator() {
             </Badge>
             <Badge variant="secondary">
               {isZh ? '置顶' : 'Push'} {feedModuleCounts?.push_to_home ?? 0}
+            </Badge>
+            <Badge variant="secondary">
+              {isZh ? '框架' : 'Frames'} {feedModuleCounts?.frame ?? 0}
+            </Badge>
+            <Badge variant="secondary">
+              {isZh ? '问卷' : 'Survey'} {feedModuleCounts?.feed_survey ?? 0}
             </Badge>
           </div>
         </div>
@@ -428,7 +449,11 @@ export function RankingSimulator() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <FinalRanking candidates={currentCandidates} feedItems={currentFeedItems} topK={10} />
+              <FinalRanking
+                candidates={currentCandidates}
+                feedItems={currentFeedItems}
+                topK={BLENDING_DEFAULTS.resultSize}
+              />
             </motion.div>
           ) : (
             <Card className="h-full flex items-center justify-center border-dashed border-slate-900/20">

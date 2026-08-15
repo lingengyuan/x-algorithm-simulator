@@ -36,9 +36,9 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
             const filteredCount = filterResult
               ? filterResult.inputCount - filterResult.outputCount
               : 0;
-            const passRate = filterResult
+            const passRate = filterResult && filterResult.inputCount > 0
               ? (filterResult.outputCount / filterResult.inputCount) * 100
-              : 100;
+              : undefined;
 
             return (
               <motion.div
@@ -92,9 +92,15 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
                     {filterResult && (
                       <div className={cn(
                         'font-medium',
-                        passRate >= 90 ? 'text-green-500' : passRate >= 70 ? 'text-yellow-500' : 'text-red-500'
+                        passRate === undefined
+                          ? 'text-slate-400'
+                          : passRate >= 90
+                            ? 'text-green-500'
+                            : passRate >= 70
+                              ? 'text-yellow-500'
+                              : 'text-red-500'
                       )}>
-                        {passRate.toFixed(0)}%
+                        {passRate === undefined ? 'N/A' : `${passRate.toFixed(0)}%`}
                       </div>
                     )}
                   </div>
@@ -103,7 +109,7 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
                 </div>
 
                 {/* Progress Bar */}
-                {filterResult && (
+                {filterResult && passRate !== undefined && (
                   <Progress
                     value={passRate}
                     max={100}

@@ -23,8 +23,8 @@ export function CandidatePool({
 }: CandidatePoolProps) {
   const { t } = useTranslation();
 
-  const inNetworkCount = candidates.filter((c) => c.inNetwork && !c.filtered).length;
-  const outNetworkCount = candidates.filter((c) => !c.inNetwork && !c.filtered).length;
+  const inNetworkCount = candidates.filter((c) => c.inNetwork === true && !c.filtered).length;
+  const outNetworkCount = candidates.filter((c) => c.inNetwork === false && !c.filtered).length;
   const activeCount = candidates.filter((c) => !c.filtered).length;
 
   return (
@@ -61,7 +61,7 @@ export function CandidatePool({
             .filter((c) => showFiltered || !c.filtered)
             .map((candidate, index) => (
               <motion.div
-                key={candidate.id}
+                key={`${candidate.sourceType || 'fixture'}:${candidate.id}:${index}`}
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.15, delay: index * 0.01 }}

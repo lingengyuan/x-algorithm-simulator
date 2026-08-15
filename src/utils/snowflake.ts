@@ -5,18 +5,18 @@
 const TWITTER_EPOCH = 1288834974657n;
 
 // Generate a Snowflake ID from timestamp
-export function generateSnowflakeId(timestamp?: number): string {
+export function generateSnowflakeId(timestamp?: number, lowerBitsSeed?: number): string {
   // Ensure timestamp is an integer (BigInt requires integer)
   const ts = BigInt(Math.floor(timestamp ?? Date.now()));
   const elapsed = ts - TWITTER_EPOCH;
 
-  // Snowflake structure: timestamp (41 bits) | datacenter (5 bits) | worker (5 bits) | sequence (12 bits)
-  // For simulation, we just use timestamp with random lower bits
-  const datacenterId = BigInt(Math.floor(Math.random() * 32));
-  const workerId = BigInt(Math.floor(Math.random() * 32));
-  const sequence = BigInt(Math.floor(Math.random() * 4096));
-
-  const snowflake = (elapsed << 22n) | (datacenterId << 17n) | (workerId << 12n) | sequence;
+  // The lower 22 bits do not affect timestamp extraction. A supplied seed keeps fixtures reproducible.
+  const lowerBits = BigInt(
+    lowerBitsSeed === undefined
+      ? Math.floor(Math.random() * 2 ** 22)
+      : Math.abs(lowerBitsSeed) % 2 ** 22
+  );
+  const snowflake = (elapsed << 22n) | lowerBits;
 
   return snowflake.toString();
 }
@@ -41,9 +41,9 @@ export function getAgeInDays(snowflakeId: string): number {
 }
 
 // Generate a Snowflake ID for a specific time ago
-export function generateSnowflakeIdFromAge(hoursAgo: number): string {
+export function generateSnowflakeIdFromAge(hoursAgo: number, lowerBitsSeed?: number): string {
   const timestamp = Date.now() - hoursAgo * 60 * 60 * 1000;
-  return generateSnowflakeId(timestamp);
+  return generateSnowflakeId(timestamp, lowerBitsSeed);
 }
 
 // Format timestamp to relative time string

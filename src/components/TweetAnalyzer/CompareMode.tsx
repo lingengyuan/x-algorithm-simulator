@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { SCORE_LABELS, simulatePhoenixScores, calculateHeatScore, getHeatLevel } from '@/utils/scoring';
+import {
+  CONTINUOUS_OUTPUT_LABELS,
+  SCORE_LABELS,
+  simulatePhoenixScores,
+  calculateHeatScore,
+  getHeatLevel,
+} from '@/utils/scoring';
 import {
   Plus,
   X,
@@ -63,14 +69,16 @@ export function CompareMode({ onClose }: CompareModeProps) {
   const updateContent = (id: string, content: string) => {
     setItems(
       items.map((item) =>
-        item.id === id ? { ...item, input: { ...item.input, content } } : item
+        item.id === id
+          ? { ...item, input: { ...item.input, content }, result: undefined }
+          : item
       )
     );
   };
 
   const analyzeAll = () => {
     const analyzed = items.map((item) => {
-      if (!item.input.content.trim()) return item;
+      if (!item.input.content.trim()) return { ...item, result: undefined };
 
       const phoenixScores = simulatePhoenixScores(item.input);
       const heatScore = calculateHeatScore(phoenixScores);
@@ -90,7 +98,9 @@ export function CompareMode({ onClose }: CompareModeProps) {
   };
 
   const hasResults = items.some((item) => item.result);
-  const validItems = items.filter((item) => item.result);
+  const validItems = items
+    .map((item, originalIndex) => ({ item, originalIndex }))
+    .filter(({ item }) => item.result !== undefined);
 
   // Prepare radar data
   const positiveKeys = (Object.keys(SCORE_LABELS) as (keyof typeof SCORE_LABELS)[])
@@ -102,9 +112,9 @@ export function CompareMode({ onClose }: CompareModeProps) {
       subject: isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name,
       fullMark: 100,
     };
-    validItems.forEach((item, index) => {
+    validItems.forEach(({ item, originalIndex }) => {
       if (item.result) {
-        data[`tweet${index + 1}`] = Math.round(item.result.phoenixScores[key] * 100);
+        data[`tweet${originalIndex + 1}`] = Math.round(item.result.phoenixScores[key] * 100);
       }
     });
     return data;
@@ -249,13 +259,13 @@ export function CompareMode({ onClose }: CompareModeProps) {
                     domain={[0, 100]}
                     tick={{ fill: '#94a3b8', fontSize: 10 }}
                   />
-                  {validItems.map((_, index) => (
+                  {validItems.map(({ item, originalIndex }) => (
                     <Radar
-                      key={index}
-                      name={`Tweet ${String.fromCharCode(65 + index)}`}
-                      dataKey={`tweet${index + 1}`}
-                      stroke={COLORS[index]}
-                      fill={COLORS[index]}
+                      key={item.id}
+                      name={`Tweet ${String.fromCharCode(65 + originalIndex)}`}
+                      dataKey={`tweet${originalIndex + 1}`}
+                      stroke={COLORS[originalIndex]}
+                      fill={COLORS[originalIndex]}
                       fillOpacity={0.2}
                     />
                   ))}
@@ -270,13 +280,13 @@ export function CompareMode({ onClose }: CompareModeProps) {
                 <thead>
                   <tr className="border-b border-slate-900/10">
                     <th className="text-left py-2 pr-4">{isZh ? '指标' : 'Metric'}</th>
-                    {validItems.map((_, index) => (
+                    {validItems.map(({ item, originalIndex }) => (
                       <th
-                        key={index}
+                        key={item.id}
                         className="text-center py-2 px-2"
-                        style={{ color: COLORS[index] }}
+                        style={{ color: COLORS[originalIndex] }}
                       >
-                        {String.fromCharCode(65 + index)}
+                        {String.fromCharCode(65 + originalIndex)}
                       </th>
                     ))}
                   </tr>
@@ -284,13 +294,13 @@ export function CompareMode({ onClose }: CompareModeProps) {
                 <tbody>
                   <tr className="border-b border-slate-900/10">
                     <td className="py-2 pr-4 font-medium">
-                      {isZh ? '热度评分' : 'Heat Score'}
+                      {t('analyzer.heatScore')}
                     </td>
-                    {validItems.map((item, index) => (
+                    {validItems.map(({ item, originalIndex }) => (
                       <td
-                        key={index}
+                        key={item.id}
                         className="text-center py-2 px-2 font-bold"
-                        style={{ color: COLORS[index] }}
+                        style={{ color: COLORS[originalIndex] }}
                       >
                         {item.result ? Math.round(item.result.heatScore) : '-'}
                       </td>
@@ -301,8 +311,8 @@ export function CompareMode({ onClose }: CompareModeProps) {
                       <td className="py-2 pr-4">
                         {isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name}
                       </td>
-                      {validItems.map((item, index) => (
-                        <td key={index} className="text-center py-2 px-2">
+                      {validItems.map(({ item }) => (
+                        <td key={item.id} className="text-center py-2 px-2">
                           {item.result
                             ? `${Math.round(item.result.phoenixScores[key] * 100)}%`
                             : '-'}
@@ -310,6 +320,23 @@ export function CompareMode({ onClose }: CompareModeProps) {
                       ))}
                     </tr>
                   ))}
+                  {(Object.keys(CONTINUOUS_OUTPUT_LABELS) as Array<keyof typeof CONTINUOUS_OUTPUT_LABELS>)
+                    .map((key) => (
+                      <tr key={key} className="border-b border-slate-900/10">
+                        <td className="py-2 pr-4">
+                          {isZh
+                            ? CONTINUOUS_OUTPUT_LABELS[key].nameZh
+                            : CONTINUOUS_OUTPUT_LABELS[key].name}
+                        </td>
+                        {validItems.map(({ item }) => (
+                          <td key={item.id} className="text-center py-2 px-2 font-mono">
+                            {item.result
+                              ? `${item.result.phoenixScores[key].toFixed(3)}${CONTINUOUS_OUTPUT_LABELS[key].unit}`
+                              : '-'}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

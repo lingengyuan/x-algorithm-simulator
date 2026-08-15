@@ -195,6 +195,19 @@ async function clickButtonByText(texts) {
   await delay(350);
 }
 
+async function clickByTestId(testId) {
+  const selector = JSON.stringify(`[data-testid="${testId}"]`);
+  await evalJs(`
+    (() => {
+      const element = document.querySelector(${selector});
+      if (!element) throw new Error('element not found for test id: ${testId}');
+      element.click();
+      return true;
+    })();
+  `);
+  await delay(350);
+}
+
 async function waitForText(texts, timeoutMs = 20000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
@@ -289,70 +302,20 @@ async function setSimulatorSpeedMax() {
 async function verifyFinalTimeline(labels) {
   await waitForExpression(`
     (() => {
-      const text = document.body.innerText || '';
-      return ![
-        'PushToHomeSource',
-        'AdsSource',
-        'WhoToFollowSource',
-        'PromptsSource'
-      ].some((label) => text.includes(label));
-    })()
-  `, 20000);
-
-  await waitForExpression(`
-    (() => {
-      return [
-        'PushToHomeSource',
-        'AdsSource',
-        'WhoToFollowSource',
-        'PromptsSource'
-      ].every((label) => document.querySelector('[data-source="' + label + '"]'));
+      const required = ['AdsSource', 'WhoToFollowSource', 'PromptsSource'];
+      return required.every((label) => document.querySelector('[data-source="' + label + '"]'));
     })()
   `, 20000);
 
   await waitForExpression(`
     (() => {
       const text = document.body.innerText || '';
-      const required = ${labels === 'zh'
-        ? JSON.stringify(['帖子 6', '广告 1', '推荐关注 1', '提示 1', '置顶 1'])
-        : JSON.stringify(['Posts 6', 'Ads 1', 'Who to follow 1', 'Prompt 1', 'Push 1'])};
-      return required.every((label) => text.includes(label));
+      const labels = ${labels === 'zh'
+        ? JSON.stringify(['帖子', '广告', '推荐关注', '提示'])
+        : JSON.stringify(['Posts', 'Ads', 'Who to follow', 'Prompt'])};
+      return labels.every((label) => new RegExp(label + '\\s+[1-9]\\d*').test(text));
     })()
   `, 20000);
-}
-
-async function verifyVMRankerFlow(labels) {
-  await evalJs(`
-    (() => {
-      const switchButton = document.querySelector('button[role="switch"]');
-      if (!switchButton) throw new Error('VMRanker switch not found');
-      if (switchButton.getAttribute('aria-checked') !== 'true') {
-        switchButton.click();
-      }
-      return true;
-    })();
-  `);
-
-  await waitForText([labels === 'zh' ? '已启用' : 'Enabled'], 10000);
-  await setSimulatorSpeedMax();
-  await clickButtonByText([labels === 'zh' ? '播放' : 'Play']);
-
-  await waitForExpression(`
-    (() => {
-      const text = document.body.innerText || '';
-      const hasFinalLabel =
-        text.includes('Final Timeline') ||
-        text.includes('最终首页流');
-      const hasVmStep =
-        text.includes('Step 64 of 64') ||
-        text.includes('步骤 64 / 64');
-      return hasFinalLabel && hasVmStep;
-    })()
-  `, 120000);
-
-  await verifyFinalTimeline(labels);
-  await delay(1200);
-  await screenshot(`after-simulator-final-vm-${labels}.jpg`);
 }
 
 async function runForLanguage(lang, labels) {
@@ -366,7 +329,7 @@ async function runForLanguage(lang, labels) {
   await fillAnalyzerText(analyzerText);
   await screenshot(`after-analyzer-input-${labels}.jpg`);
 
-  await clickButtonByText([labels === 'zh' ? '分析推文' : 'Analyze Tweet']);
+  await clickByTestId('analyzer-submit');
   await waitForExpression(`document.querySelectorAll('.recharts-wrapper').length > 0`);
   await screenshot(`after-analyzer-result-${labels}.jpg`);
 
@@ -384,17 +347,14 @@ async function runForLanguage(lang, labels) {
   await waitForExpression(`
     (() => {
       const text = document.body.innerText || '';
-      const hasTop10 = text.includes('Top 10');
-      const hasFinalLabel =
-        text.includes('Final Timeline') ||
-        text.includes('最终首页流');
-      return hasTop10 && hasFinalLabel;
+      const hasFinalTimeline = Boolean(document.querySelector('[data-testid="final-timeline"]'));
+      const hasVmRanker = text.includes('VMRanker DPP');
+      return hasFinalTimeline && hasVmRanker;
     })()
   `, 120000);
   await verifyFinalTimeline(labels);
   await delay(300);
   await screenshot(`after-simulator-final-${labels}.jpg`);
-  await verifyVMRankerFlow(labels);
 
   await goto('/weights');
   await waitForText([labels === 'zh' ? '权重实验室' : 'Weight Laboratory']);

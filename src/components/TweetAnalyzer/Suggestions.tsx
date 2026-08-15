@@ -11,6 +11,7 @@ import {
   Info,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { containsKeywordSequence, tokenizePostText } from '@/utils/textTokens';
 
 interface SuggestionsProps {
   input: TweetInput;
@@ -20,154 +21,58 @@ export function Suggestions({ input }: SuggestionsProps) {
   const { t, isZh } = useTranslation();
 
   const suggestions = useMemo((): Suggestion[] => {
-    const result: Suggestion[] = [];
+    const result: Suggestion[] = [{
+      type: 'neutral',
+      message: 'Values are deterministic fixtures for the published Phoenix output heads, not production model inference.',
+      messageZh: '这些数值只是公开 Phoenix 输出头的确定性测试数据，不是生产模型推理结果。',
+      impact: 'high',
+    }];
 
-    // Media suggestions
-    if (input.hasMedia === 'none') {
+    if (input.hasMedia === 'video') {
+      const durationMs = input.videoDurationMs || 0;
       result.push({
-        type: 'positive',
-        message: 'Adding an image increases engagement by ~15%',
-        messageZh: '添加图片可以增加约 15% 的互动率',
+        type: durationMs > 10_000 ? 'positive' : 'neutral',
+        message: durationMs > 10_000
+          ? 'This fixture passes the published >10s VQV duration gate; the viewer-follower gate is evaluated separately.'
+          : 'This fixture does not pass the published >10s VQV duration gate.',
+        messageZh: durationMs > 10_000
+          ? '该测试数据通过公开的“大于 10 秒”VQV 时长条件；观看者粉丝数条件另行判断。'
+          : '该测试数据未通过公开的“大于 10 秒”VQV 时长条件。',
         impact: 'medium',
       });
-      result.push({
-        type: 'positive',
-        message: 'Adding a video could boost VQV score significantly',
-        messageZh: '添加视频可以显著提升 VQV 分数',
-        impact: 'high',
-      });
-    }
-
-    if (input.hasMedia === 'video' && input.videoDurationMs) {
-      const durationSec = input.videoDurationMs / 1000;
-      if (durationSec >= 30 && durationSec <= 60) {
-        result.push({
-          type: 'positive',
-          message: 'Video duration is optimal (30-60s) for engagement',
-          messageZh: '视频时长处于最佳范围（30-60秒）',
-          impact: 'high',
-        });
-      } else if (durationSec < 30) {
-        result.push({
-          type: 'neutral',
-          message: 'Short videos may have lower completion rates',
-          messageZh: '短视频可能完播率较低',
-          impact: 'low',
-        });
-      } else if (durationSec > 180) {
-        result.push({
-          type: 'negative',
-          message: 'Long videos (>3 min) may have lower engagement',
-          messageZh: '长视频（超过 3 分钟）可能互动率较低',
-          impact: 'medium',
-        });
-      }
-    }
-
-    // Content suggestions
-    if (input.content.length < 50) {
+    } else {
       result.push({
         type: 'neutral',
-        message: 'Longer content may increase dwell time',
-        messageZh: '更长的内容可能增加用户停留时长',
+        message: 'The local fixture generator changes media-related heads, but the upstream code publishes no reach guarantee.',
+        messageZh: '本地测试生成器会改变媒体相关输出头，但上游代码没有公开任何触达保证。',
         impact: 'low',
       });
     }
 
-    if (input.content.includes('?')) {
-      result.push({
-        type: 'positive',
-        message: 'Questions encourage replies and engagement',
-        messageZh: '问题形式可以鼓励回复和互动',
-        impact: 'medium',
-      });
-    }
-
-    const hashtags = input.content.match(/#\w+/g) || [];
-    if (hashtags.length > 5) {
-      result.push({
-        type: 'negative',
-        message: 'Too many hashtags may reduce reach',
-        messageZh: '话题标签过多可能降低触达',
-        impact: 'medium',
-      });
-    } else if (hashtags.length >= 1 && hashtags.length <= 3) {
-      result.push({
-        type: 'positive',
-        message: 'Good use of hashtags for discoverability',
-        messageZh: '话题标签使用合理，有助于被发现',
-        impact: 'low',
-      });
-    }
-
-    const mentions = input.content.match(/@\w+/g) || [];
-    if (mentions.length > 5) {
-      result.push({
-        type: 'negative',
-        message: 'Excessive mentions may trigger spam filters',
-        messageZh: '过多 @ 可能触发垃圾信息过滤',
-        impact: 'high',
-      });
-    }
-
-    // Author suggestions
-    if (input.authorType === 'normal' && input.followerCount < 1000) {
-      result.push({
-        type: 'neutral',
-        message: 'New accounts may have limited initial reach',
-        messageZh: '新账号初期触达可能有限',
-        impact: 'low',
-      });
-    }
-
-    if (input.authorType === 'normal') {
-      result.push({
-        type: 'neutral',
-        message: 'Consider getting verified to boost visibility',
-        messageZh: '认证大 V 身份可以提升曝光',
-        impact: 'medium',
-      });
-    }
-
+    result.push({
+      type: 'neutral',
+      message: 'Text length, punctuation, author type, and follower count only seed local fixture values.',
+      messageZh: '文本长度、标点、作者类型和粉丝数只用于生成本地测试数值。',
+      impact: 'low',
+    });
     return result;
   }, [input]);
 
   const filterRisks = useMemo((): FilterRisk[] => {
     const risks: FilterRisk[] = [];
 
-    // Check content for potential filtering risk
-    const content = input.content.toLowerCase();
-
-    if (content.trim().length === 0) {
-      risks.push({
-        filterId: 'core_data_hydration',
-        filterName: 'CoreDataHydrationFilter',
-        risk: 'high',
-        reason: 'Empty content will fail core data hydration checks',
-        reasonZh: '空内容会在核心数据校验阶段被过滤',
-      });
-    }
-
     const mutedKeywordHints = ['crypto', 'giveaway', 'spoiler'];
-    const hasMutedKeyword = mutedKeywordHints.some((keyword) => content.includes(keyword));
+    const contentTokens = tokenizePostText(input.content);
+    const hasMutedKeyword = mutedKeywordHints.some((keyword) =>
+      containsKeywordSequence(contentTokens, tokenizePostText(keyword))
+    );
     if (hasMutedKeyword) {
       risks.push({
         filterId: 'muted_keyword',
         filterName: 'MutedKeywordFilter',
         risk: 'medium',
-        reason: 'Content includes common muted-keyword patterns',
-        reasonZh: '内容包含常见的静音关键词模式',
-      });
-    }
-
-    const visibilityTerms = ['gore', 'violence', 'graphic'];
-    if (visibilityTerms.some((term) => content.includes(term))) {
-      risks.push({
-        filterId: 'vf',
-        filterName: 'VFFilter',
-        risk: 'high',
-        reason: 'Content may be dropped by visibility filtering policy',
-        reasonZh: '内容可能被可见性策略过滤',
+        reason: 'The simulator viewer fixture mutes one of these exact keywords.',
+        reasonZh: '模拟器中的观看者测试数据明确静音了其中一个关键词。',
       });
     }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from 'react';
+import { useState, useCallback, createContext, useContext, ReactNode } from 'react';
 import { getLanguage, setLanguage as saveLanguage } from '@/utils/storage';
 
 type Translations = Record<string, Record<string, string>>;
@@ -7,8 +7,8 @@ type Translations = Record<string, Record<string, string>>;
 const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
   'en-US': {
     common: {
-      appName: 'X Recommendation Algorithm Simulator',
-      tweetAnalyzer: 'Tweet Analyzer',
+      appName: 'X Algorithm Simulator',
+      tweetAnalyzer: 'Phoenix Output Explorer',
       rankingSimulator: 'Ranking Simulator',
       weightLab: 'Weight Lab',
       history: 'History',
@@ -26,8 +26,8 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       language: 'Language',
     },
     analyzer: {
-      title: 'Tweet Analyzer',
-      subtitle: 'Predict engagement and reach before posting',
+      title: 'Synthetic Phoenix Output Explorer',
+      subtitle: 'Explore the published output-head contract with local fixtures; this is not production inference or a reach prediction',
       inputPlaceholder: 'Enter your tweet content...',
       mediaType: 'Media Type',
       noMedia: 'No Media',
@@ -39,20 +39,20 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       verifiedUser: 'Verified User',
       influencer: 'Influencer',
       followerCount: 'Follower Count',
-      analyzeButton: 'Analyze Tweet',
+      analyzeButton: 'Generate Fixture Outputs',
       compareMode: 'Compare Mode',
       addTweet: 'Add Tweet',
       removeTweet: 'Remove',
-      behaviorPredictions: 'Behavior Predictions',
+      behaviorPredictions: 'Synthetic Behavior Outputs',
       positiveSignals: 'Positive Signals',
       negativeSignals: 'Negative Signals',
-      heatScore: 'Heat Score',
-      suggestions: 'Optimization Suggestions',
-      filterRisks: 'Filter Risks',
+      heatScore: 'Synthetic Summary Index',
+      suggestions: 'Fixture Notes',
+      filterRisks: 'Policy Signals',
     },
     simulator: {
       title: 'Ranking Simulator',
-      subtitle: 'Visualize how the recommendation pipeline works',
+      subtitle: 'Walk through the pipeline pinned to upstream c65aa17',
       selectScenario: 'Select Scenario',
       candidatePool: 'Candidate Pool',
       filterStage: 'Filter Stage',
@@ -74,6 +74,7 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       tweets: 'tweets',
       inNetwork: 'In Network',
       outOfNetwork: 'Out of Network',
+      networkUnknown: 'Network unknown',
       viewDetails: 'View Details',
       phoenixScores: 'Phoenix Scores',
       weightedScore: 'Weighted Score',
@@ -82,7 +83,7 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
     },
     weightLab: {
       title: 'Weight Laboratory',
-      subtitle: 'Adjust weights and see ranking changes in real-time',
+      subtitle: 'Start from published defaults and inspect deterministic ranking changes',
       positiveWeights: 'Positive Weights',
       negativeWeights: 'Negative Weights',
       diversityParams: 'Diversity Parameters',
@@ -107,16 +108,16 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       ranking: 'Ranking Simulation',
     },
     heatLevel: {
-      low: 'Low',
-      medium: 'Medium',
-      high: 'High',
-      viral: 'Viral Potential',
+      low: 'Below average',
+      medium: 'Average',
+      high: 'Above average',
+      viral: 'High synthetic score',
     },
   },
   'zh-CN': {
     common: {
       appName: 'X 推荐算法模拟器',
-      tweetAnalyzer: '推文分析器',
+      tweetAnalyzer: 'Phoenix 输出探索',
       rankingSimulator: '排序模拟器',
       weightLab: '权重实验室',
       history: '历史记录',
@@ -134,8 +135,8 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       language: '语言',
     },
     analyzer: {
-      title: '推文分析器',
-      subtitle: '发布前预测互动效果和传播潜力',
+      title: 'Phoenix 模拟输出探索器',
+      subtitle: '用本地测试数据探索公开输出头契约；不代表生产推理或触达预测',
       inputPlaceholder: '输入你的推文内容...',
       mediaType: '媒体类型',
       noMedia: '无媒体',
@@ -147,20 +148,20 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       verifiedUser: '认证用户',
       influencer: '大V',
       followerCount: '粉丝数量',
-      analyzeButton: '分析推文',
+      analyzeButton: '生成测试输出',
       compareMode: '对比模式',
       addTweet: '添加推文',
       removeTweet: '移除',
-      behaviorPredictions: '行为预测',
+      behaviorPredictions: '模拟行为输出',
       positiveSignals: '正向信号',
       negativeSignals: '负向信号',
-      heatScore: '热度评分',
-      suggestions: '优化建议',
-      filterRisks: '过滤风险',
+      heatScore: '模拟汇总指数',
+      suggestions: '测试数据说明',
+      filterRisks: '策略信号',
     },
     simulator: {
       title: '排序模拟器',
-      subtitle: '可视化推荐算法的工作流程',
+      subtitle: '逐步查看与上游 c65aa17 对齐的流水线',
       selectScenario: '选择场景',
       candidatePool: '候选池',
       filterStage: '过滤阶段',
@@ -182,6 +183,7 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       tweets: '条推文',
       inNetwork: '关注内',
       outOfNetwork: '关注外',
+      networkUnknown: '网络关系未知',
       viewDetails: '查看详情',
       phoenixScores: 'Phoenix 分数',
       weightedScore: '加权分数',
@@ -190,7 +192,7 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
     },
     weightLab: {
       title: '权重实验室',
-      subtitle: '调整权重，实时观察排序变化',
+      subtitle: '从公开默认值出发，查看确定性的排序变化',
       positiveWeights: '正向权重',
       negativeWeights: '负向权重',
       diversityParams: '多样性参数',
@@ -215,58 +217,25 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
       ranking: '排序模拟',
     },
     heatLevel: {
-      low: '低热度',
-      medium: '中等热度',
-      high: '高热度',
-      viral: '爆款潜力',
+      low: '偏低',
+      medium: '中等',
+      high: '偏高',
+      viral: '高模拟分',
     },
   },
 };
-
-const cachedTranslations: Record<string, Translations> = { ...DEFAULT_TRANSLATIONS };
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useI18n() {
   const [language, setLanguageState] = useState<string>(() => getLanguage());
   const locale = language === 'zh' ? 'zh-CN' : 'en-US';
-  const [translations, setTranslations] = useState<Translations>(
-    () => cachedTranslations[locale] || DEFAULT_TRANSLATIONS['en-US']
-  );
+  const translations = DEFAULT_TRANSLATIONS[locale] || DEFAULT_TRANSLATIONS['en-US'];
   const loading = false;
-
-  // Load additional translations from file (optional, for extended translations)
-  useEffect(() => {
-    const loadTranslations = async () => {
-      const currentLocale = language === 'zh' ? 'zh-CN' : 'en-US';
-
-      // Use default translations immediately
-      setTranslations(cachedTranslations[currentLocale] || DEFAULT_TRANSLATIONS['en-US']);
-
-      // Try to load from file for any additional keys
-      try {
-        const response = await fetch(`./locales/${currentLocale}.json`);
-        if (response.ok) {
-          const data = await response.json();
-          // Merge with defaults
-          const merged = { ...DEFAULT_TRANSLATIONS[currentLocale], ...data };
-          cachedTranslations[currentLocale] = merged;
-          setTranslations(merged);
-        }
-      } catch {
-        // File loading failed, use defaults (already set)
-        console.log('Using embedded translations');
-      }
-    };
-
-    loadTranslations();
-  }, [language]);
 
   // Change language
   const setLanguage = useCallback((lang: string) => {
     setLanguageState(lang);
     saveLanguage(lang);
-    const newLocale = lang === 'zh' ? 'zh-CN' : 'en-US';
-    setTranslations(cachedTranslations[newLocale] || DEFAULT_TRANSLATIONS['en-US']);
   }, []);
 
   // Get translation by key path (e.g., "common.appName")

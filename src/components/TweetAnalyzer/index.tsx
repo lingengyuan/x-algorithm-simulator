@@ -50,7 +50,7 @@ export function TweetAnalyzer() {
         <CardContent className="relative p-6">
           <div className="pointer-events-none absolute -right-14 -top-10 h-36 w-36 rounded-full bg-orange-300/25 blur-2xl" />
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-200/90">
-            Editorial Simulation
+            Synthetic Fixture Explorer
           </p>
           <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
             {t('analyzer.title')}
@@ -104,7 +104,14 @@ export function TweetAnalyzer() {
           >
             {/* Input Panel */}
             <div className="lg:col-span-1">
-              <InputForm onAnalyze={handleAnalyze} initialValue={currentInput || undefined} />
+              <InputForm
+                onAnalyze={handleAnalyze}
+                onInputChange={() => {
+                  setCurrentInput(null);
+                  setResult(null);
+                }}
+                initialValue={currentInput || undefined}
+              />
             </div>
 
             {/* Results Panel */}

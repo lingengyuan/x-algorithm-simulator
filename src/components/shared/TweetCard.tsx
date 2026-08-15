@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/hooks/useI18n';
 import { formatRelativeTime } from '@/utils/snowflake';
 import { cn } from '@/utils/cn';
-import { Image, Video, CheckCircle, XCircle, Users } from 'lucide-react';
+import { Image, Video, CheckCircle, ShieldAlert, XCircle, Users } from 'lucide-react';
 
 interface TweetCardProps {
   tweet: TweetCandidate;
@@ -66,19 +66,25 @@ export function TweetCard({
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <Users className="w-3 h-3" />
               <span>
-                {tweet.authorFollowers >= 1000000
+                {tweet.authorFollowers === undefined
+                  ? '—'
+                  : tweet.authorFollowers >= 1000000
                   ? `${(tweet.authorFollowers / 1000000).toFixed(1)}M`
                   : tweet.authorFollowers >= 1000
                   ? `${(tweet.authorFollowers / 1000).toFixed(1)}K`
                   : tweet.authorFollowers}
               </span>
-              {tweet.inNetwork ? (
+              {tweet.inNetwork === true ? (
                 <Badge variant="positive" className="text-[10px] py-0">
                   {t('simulator.inNetwork')}
                 </Badge>
-              ) : (
+              ) : tweet.inNetwork === false ? (
                 <Badge variant="secondary" className="text-[10px] py-0">
                   {t('simulator.outOfNetwork')}
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-[10px] py-0">
+                  {t('simulator.networkUnknown')}
                 </Badge>
               )}
             </div>
@@ -89,6 +95,21 @@ export function TweetCard({
         <div className={cn('mt-3', compact && 'text-sm')}>
           <p className="line-clamp-3 text-slate-800">{tweet.content}</p>
         </div>
+
+        {tweet.visibilityAction === 'interstitial' && (
+          <div
+            data-testid="visibility-interstitial"
+            className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+          >
+            <div className="flex items-center gap-2 font-semibold">
+              <ShieldAlert className="h-4 w-4" />
+              {language === 'zh' ? '敏感内容警示' : 'Sensitive-content interstitial'}
+            </div>
+            <div className="mt-1 font-mono text-[11px]">
+              {tweet.visibilityDecidedBy || tweet.visibilityReason}
+            </div>
+          </div>
+        )}
 
         {/* Media indicators */}
         {(tweet.hasImage || tweet.hasVideo) && (
