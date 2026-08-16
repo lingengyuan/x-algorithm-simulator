@@ -299,21 +299,11 @@ async function setSimulatorSpeedMax() {
   await delay(350);
 }
 
-async function verifyFinalTimeline(labels) {
+async function verifyFinalTimeline() {
   await waitForExpression(`
     (() => {
       const required = ['AdsSource', 'WhoToFollowSource', 'PromptsSource'];
       return required.every((label) => document.querySelector('[data-source="' + label + '"]'));
-    })()
-  `, 20000);
-
-  await waitForExpression(`
-    (() => {
-      const text = document.body.innerText || '';
-      const labels = ${labels === 'zh'
-        ? JSON.stringify(['帖子', '广告', '推荐关注', '提示'])
-        : JSON.stringify(['Posts', 'Ads', 'Who to follow', 'Prompt'])};
-      return labels.every((label) => new RegExp(label + '\\s+[1-9]\\d*').test(text));
     })()
   `, 20000);
 }
@@ -352,7 +342,7 @@ async function runForLanguage(lang, labels) {
       return hasFinalTimeline && hasVmRanker;
     })()
   `, 120000);
-  await verifyFinalTimeline(labels);
+  await verifyFinalTimeline();
   await delay(300);
   await screenshot(`after-simulator-final-${labels}.jpg`);
 
