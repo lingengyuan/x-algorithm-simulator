@@ -15,14 +15,25 @@ export async function checkUpstream({ github, context, baseCommit, verification 
   if (base === head.sha) return { ...result, status: 'up_to_date' };
 
   const marker = `<!-- x-upstream-monitor:${verification ? `verification:${context.runId}:` : ''}${head.sha} -->`;
-  const issues = await github.paginate(github.rest.issues.listForRepo, {
-    ...context.repo, state: 'all', per_page: 100,
-    headers: { 'cache-control': 'no-cache' },
-  });
-  const existing = issues.find((issue) => !issue.pull_request && issue.body?.includes(marker));
-  if (existing) {
-    return { ...result, status: 'already_notified', issue: existing.html_url, issueNumber: existing.number };
-  }
+  // REST issue lists returned stale results immediately after issue creation in the live E2E flow.
+  let cursor = null;
+  do {
+    const { repository: { issues } } = await github.graphql(`
+      query($owner: String!, $repo: String!, $cursor: String) {
+        repository(owner: $owner, name: $repo) {
+          issues(first: 100, after: $cursor, orderBy: {field: CREATED_AT, direction: DESC}) {
+            nodes { number body url }
+            pageInfo { hasNextPage endCursor }
+          }
+        }
+      }
+    `, { ...context.repo, cursor });
+    const existing = issues.nodes.find((issue) => issue.body.includes(marker));
+    if (existing) {
+      return { ...result, status: 'already_notified', issue: existing.url, issueNumber: existing.number };
+    }
+    cursor = issues.pageInfo.hasNextPage ? issues.pageInfo.endCursor : null;
+  } while (cursor);
 
   const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
     ...upstream, basehead: `${base}...${head.sha}`, per_page: 100,
