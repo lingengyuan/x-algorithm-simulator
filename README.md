@@ -83,6 +83,14 @@ Pin upstream changes. Verify behavior through the browser E2E flow.
 
 Update the snapshot and implementation together. Run `npm run check` at completion. The default path preserves Home Mixer weighted scores in VMRanker. Topic requests skip DPP. Remote retrieval, embeddings, and Thompson draws use repeatable local fixtures.
 
+### Upstream Monitor
+
+[Monitor X upstream](https://github.com/lingengyuan/x-algorithm-simulator/actions/workflows/monitor-upstream.yml) runs on GitHub Actions daily at 09:00 Beijing time. It reads the pinned commit from `src/data/upstreamSnapshot.ts`. A new upstream commit creates one Issue assigned to the repository owner. Closed Issues also prevent duplicate reminders. GitHub sends notifications according to your [notification settings](https://github.com/settings/notifications).
+
+The Issue links to the diff and provides a request you can send to your development assistant. Adaptation starts only when you request it. No extra secrets are required. To check now, select **Run workflow**. Enable **verify_notifications** to create and close a test Issue. The run saves a JSON report as the `upstream-monitor-e2e` artifact.
+
+GitHub can delay scheduled runs. In public repositories, GitHub disables schedules after 60 days without repository activity. Re-enable the workflow on its Actions page.
+
 ### License
 
 [MIT](LICENSE)
@@ -139,6 +147,14 @@ npm run check
 ### 维护指南
 
 同步更新快照和实现。完成后运行 `npm run check`。默认路径在 VMRanker 中复用 Home Mixer 加权分。话题请求跳过 DPP。远程召回、向量和 Thompson 抽样使用可重复的本地测试数据。
+
+### 上游监控
+
+[Monitor X upstream](https://github.com/lingengyuan/x-algorithm-simulator/actions/workflows/monitor-upstream.yml) 每天北京时间 09:00 在 GitHub Actions 上运行。它从 `src/data/upstreamSnapshot.ts` 读取已适配的提交。有新上游提交时，它创建一条 Issue 并指派给仓库所有者。已关闭的 Issue 也参与去重。GitHub 按你的[通知设置](https://github.com/settings/notifications)发送提醒。
+
+Issue 包含差异链接，以及可以发给开发助手的适配指令。你发出指令后才开始适配。监控不需要额外密钥。点击 **Run workflow** 可立即检查。勾选 **verify_notifications** 可创建并关闭测试 Issue。运行会将 JSON 报告保存为 `upstream-monitor-e2e` 工件。
+
+GitHub 可能延迟定时运行。公开仓库连续 60 天无活动时，GitHub 会停用定时任务。可以在 Actions 页面重新启用。
 
 ### 许可证
 
