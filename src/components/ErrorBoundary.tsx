@@ -28,13 +28,14 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         this.props.fallback || (
-          <div className="p-8 text-center">
+          <div className="p-8 text-center" role="alert" data-testid="app-error">
             <h2 className="text-xl font-bold text-red-500 mb-4">Something went wrong</h2>
             <p className="mb-4 text-slate-600">
               {this.state.error?.message || 'Unknown error'}
             </p>
+            {/* Reload clears DOM changes made outside React. */}
             <button
-              onClick={() => this.setState({ hasError: false, error: undefined })}
+              onClick={() => window.location.reload()}
               className="rounded-xl border border-slate-900/10 bg-slate-900 px-4 py-2 text-white transition-colors hover:bg-slate-800"
             >
               Try again

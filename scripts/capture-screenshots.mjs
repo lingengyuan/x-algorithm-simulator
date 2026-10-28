@@ -320,7 +320,7 @@ async function runForLanguage(lang, labels) {
   await screenshot(`after-analyzer-input-${labels}.jpg`);
 
   await clickByTestId('analyzer-submit');
-  await waitForExpression(`document.querySelectorAll('.recharts-wrapper').length > 0`);
+  await waitForExpression(`Boolean(document.querySelector('.output-distribution'))`);
   await screenshot(`after-analyzer-result-${labels}.jpg`);
 
   await goto('/simulator');

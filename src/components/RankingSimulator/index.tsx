@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FeedItem, TweetCandidate, PipelineStep, RankingScenario, FilterResult } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -21,7 +20,7 @@ import { FinalRanking } from './FinalRanking';
 import { RANKING_SCENARIOS, generateScenarioTweets, getDefaultFilterContext } from '@/data/mockTweets';
 import { FILTERS } from '@/core/filters';
 import { DEFAULT_WEIGHTS } from '@/data/defaultWeights';
-import { BLENDING_DEFAULTS } from '@/data/upstreamSnapshot';
+import { BLENDING_DEFAULTS, UPSTREAM_SNAPSHOT } from '@/data/upstreamSnapshot';
 import { runPipelineStepByStep, type PipelineFrame, type PipelineTrace } from '@/core/pipeline';
 import {
   Play,
@@ -29,12 +28,8 @@ import {
   SkipForward,
   SkipBack,
   RotateCcw,
-  BarChart3,
-  Layers3,
-  Shuffle,
   Download,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export function RankingSimulator() {
   const { t, isZh } = useTranslation();
@@ -51,6 +46,7 @@ export function RankingSimulator() {
   const [playSpeed, setPlaySpeed] = useState(1);
   const [enableVMRanker, setEnableVMRanker] = useState(DEFAULT_WEIGHTS.enableVMRanker);
   const [selectedTweetId, setSelectedTweetId] = useState<string | undefined>();
+  const [activePane, setActivePane] = useState('candidates');
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +64,7 @@ export function RankingSimulator() {
       setStepSnapshots([]);
       setCurrentStepIndex(0);
       setIsPlaying(false);
+      setActivePane('candidates');
       traceRef.current = undefined;
 
       // Initialize pipeline generator
@@ -113,6 +110,7 @@ export function RankingSimulator() {
 
     if (currentStepIndex < stepSnapshots.length - 1) {
       const targetIndex = currentStepIndex + 1;
+      setActivePane(steps[targetIndex]?.id === 'final_ranking' ? 'timeline' : 'pipeline');
       const snapshot = stepSnapshots[targetIndex];
       setCurrentCandidates(snapshot.candidates);
       setCurrentFeedItems(snapshot.feedItems);
@@ -130,6 +128,7 @@ export function RankingSimulator() {
     }
 
     if (result.value) {
+      setActivePane(result.value.step.id === 'final_ranking' ? 'timeline' : 'pipeline');
       if (result.value.trace) traceRef.current = result.value.trace;
       setSteps((prev) => [...prev, result.value.step]);
       setStepSnapshots((prev) => [
@@ -169,6 +168,7 @@ export function RankingSimulator() {
   }, [isPlaying, playSpeed, nextStep]);
 
   const prevStep = useCallback(() => {
+    setActivePane('pipeline');
     if (currentStepIndex > 0) {
       const targetIndex = currentStepIndex - 1;
       const snapshot = stepSnapshots[targetIndex];
@@ -185,6 +185,7 @@ export function RankingSimulator() {
   }, [selectedScenario, enableVMRanker, initializeScenario]);
 
   const togglePlay = () => {
+    setActivePane('pipeline');
     setIsPlaying((prev) => !prev);
   };
 
@@ -253,245 +254,67 @@ export function RankingSimulator() {
     }
   );
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Pipeline Explorer
-          </p>
-          <h1 className="mt-1 text-2xl font-bold flex items-center gap-2 text-slate-900">
-            <BarChart3 className="w-6 h-6 text-sky-600" />
-            {t('simulator.title')}
-          </h1>
-          <p className="text-slate-600 text-sm mt-1">{t('simulator.subtitle')}</p>
-        </div>
-
-        {/* Scenario Selector */}
-        <div className="flex items-center gap-3">
-          <Select
-            value={selectedScenario.id}
-            onValueChange={(id) => {
-              const scenario = RANKING_SCENARIOS.find((s) => s.id === id);
-              if (scenario) setSelectedScenario(scenario);
-            }}
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder={t('simulator.selectScenario')} />
-            </SelectTrigger>
-            <SelectContent>
-              {RANKING_SCENARIOS.map((scenario) => (
-                <SelectItem key={scenario.id} value={scenario.id}>
-                  {isZh ? scenario.nameZh : scenario.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <Card className="border-slate-900/15 bg-[rgba(255,255,255,0.78)]">
-        <CardContent className="py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Playback Controls */}
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={reset} aria-label={isZh ? '重新开始' : 'Restart'}>
-                <RotateCcw className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={prevStep}
-                aria-label={isZh ? '上一步' : 'Previous step'}
-                disabled={currentStepIndex === 0}
-              >
-                <SkipBack className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={isPlaying ? 'destructive' : 'default'}
-                onClick={togglePlay}
-                className="w-24"
-                disabled={isComplete}
-              >
-                {isPlaying ? (
-                  <>
-                    <Pause className="w-4 h-4 mr-2" />
-                    {t('simulator.pause')}
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2" />
-                    {t('simulator.play')}
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={nextStep}
-                aria-label={isZh ? '下一步' : 'Next step'}
-                disabled={isComplete}
-              >
-                <SkipForward className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Progress */}
-            <div className="flex items-center gap-4">
-              <Badge variant="secondary" data-testid="pipeline-progress" data-step={currentStep?.id}>
-                {t('simulator.step')} {currentStepIndex + 1} {t('simulator.of')} {steps.length || '?'}
-              </Badge>
-              {currentStep && (
-                <Badge variant="outline">
-                  {isZh ? currentStep.nameZh : currentStep.name}
-                </Badge>
-              )}
-            </div>
-
-            {/* Speed Control */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-600">{t('simulator.speed')}:</span>
-              <Slider
-                value={[playSpeed]}
-                onValueChange={([value]) => setPlaySpeed(value)}
-                min={0.5}
-                max={3}
-                step={0.5}
-                className="w-24"
-              />
-              <span className="text-sm font-medium w-8">{playSpeed}x</span>
-            </div>
-
-            <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-              <Switch
-                checked={enableVMRanker}
-                onCheckedChange={setEnableVMRanker}
-                aria-label={isZh ? 'VMRanker 服务可用' : 'VMRanker service available'}
-              />
-              <div className="text-xs leading-tight">
-                <div className="font-semibold text-slate-700">
-                  VMRanker
-                </div>
-                <div className="text-slate-500">
-                  {enableVMRanker ? (isZh ? '服务正常' : 'Service available') : (isZh ? '本地回退评分' : 'Local fallback')}
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {isComplete && (
-        <Button variant="outline" onClick={exportTrace} data-testid="export-trace" className="gap-2">
-          <Download className="h-4 w-4" />
-          {isZh ? '导出流程 JSON' : 'Export pipeline JSON'}
-        </Button>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border border-slate-200 bg-white/80 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Layers3 className="h-4 w-4 text-sky-600" />
-            {isZh ? 'Scored Posts 层' : 'Scored Posts Layer'}
-          </div>
-          <p className="mt-1 text-xs text-slate-600">
-            {isZh
-              ? '先完成帖子召回、过滤、评分和排序。'
-              : 'Ranks post candidates before final timeline blending.'}
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white/80 p-4">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <Shuffle className="h-4 w-4 text-violet-600" />
-            {isZh ? 'For You 混排层' : 'For You Blend Layer'}
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Badge variant="secondary">
-              {isZh ? '帖子' : 'Posts'} {feedModuleCounts?.post ?? 0}
-            </Badge>
-            <Badge variant="secondary">
-              {isZh ? '广告' : 'Ads'} {feedModuleCounts?.ad ?? 0}
-            </Badge>
-            <Badge variant="secondary">
-              {isZh ? '推荐关注' : 'Who to follow'} {feedModuleCounts?.who_to_follow ?? 0}
-            </Badge>
-            <Badge variant="secondary">
-              {isZh ? '提示' : 'Prompt'} {feedModuleCounts?.prompt ?? 0}
-            </Badge>
-            <Badge variant="secondary">
-              {isZh ? '置顶' : 'Push'} {feedModuleCounts?.push_to_home ?? 0}
-            </Badge>
-            <Badge variant="secondary">
-              {isZh ? '框架' : 'Frames'} {feedModuleCounts?.frame ?? 0}
-            </Badge>
-            <Badge variant="secondary">
-              {isZh ? '问卷' : 'Survey'} {feedModuleCounts?.feed_survey ?? 0}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Candidate Pool */}
-        <div className="lg:col-span-1">
-          <CandidatePool
-            candidates={currentCandidates}
-            filteredCount={filteredCount}
-            selectedId={selectedTweetId}
-            onSelect={setSelectedTweetId}
-            showFiltered={false}
-          />
-        </div>
-
-        {/* Middle Column - Pipeline */}
-        <div className="lg:col-span-1 space-y-4">
-          <FilterPipeline
-            steps={steps}
-            currentStepIndex={currentStepIndex}
-            onStepClick={handleStepClick}
-          />
-          <ScorerPipeline
-            steps={steps}
-            currentStepIndex={currentStepIndex}
-            onStepClick={handleStepClick}
-          />
-          <SideEffectPipeline
-            steps={steps}
-            currentStepIndex={currentStepIndex}
-            onStepClick={handleStepClick}
-          />
-        </div>
-
-        {/* Right Column - Final Timeline */}
-        <div className="lg:col-span-1">
-          {isComplete ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
-              <FinalRanking
-                candidates={currentCandidates}
-                feedItems={currentFeedItems}
-                topK={BLENDING_DEFAULTS.resultSize}
-              />
-            </motion.div>
-          ) : (
-            <Card className="h-full flex items-center justify-center border-dashed border-slate-900/20">
-              <CardContent className="text-center py-12">
-                <BarChart3 className="mx-auto mb-4 h-12 w-12 text-slate-400" />
-                <p className="text-slate-500">
-                  {isZh
-                    ? '完成所有步骤后显示最终首页流'
-                    : 'Final timeline will appear after all steps'}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+  const visibleSteps = steps.slice(0, currentStepIndex + 1);
+  const afterFilters = visibleSteps.find((item) => item.id === 'fair_share_ranking')?.outputCount;
+  const panes = [
+    { id: 'candidates', label: t('simulator.candidatePool') },
+    { id: 'pipeline', label: isZh ? '流程与决策' : 'Pipeline decisions' },
+    { id: 'timeline', label: isZh ? '最终信息流' : 'Final timeline' },
+  ];
+  return <div>
+    <div className="page-heading simulator-heading">
+      <div><h1>{t('simulator.title')}</h1><p>{isZh ? '逐步查看候选帖子如何进入 For You 信息流。' : 'Follow candidates from retrieval to the final For You timeline.'}</p></div>
+      <div className="page-heading-actions">
+        <Select value={selectedScenario.id} onValueChange={(id) => {
+          const scenario = RANKING_SCENARIOS.find((item) => item.id === id);
+          if (scenario) { setSelectedScenario(scenario); setActivePane('candidates'); }
+        }}>
+          <SelectTrigger className="w-[240px]" aria-label={t('simulator.selectScenario')}><SelectValue /></SelectTrigger>
+          <SelectContent>{RANKING_SCENARIOS.map((scenario) => <SelectItem key={scenario.id} value={scenario.id}>{isZh ? scenario.nameZh : scenario.name}</SelectItem>)}</SelectContent>
+        </Select>
+        {isComplete && <Button variant="outline" onClick={exportTrace} data-testid="export-trace"><Download size={14} />{isZh ? '导出流程 JSON' : 'Export pipeline JSON'}</Button>}
       </div>
     </div>
-  );
+    <div className="simulator-toolbar">
+      <div className="playback-buttons">
+        <Button variant="outline" size="icon" onClick={reset} aria-label={isZh ? '重新开始' : 'Restart'}><RotateCcw size={15} /></Button>
+        <Button variant="outline" size="icon" onClick={prevStep} disabled={currentStepIndex === 0} aria-label={isZh ? '上一步' : 'Previous step'}><SkipBack size={15} /></Button>
+        <Button data-testid="playback-toggle" onClick={togglePlay} disabled={isComplete}>{isPlaying ? <Pause size={14} /> : <Play size={14} />}{isPlaying ? t('simulator.pause') : t('simulator.play')}</Button>
+        <Button variant="outline" size="icon" onClick={nextStep} disabled={isComplete} aria-label={isZh ? '下一步' : 'Next step'}><SkipForward size={15} /></Button>
+      </div>
+      <div className="playback-progress">
+        <span data-testid="pipeline-progress" data-step={currentStep?.id}>{t('simulator.step')} {currentStepIndex + 1} {t('simulator.of')} {steps.length}</span>
+        <span className="current-step-name">{isZh ? currentStep?.nameZh : currentStep?.name}</span>
+      </div>
+      <div className="speed-control"><span>{t('simulator.speed')}</span><Slider aria-label={t('simulator.speed')} value={[playSpeed]} onValueChange={([value]) => setPlaySpeed(value)} min={0.5} max={3} step={0.5} /><span>{playSpeed}×</span></div>
+      <label className="service-control"><Switch checked={enableVMRanker} onCheckedChange={setEnableVMRanker} aria-label={isZh ? 'VMRanker 服务可用' : 'VMRanker service available'} /><span>VMRanker<br /><span className="text-slate-600">{enableVMRanker ? (isZh ? '服务正常' : 'Service available') : (isZh ? '本地回退' : 'Local fallback')}</span></span></label>
+    </div>
+    <dl className="pipeline-summary" aria-label={isZh ? '推荐流程概况' : 'Pipeline overview'}>
+      <div data-current={!afterFilters}><dt>{isZh ? '输入候选' : 'Input candidates'}</dt><dd>{selectedScenario.candidateCount.toLocaleString()}<small>{isZh ? '本地测试帖子' : 'fixture posts'}</small></dd></div>
+      <div data-current={afterFilters !== undefined && !isComplete}><dt>{isZh ? '进入评分' : 'Ready for scoring'}</dt><dd>{afterFilters?.toLocaleString() ?? '—'}<small>{isZh ? '过滤后保留' : 'after filtering'}</small></dd></div>
+      <div data-current={isComplete}><dt>{isZh ? '最终信息流' : 'Final timeline'}</dt><dd>{currentFeedItems?.length ?? '—'}<small>{isComplete ? (isZh ? `${feedModuleCounts?.post ?? 0} 帖子 · ${feedModuleCounts?.ad ?? 0} 广告` : `${feedModuleCounts?.post ?? 0} posts · ${feedModuleCounts?.ad ?? 0} ads`) : (isZh ? '等待混排' : 'awaiting blending')}</small></dd></div>
+    </dl>
+    <div className="workspace-tabs" role="tablist" aria-label={isZh ? '工作区视图' : 'Workspace view'}>{panes.map((pane) => <button key={pane.id} role="tab" aria-selected={activePane === pane.id} aria-controls={`pane-${pane.id}`} onClick={() => setActivePane(pane.id)}>{pane.label}</button>)}</div>
+    <div className="simulator-panes">
+      <div className="simulator-pane" id="pane-candidates" data-active={activePane === 'candidates'}>
+        <CandidatePool candidates={currentCandidates} filteredCount={filteredCount} selectedId={selectedTweetId} onSelect={setSelectedTweetId} showFiltered={false} />
+      </div>
+      <section className="simulator-pane" id="pane-pipeline" data-active={activePane === 'pipeline'}>
+        <div className="current-stage"><h2>{isZh ? '当前阶段' : 'Current stage'}</h2><p>{isZh ? currentStep?.nameZh : currentStep?.name}</p><div className="stage-counts">{currentStep?.inputCount.toLocaleString()} <span>→</span> {currentStep?.outputCount.toLocaleString()} <span>{isZh ? '条' : 'posts'}</span></div></div>
+        <FilterPipeline steps={steps} currentStepIndex={currentStepIndex} onStepClick={handleStepClick} />
+        <ScorerPipeline steps={steps} currentStepIndex={currentStepIndex} onStepClick={handleStepClick} />
+        <SideEffectPipeline steps={steps} currentStepIndex={currentStepIndex} onStepClick={handleStepClick} />
+      </section>
+      <div className="simulator-pane" id="pane-timeline" data-active={activePane === 'timeline'}>
+        {isComplete ? <FinalRanking candidates={currentCandidates} feedItems={currentFeedItems} topK={BLENDING_DEFAULTS.resultSize} /> : <Card>
+          <CardHeader><CardTitle>{isZh ? '最终信息流' : 'Final timeline'}</CardTitle></CardHeader>
+          <CardContent><p className="timeline-empty">{isZh ? '完成评分和混排后，查看帖子顺序及插入的模块。' : 'Finish scoring and blending to inspect post order and inserted modules.'}</p>
+            <div className="section-heading"><h2>{isZh ? '当前配置' : 'Current configuration'}</h2></div>
+            <dl className="configuration-list"><div><dt>{isZh ? '上游提交' : 'Upstream commit'}</dt><dd>{UPSTREAM_SNAPSHOT.shortCommit}</dd></div>
+              <div><dt>{isZh ? '点赞权重' : 'Like weight'}</dt><dd>{DEFAULT_WEIGHTS.favoriteWeight}</dd></div><div><dt>{isZh ? '回复权重' : 'Reply weight'}</dt><dd>{DEFAULT_WEIGHTS.replyWeight}</dd></div>
+              <div><dt>{isZh ? '点击后停留权重' : 'Click-dwell weight'}</dt><dd>{DEFAULT_WEIGHTS.clickDwellTimeWeight}</dd></div><div><dt>{isZh ? '单次信息流帖子数' : 'Feed post limit'}</dt><dd>{BLENDING_DEFAULTS.resultSize}</dd></div></dl>
+          </CardContent></Card>}
+      </div>
+    </div>
+  </div>;
 }

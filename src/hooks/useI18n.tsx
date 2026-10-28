@@ -1,4 +1,4 @@
-import { useState, useCallback, createContext, useContext, ReactNode } from 'react';
+import { useState, useCallback, useEffect, createContext, useContext, ReactNode } from 'react';
 import { getLanguage, setLanguage as saveLanguage } from '@/utils/storage';
 
 type Translations = Record<string, Record<string, string>>;
@@ -231,6 +231,10 @@ export function useI18n() {
   const locale = language === 'zh' ? 'zh-CN' : 'en-US';
   const translations = DEFAULT_TRANSLATIONS[locale] || DEFAULT_TRANSLATIONS['en-US'];
   const loading = false;
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   // Change language
   const setLanguage = useCallback((lang: string) => {

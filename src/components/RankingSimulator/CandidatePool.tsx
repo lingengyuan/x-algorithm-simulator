@@ -1,10 +1,7 @@
-import { TweetCandidate } from '@/core/types';
+import type { TweetCandidate } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { TweetCard } from '@/components/shared/TweetCard';
-import { Users, Globe, Filter } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface CandidatePoolProps {
   candidates: TweetCandidate[];
@@ -14,69 +11,28 @@ interface CandidatePoolProps {
   showFiltered?: boolean;
 }
 
-export function CandidatePool({
-  candidates,
-  filteredCount = 0,
-  selectedId,
-  onSelect,
-  showFiltered = false,
-}: CandidatePoolProps) {
-  const { t } = useTranslation();
-
-  const inNetworkCount = candidates.filter((c) => c.inNetwork === true && !c.filtered).length;
-  const outNetworkCount = candidates.filter((c) => c.inNetwork === false && !c.filtered).length;
-  const activeCount = candidates.filter((c) => !c.filtered).length;
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Users className="w-5 h-5 text-sky-600" />
-          {t('simulator.candidatePool')}
-        </CardTitle>
-        <div className="flex gap-2 flex-wrap mt-2">
-          <Badge variant="secondary" className="gap-1">
-            <Users className="w-3 h-3" />
-            {activeCount} {t('simulator.tweets')}
-          </Badge>
-          <Badge variant="positive" className="gap-1">
-            <Users className="w-3 h-3" />
-            {t('simulator.inNetwork')}: {inNetworkCount}
-          </Badge>
-          <Badge variant="outline" className="gap-1">
-            <Globe className="w-3 h-3" />
-            {t('simulator.outOfNetwork')}: {outNetworkCount}
-          </Badge>
-          {filteredCount > 0 && (
-            <Badge variant="negative" className="gap-1">
-              <Filter className="w-3 h-3" />
-              {t('simulator.filtered')}: {filteredCount}
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2">
-          {candidates
-            .filter((c) => showFiltered || !c.filtered)
-            .map((candidate, index) => (
-              <motion.div
-                key={`${candidate.sourceType || 'fixture'}:${candidate.id}:${index}`}
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.15, delay: index * 0.01 }}
-              >
-                <TweetCard
-                  tweet={candidate}
-                  compact
-                  highlighted={candidate.id === selectedId}
-                  showFiltered={showFiltered}
-                  onClick={() => onSelect?.(candidate.id)}
-                />
-              </motion.div>
-            ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
+export function CandidatePool({ candidates, filteredCount = 0, selectedId, onSelect, showFiltered = false }: CandidatePoolProps) {
+  const { t, isZh } = useTranslation();
+  const active = candidates.filter((candidate) => showFiltered || !candidate.filtered);
+  const inNetwork = active.filter((candidate) => candidate.inNetwork === true).length;
+  const outNetwork = active.filter((candidate) => candidate.inNetwork === false).length;
+  return <Card>
+    <CardHeader>
+      <CardTitle>{t('simulator.candidatePool')} <span className="text-sm font-normal text-slate-600">{active.length.toLocaleString()}</span></CardTitle>
+      <div className="pool-stats">
+        <span>{t('simulator.inNetwork')} <strong>{inNetwork}</strong></span>
+        <span>{t('simulator.outOfNetwork')} <strong>{outNetwork}</strong></span>
+        {filteredCount > 0 && <span>{t('simulator.filtered')} <strong>{filteredCount.toLocaleString()}</strong></span>}
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="post-list">
+        {active.slice(0, 48).map((candidate, index) => <TweetCard
+          key={`${candidate.sourceType}:${candidate.id}:${index}`} tweet={candidate} compact
+          highlighted={candidate.id === selectedId} showFiltered={showFiltered} onClick={() => onSelect?.(candidate.id)} />)}
+        {!active.length && <p className="pipeline-empty">{isZh ? '当前阶段没有候选帖子。' : 'No candidates remain at this stage.'}</p>}
+      </div>
+      {active.length > 48 && <p className="field-note">{isZh ? `预览前 48 条，共 ${active.length.toLocaleString()} 条。导出的流程数据包含完整候选池。` : `Previewing 48 of ${active.length.toLocaleString()} posts. The exported trace contains the full pool.`}</p>}
+    </CardContent>
+  </Card>;
 }

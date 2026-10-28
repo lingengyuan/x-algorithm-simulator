@@ -1,7 +1,9 @@
 {
+  "runId": "1793165350847",
+  "status": "passed",
   "upstream": "5ed796374ea48ee26058aab66ab10c266bea2bef",
   "browser": "ego-browser",
-  "startedAt": "2026-10-28T03:45:18.018Z",
+  "startedAt": "2026-10-28T05:29:10.978Z",
   "checks": [
     {
       "name": "analyzer-en",
@@ -27,6 +29,16 @@
       "name": "for-you-en",
       "status": "passed",
       "detail": "Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass."
+    },
+    {
+      "name": "layout-en-tablet",
+      "status": "passed",
+      "detail": "Candidate, stage, and score labels remain separate in all three workspace panes."
+    },
+    {
+      "name": "layout-en-phone",
+      "status": "passed",
+      "detail": "Candidate, stage, and score labels remain separate in all three workspace panes."
     },
     {
       "name": "fallback-en",
@@ -62,6 +74,16 @@
       "name": "for-you-zh",
       "status": "passed",
       "detail": "Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass."
+    },
+    {
+      "name": "layout-zh-tablet",
+      "status": "passed",
+      "detail": "Candidate, stage, and score labels remain separate in all three workspace panes."
+    },
+    {
+      "name": "layout-zh-phone",
+      "status": "passed",
+      "detail": "Candidate, stage, and score labels remain separate in all three workspace panes."
     },
     {
       "name": "fallback-zh",
@@ -112,6 +134,80 @@
       "name": "mobile",
       "status": "passed",
       "detail": "The 390px layout fits the viewport and navigation has accessible names."
+    },
+    {
+      "name": "mobile-weight-views",
+      "status": "passed",
+      "detail": "Weights and the resulting ranking remain available through a compact two-view workspace."
+    },
+    {
+      "name": "translation-policy-en",
+      "status": "passed",
+      "detail": {
+        "locale": "en-US",
+        "replaced": 0,
+        "skipped": 428
+      }
+    },
+    {
+      "name": "translated-scenario-navigation-en",
+      "status": "passed",
+      "detail": {
+        "replaced": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "translated-preset-reset-en",
+      "status": "passed",
+      "detail": "Save, translated selection, reset, reload preset, and delete own preset"
+    },
+    {
+      "name": "protected-playback-en",
+      "status": "passed",
+      "detail": "Next, previous, play, and pause remain usable after translation attempts"
+    },
+    {
+      "name": "translated-author-navigation-en",
+      "status": "passed",
+      "detail": "Unmount a translated author selection through real route navigation"
+    },
+    {
+      "name": "translation-policy-zh",
+      "status": "passed",
+      "detail": {
+        "locale": "zh-CN",
+        "replaced": 0,
+        "skipped": 428
+      }
+    },
+    {
+      "name": "translated-scenario-navigation-zh",
+      "status": "passed",
+      "detail": {
+        "replaced": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "translated-preset-reset-zh",
+      "status": "passed",
+      "detail": "Save, translated selection, reset, reload preset, and delete own preset"
+    },
+    {
+      "name": "protected-playback-zh",
+      "status": "passed",
+      "detail": "Next, previous, play, and pause remain usable after translation attempts"
+    },
+    {
+      "name": "translated-author-navigation-zh",
+      "status": "passed",
+      "detail": "Unmount a translated author selection through real route navigation"
+    },
+    {
+      "name": "corrupted-document-reload",
+      "status": "passed",
+      "detail": "Retry reloads a damaged DOM and renders the weights route again"
     }
   ],
   "screenshots": [
@@ -120,61 +216,65 @@
     "weights-default-en.png",
     "history-en.png",
     "for-you-en.png",
+    "for-you-en-tablet.png",
+    "for-you-en-phone.png",
     "analyzer-zh.png",
     "weights-adjusted-zh.png",
     "weights-default-zh.png",
     "history-zh.png",
     "for-you-zh.png",
+    "for-you-zh-tablet.png",
+    "for-you-zh-phone.png",
     "source-budget.png",
-    "mobile.png"
+    "mobile.png",
+    "mobile-weight-ranking.png"
   ],
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "da9de01e28c81c13e18f19b5cffe9d4c4bf36f6641a5b2f121ff51fb90c9c018",
-      "bytes": 1206628
+      "sha256": "d7e3f1fbf93ded88931c311906054ae803cd03b23c55a03f8e89e4ed0417b71d",
+      "bytes": 1206627
     },
     {
       "file": "fallback-en.json.gz",
-      "sha256": "70544c8ab1694fbca0aec15b454b5beb1649a4b6cb3531d7e8e7f36454860bcc",
-      "bytes": 1206510
+      "sha256": "cc4b4899560d1d86cbb9498b0d61048ffacfa3772d4d65486531b019209f99ef",
+      "bytes": 1206517
     },
     {
       "file": "topic-en.json.gz",
-      "sha256": "2d27e738b72e936a81dbe647c1dba78fe2fecaf4b2e86086a94885ca22b3d123",
-      "bytes": 928115
+      "sha256": "68f466989147e1df2beb4b6c620bc1910cea940b0aca07b3ce1c5fba27e30122",
+      "bytes": 928144
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "ea2cdc2f321041c1ee3237a967d2317331744892dfa1f557059c8ca885ad4afa",
-      "bytes": 1206640
+      "sha256": "b2201ba3a489ff6df3ac4bd008aa0173e5129589a629a6c8d0467f1635339927",
+      "bytes": 1206630
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "8600a8db14c268e4b2dc520b9bba3c623b2029271594e3601d128ebe0668c2a1",
-      "bytes": 1206500
+      "sha256": "d3f3b75004b6026f07b8390d0ae388ae61c357b4ce3d74f61b0a3f996d396834",
+      "bytes": 1206556
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "75c17abca88094d483aa4b37a726e8712d71ae18d80c59840a9e2e731cef4bf2",
-      "bytes": 928119
+      "sha256": "372acb3c17ed8e8df541951e8d569842ad6a7179160e162526cb28195dc09176",
+      "bytes": 928120
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "3acf765a23280bd804291aabe934fa4050ce6b646f35941313dfd42ae44e497e",
-      "bytes": 819955
+      "sha256": "1dd1ad535fbc6f0ea7d7302ebaaf49c6b2140cc821c306d9264139a8ca58e66a",
+      "bytes": 819914
     },
     {
       "file": "cached.json.gz",
-      "sha256": "7e94cb5550c289e666504a0984d3c76eedb7a1da0eb55648e0c6c2e248b4fc50",
-      "bytes": 6447430
+      "sha256": "bf1247a8de6bc98fbaee02cc3fac776aa15c53b78e0ff6833021b070515512a5",
+      "bytes": 6447440
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "fafb31be4e2e72ea119978bef58fc8f9d586d42836a65e85d96fa7996a897408",
-      "bytes": 1039713
+      "sha256": "74867f5ddd7dcd0c26173d04f12299f8cf5542e127a9ab6060075cba5b4b8ce1",
+      "bytes": 1039734
     }
   ],
-  "status": "passed",
-  "completedAt": "2026-10-28T03:54:54.677Z"
+  "completedAt": "2026-10-28T05:38:49.735Z"
 }

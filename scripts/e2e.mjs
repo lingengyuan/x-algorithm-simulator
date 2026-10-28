@@ -10,9 +10,10 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const output = resolve(root, 'artifacts/e2e');
 const downloads = await mkdtemp(resolve(tmpdir(), 'x-simulator-e2e-'));
 await mkdir(output, { recursive: true });
-const task = await taskSpace('X simulator upstream update 20261028');
+const options = new URL(import.meta.url).searchParams;
+const task = await taskSpace(options.has('space') ? Number(options.get('space')) : 'X simulator E2E');
 const page = task.page('p1');
-const report = { upstream: '5ed796374ea48ee26058aab66ab10c266bea2bef', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
+const report = { runId: options.get('run'), status: 'running', upstream: '5ed796374ea48ee26058aab66ab10c266bea2bef', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
 let language = 'en';
 const label = (en, zh) => language === 'en' ? en : zh;
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -29,8 +30,38 @@ async function goto(path) {
 }
 
 async function healthy() {
+  assert.equal(await page.evaluate(() => Boolean(document.querySelector('[data-testid="app-error"]'))), false, 'React error boundary is visible');
   assert.deepEqual(await page.evaluate(() => window.__e2eErrors), []);
   assert.equal(await page.evaluate(() => /\bNaN\b|\bInfinity\b/.test(document.body.innerText)), false);
+  const collisions = await page.evaluate(() => {
+    const pairs = [
+      ['.post-author-line', '.post-author-name', '.post-time'],
+      ['.score-row-label', 'span:first-child', '.score-row-value'],
+      ['.pipeline-step-main', '.pipeline-step-name', '.pipeline-step-metric'],
+      ['.post-scores', 'dt', 'dd'],
+    ];
+    const failures = [];
+    for (const [root, first, second] of pairs) for (const row of document.querySelectorAll(root)) {
+      const left = [...row.querySelectorAll(first)];
+      const right = [...row.querySelectorAll(second)];
+      for (let index = 0; index < Math.min(left.length, right.length); index++) {
+        const a = left[index].getBoundingClientRect();
+        const b = right[index].getBoundingClientRect();
+        if (a.width && b.width && Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1) failures.push(left[index].textContent);
+      }
+    }
+    for (const button of document.querySelectorAll('.media-options .button')) {
+      const rect = button.getBoundingClientRect();
+      const parent = button.parentElement.getBoundingClientRect();
+      if (rect.right > parent.right + 1 || rect.left < parent.left - 1) failures.push('Media control exceeds its panel');
+    }
+    for (const field of document.querySelectorAll('.simulator-heading .select-trigger')) {
+      if (field.getBoundingClientRect().width < 120) failures.push('Scenario field collapsed below a readable width');
+    }
+    return failures;
+  });
+  assert.deepEqual(collisions, [], 'Text labels overlap adjacent values');
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, 'Page has horizontal overflow');
 }
 
 async function shot(name) {
@@ -48,7 +79,7 @@ async function selectScenario(name) {
 async function completePipeline() {
   // Use the app's playback controls for the complete flow.
   await page.press('[role="slider"]', 'End');
-  await page.click(button(label('Play', '播放')));
+  await page.click('[data-testid="playback-toggle"]');
   await page.waitForFunction(() => document.querySelector('[data-testid="pipeline-progress"]')?.dataset.step === 'final_ranking', undefined, { timeout: 90000 });
   await page.waitForSelector('[data-testid="final-timeline"]');
   assert.equal(await page.evaluate(() => document.querySelector('[data-testid="pipeline-progress"]').dataset.step), 'final_ranking');
@@ -97,6 +128,7 @@ function verifyTraceScores(trace, fallback = false) {
 }
 
 try {
+  await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
   console.log(`TaskSpace ${task.spaceId}`);
   await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
   await goto('/');
@@ -149,9 +181,9 @@ try {
     check(`history-${lang}`, 'Generated analysis remains available after route navigation.');
 
     await goto('/simulator');
-    await page.click(button(label('Play', '播放')));
+    await page.click('[data-testid="playback-toggle"]');
     await page.waitForFunction(() => document.querySelector('[data-testid="pipeline-progress"]').dataset.step !== 'candidate_pool');
-    await page.click(button(label('Pause', '暂停')));
+    await page.click('[data-testid="playback-toggle"]');
     await page.click(button(label('Previous step', '上一步')));
     await completePipeline();
     const trace = await exportTrace(`for-you-${lang}`);
@@ -163,6 +195,17 @@ try {
     assert(trace.result.finalCandidates.some((candidate) => candidate.retrievalSources.length > 1));
     await shot(`for-you-${lang}`);
     check(`for-you-${lang}`, 'Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass.');
+    for (const [width, viewport] of [[768, 'tablet'], [390, 'phone']]) {
+      await page.cdp('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 });
+      for (const pane of [label('Candidate Pool', '候选池'), label('Pipeline decisions', '流程与决策'), label('Final timeline', '最终信息流')]) {
+        await page.click(`loc=role:tab[name="${pane}"]`);
+        await healthy();
+      }
+      await shot(`for-you-${lang}-${viewport}`);
+      check(`layout-${lang}-${viewport}`, 'Candidate, stage, and score labels remain separate in all three workspace panes.');
+    }
+    await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
+
 
     await page.click(`[role="switch"][aria-label="${label('VMRanker service available', 'VMRanker 服务可用')}"]`);
     await completePipeline();
@@ -225,6 +268,19 @@ try {
   assert.equal(await page.evaluate(() => [...document.querySelectorAll('header nav a')].every((a) => a.getAttribute('aria-label'))), true);
   await shot('mobile');
   check('mobile', 'The 390px layout fits the viewport and navigation has accessible names.');
+  await goto('/weights');
+  await page.click('loc=role:tab[name="实时排序"]');
+  await page.waitForSelector('[data-testid="live-rank-row"]');
+  await healthy();
+  await shot('mobile-weight-ranking');
+  await page.click('loc=role:tab[name="权重参数"]');
+  await page.press('[data-weight="favoriteWeight"] [role="slider"]', 'ArrowRight');
+  await healthy();
+  check('mobile-weight-views', 'Weights and the resulting ranking remain available through a compact two-view workspace.');
+
+
+  const { runDomRecoveryChecks } = await import(`./e2e-dom-recovery.mjs?run=${Date.now()}`);
+  for (const result of await runDomRecoveryChecks(page)) check(result.name, result.detail);
 
   report.status = 'passed';
   report.completedAt = new Date().toISOString();
@@ -232,7 +288,11 @@ try {
   await rm(resolve(output, 'failure.png'), { force: true });
   await rm(downloads, { recursive: true, force: true });
   console.log(await page.snapshot());
-  await task.finish({ keep: [] });
+  if (options.has('keep-preview')) {
+    await page.cdp('Emulation.clearDeviceMetricsOverride');
+    await page.goto('http://127.0.0.1:5173/simulator');
+  }
+  await task.finish({ keep: options.has('keep-preview') ? ['p1'] : [] });
   console.log(`E2E passed: ${report.checks.length} checks. Report: ${resolve(output, 'report.json')}`);
 } catch (error) {
   report.status = 'failed';

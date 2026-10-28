@@ -2,19 +2,17 @@ import { useState } from 'react';
 import { TweetInput, AnalysisResult } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { InputForm } from './InputForm';
 import { ScoreRadar } from './ScoreRadar';
 import { HeatGauge } from './HeatGauge';
 import { Suggestions } from './Suggestions';
 import { CompareMode } from './CompareMode';
-import { simulatePhoenixScores, calculateHeatScore } from '@/utils/scoring';
+import { simulatePhoenixScores, calculateHeatScore, SCORE_LABELS, CONTINUOUS_OUTPUT_LABELS } from '@/utils/scoring';
 import { saveHistory, generateId } from '@/utils/storage';
 import { GitCompare, ArrowLeft } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export function TweetAnalyzer() {
-  const { t } = useTranslation();
+  const { t, isZh } = useTranslation();
 
   const [isCompareMode, setIsCompareMode] = useState(false);
   const [currentInput, setCurrentInput] = useState<TweetInput | null>(null);
@@ -45,24 +43,9 @@ export function TweetAnalyzer() {
   };
 
   return (
-    <div className="space-y-8">
-      <Card className="overflow-hidden border-slate-900/15 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-800 text-white">
-        <CardContent className="relative p-6">
-          <div className="pointer-events-none absolute -right-14 -top-10 h-36 w-36 rounded-full bg-orange-300/25 blur-2xl" />
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-200/90">
-            Synthetic Fixture Explorer
-          </p>
-          <h1 className="mt-2 text-3xl font-black leading-tight sm:text-4xl">
-            {t('analyzer.title')}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm text-slate-100/90 sm:text-base">
-            {t('analyzer.subtitle')}
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Mode Toggle */}
-      <div className="flex justify-end">
+    <div>
+      <div className="page-heading"><div><h1>{t('common.tweetAnalyzer')}</h1><p>{isZh ? '生成本地测试输出，查看行为概率和停留时长。' : 'Generate local fixture outputs to inspect probabilities and dwell times.'}</p></div>
+      <div className="page-heading-actions">
         <Button
           variant={isCompareMode ? 'default' : 'outline'}
           onClick={() => setIsCompareMode(!isCompareMode)}
@@ -80,30 +63,22 @@ export function TweetAnalyzer() {
             </>
           )}
         </Button>
-      </div>
+      </div></div>
 
-      <AnimatePresence mode="wait">
+      <>
         {isCompareMode ? (
-          <motion.div
+          <div
             key="compare"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
           >
             <CompareMode onClose={() => setIsCompareMode(false)} />
-          </motion.div>
+          </div>
         ) : (
-          <motion.div
+          <div
             key="single"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2 }}
-            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+            className="analyzer-workbench"
           >
             {/* Input Panel */}
-            <div className="lg:col-span-1">
+            <div className="analyzer-input">
               <InputForm
                 onAnalyze={handleAnalyze}
                 onInputChange={() => {
@@ -115,11 +90,9 @@ export function TweetAnalyzer() {
             </div>
 
             {/* Results Panel */}
-            <div className="lg:col-span-2">
+            <div className="analyzer-results">
               {result ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                <div
                   className="space-y-6"
                 >
                   {/* Heat Gauge */}
@@ -130,23 +103,26 @@ export function TweetAnalyzer() {
 
                   {/* Suggestions */}
                   {currentInput && <Suggestions input={currentInput} />}
-                </motion.div>
+                </div>
               ) : (
-                <div className="flex h-[400px] items-center justify-center rounded-2xl border border-slate-900/10 bg-[rgba(255,255,255,0.7)]">
-                  <div className="text-center text-slate-500">
-                    <p className="text-lg font-semibold text-slate-700">
-                      {t('analyzer.subtitle')}
-                    </p>
-                    <p className="mt-2 text-sm">
-                      {t('analyzer.inputPlaceholder')}
-                    </p>
+                <div className="analyzer-empty">
+                  <h2>{isZh ? '输出结构' : 'Output contract'}</h2>
+                  <p>{isZh ? '填写测试帖子后，查看每项行为的概率和连续输出。下方是字段范围。' : 'Generate a fixture post to inspect behavior probabilities and continuous outputs. The field ranges are shown below.'}</p>
+                  <div className="contract-preview">
+                    <section><h3>{isZh ? '行为概率' : 'Behavior probabilities'} · {Object.keys(SCORE_LABELS).length}</h3>
+                      <dl>{(['favoriteScore','replyScore','retweetScore','shareViaCopyLinkScore','notInterestedScore','reportScore'] as const).map((key) => <div key={key} className="contents"><dt>{isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name}</dt><dd>0–100%</dd></div>)}</dl>
+                    </section>
+                    <section><h3>{isZh ? '连续值' : 'Continuous values'} · {Object.keys(CONTINUOUS_OUTPUT_LABELS).length}</h3>
+                      <dl>{Object.values(CONTINUOUS_OUTPUT_LABELS).map((field) => <div key={field.name} className="contents"><dt>{isZh ? field.nameZh : field.name}</dt><dd>{isZh ? '秒' : 'seconds'}</dd></div>)}</dl>
+                    </section>
                   </div>
+                  <p className="field-note">{isZh ? '数据来自本地模拟，不代表生产模型推理或真实曝光。' : 'Local fixtures illustrate the public contract. They do not predict production reach.'}</p>
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
     </div>
   );
 }

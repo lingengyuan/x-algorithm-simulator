@@ -1,0 +1,57 @@
+{
+  "style": "Framed sheet",
+  "seed": 757754190,
+  "before_simulator_fail": 6,
+  "after": {
+    "weights": {
+      "fail": 0,
+      "warn": 0,
+      "widths": [
+        1440,
+        768,
+        390
+      ],
+      "report": ".taste-skill/after/weights/report.json"
+    },
+    "simulator": {
+      "fail": 0,
+      "warn": 1,
+      "widths": [
+        1440,
+        768,
+        390
+      ],
+      "report": ".taste-skill/after/simulator/report.json"
+    },
+    "history": {
+      "fail": 0,
+      "warn": 3,
+      "widths": [
+        1440,
+        768,
+        390
+      ],
+      "report": ".taste-skill/after/history/report.json"
+    },
+    "analyzer": {
+      "fail": 0,
+      "warn": 2,
+      "widths": [
+        1440,
+        768,
+        390
+      ],
+      "report": ".taste-skill/after/analyzer/report.json"
+    }
+  },
+  "critique_score": 7.9,
+  "critique": ".taste-skill/critique.md",
+  "functional_report": "artifacts/e2e/report.json",
+  "e2e": {
+    "status": "passed",
+    "checks": 24,
+    "screenshots": 17,
+    "traces": 9,
+    "runId": "1793163742260"
+  }
+}

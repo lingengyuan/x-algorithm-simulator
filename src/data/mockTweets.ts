@@ -15,7 +15,7 @@ const AUTHORS = [
   { id: '101', name: 'Tech News', followers: 1_500_000, verified: true, avatar: '🤖' },
   { id: '102', name: 'Sarah Dev', followers: 45_000, verified: true, avatar: '👩‍💻' },
   { id: '103', name: 'AI Researcher', followers: 250_000, verified: true, avatar: '🧪' },
-  { id: '104', name: 'John Doe', followers: 1_200, verified: false, avatar: '👤' },
+  { id: '104', name: 'Alex Chen', followers: 1_200, verified: false, avatar: '👤' },
   { id: '105', name: 'Startup Founder', followers: 85_000, verified: true, avatar: '🚀' },
   { id: '106', name: 'Crypto Analyst', followers: 500_000, verified: false, avatar: '📈' },
   { id: '107', name: 'Designer Pro', followers: 120_000, verified: true, avatar: '🎨' },

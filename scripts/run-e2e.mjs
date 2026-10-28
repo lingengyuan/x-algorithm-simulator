@@ -18,7 +18,14 @@ try {
       if (chunk.toString().includes('http://127.0.0.1:4173')) accept();
     });
   });
-  browser = spawn('ego-browser', ['nodejs', '-e', `await import(${JSON.stringify(pathToFileURL(resolve(root, 'scripts/e2e.mjs')).href)})`], { cwd: root, stdio: 'inherit' });
+  const domRecovery = process.argv.includes('--dom-recovery');
+  const entry = pathToFileURL(resolve(root, domRecovery ? 'scripts/e2e-dom-recovery.mjs' : 'scripts/e2e.mjs'));
+  if (domRecovery) entry.searchParams.set('standalone', 'true');
+  entry.searchParams.set('run', Date.now().toString());
+  const space = process.argv.find((arg) => arg.startsWith('--space='));
+  if (space) entry.searchParams.set('space', space.slice(8));
+  if (process.argv.includes('--keep-preview')) entry.searchParams.set('keep-preview', 'true');
+  browser = spawn('ego-browser', ['nodejs', '-e', `await import(${JSON.stringify(entry.href)})`], { cwd: root, stdio: 'inherit' });
   process.exitCode = await new Promise((accept, reject) => {
     browser.once('error', reject);
     browser.once('exit', (code) => accept(code ?? 1));

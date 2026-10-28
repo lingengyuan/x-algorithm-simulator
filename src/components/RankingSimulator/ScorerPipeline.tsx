@@ -1,158 +1,27 @@
-import { PipelineStep, ScorerResult } from '@/core/types';
+import type { PipelineStep, ScorerResult } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/utils/cn';
-import { Calculator, CheckCircle, ChevronRight, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
 
-interface ScorerPipelineProps {
-  steps: PipelineStep[];
-  currentStepIndex: number;
-  onStepClick?: (index: number) => void;
-}
+interface ScorerPipelineProps { steps: PipelineStep[]; currentStepIndex: number; onStepClick?: (index: number) => void; }
 
 export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerPipelineProps) {
   const { t, isZh } = useTranslation();
-
-  const scorerSteps = steps.filter((step) => step.type === 'scorer');
-
-  const getStepIcon = (stepId: string) => {
-    switch (stepId) {
-      case 'phoenix':
-        return '🤖';
-      case 'vm_ranker':
-        return '📈';
-      default:
-        return '📊';
-    }
-  };
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Calculator className="w-5 h-5 text-purple-500" />
-          {t('simulator.scoringStage')}
-          <Badge variant="secondary">{scorerSteps.length}</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {scorerSteps.map((step, index) => {
-            const globalIndex = steps.indexOf(step);
-            const isActive = globalIndex === currentStepIndex;
-            const isPassed = globalIndex < currentStepIndex;
-            const scorerResult = step.details as ScorerResult | undefined;
-            const summary = scorerResult?.summary;
-
-            return (
-              <motion.div
-                key={step.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                data-step-id={step.id}
-                data-summary={summary ? JSON.stringify(summary) : undefined}
-                className={cn(
-                  'cursor-pointer rounded-xl border p-3 transition-all',
-                  isActive && 'border-sky-300 bg-sky-50',
-                  isPassed && 'border-emerald-300 bg-emerald-50',
-                  !isActive && !isPassed && 'border-slate-300/60 hover:border-slate-400/70'
-                )}
-                onClick={() => onStepClick?.(globalIndex)}
-              >
-                <div className="flex items-center gap-3">
-                  {/* Status Icon */}
-                  <div
-                    data-step-id={step.id}
-                data-summary={summary ? JSON.stringify(summary) : undefined}
-                className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-lg',
-                      isActive && 'bg-sky-600',
-                      isPassed && 'bg-green-500',
-                      !isActive && !isPassed && 'bg-slate-200'
-                    )}
-                  >
-                    {isPassed ? (
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    ) : (
-                      getStepIcon(step.id)
-                    )}
-                  </div>
-
-                  {/* Scorer Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm truncate">
-                        {isZh ? step.nameZh : step.name}
-                      </span>
-                      {isActive && (
-                        <Zap className="w-4 h-4 text-sky-600 animate-pulse" />
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-600 truncate">
-                      {isZh ? step.descriptionZh : step.description}
-                    </p>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="text-right text-xs">
-                    <div className="text-slate-500">
-                      {step.inputCount} {t('simulator.tweets')}
-                    </div>
-                    {scorerResult && (
-                      <div className="text-purple-500 font-medium">
-                        {t('simulator.viewDetails')}
-                      </div>
-                    )}
-                  </div>
-
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
-                </div>
-
-                {/* Formula Preview */}
-                {isActive && step.id === 'phoenix' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 border-t border-slate-200 pt-3"
-                  >
-                    <div className="space-y-2 overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      <div>
-                      {isZh
-                        ? '候选可看用户和历史；候选之间互不可见；候选可看自己'
-                        : 'candidates attend to user/history + self, not other candidates'}
-                      </div>
-                      {summary && (
-                        <div>
-                          {isZh
-                            ? `${summary.outputHeadCount} 个输出头；dwell/click-dwell 以秒返回；本地为确定性测试数据`
-                            : `${summary.outputHeadCount} output heads; dwell/click-dwell return seconds; local values are deterministic fixtures`}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-
-                {isActive && step.id === 'vm_ranker' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 border-t border-slate-200 pt-3"
-                  >
-                    <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      {summary?.valueModelMode === 'local-weighted-fallback'
-                        ? (isZh ? '本地加权分与冷启动；不执行 VM 多样性、关注外系数或 DPP' : 'Local fusion and cold-start; VM multipliers and DPP are skipped')
-                        : (isZh ? `复用 Home Mixer 加权分 → 多样性 → 关注外系数 → ${summary?.dppEnabled ? 'DPP' : '话题请求跳过 DPP'}` : `Cached Home Mixer fusion → diversity → OON → ${summary?.dppEnabled ? 'DPP' : 'DPP skipped for topics'}`)}
-                    </div>
-                  </motion.div>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const scorers = steps.filter((step) => step.type === 'scorer');
+  return <section className="pipeline-section">
+    <div className="section-heading"><h2>{t('simulator.scoringStage')}</h2><small>{scorers.length}</small></div>
+    {scorers.map((step) => {
+      const index = steps.indexOf(step);
+      const summary = (step.details as ScorerResult | undefined)?.summary;
+      const active = currentStepIndex === index;
+      return <button key={step.id} type="button" className="pipeline-step" aria-pressed={active} data-step-id={step.id}
+        data-summary={summary ? JSON.stringify(summary) : undefined} onClick={() => onStepClick?.(index)}>
+        <span className="pipeline-step-main"><span className="pipeline-step-name">{isZh ? step.nameZh : step.name}</span><span className="pipeline-step-metric">{step.inputCount} {isZh ? '条' : 'posts'}</span></span>
+        {active && <p className="pipeline-step-description">{step.id === 'phoenix'
+          ? (isZh ? `${summary?.outputHeadCount} 个默认输出；停留时长以秒计。本地使用可重复的模拟值。` : `${summary?.outputHeadCount} default outputs. Dwell values use seconds. Local values are repeatable fixtures.`)
+          : summary?.valueModelMode === 'local-weighted-fallback'
+            ? (isZh ? '本地加权与冷启动。服务不可用时跳过多样性、关注外系数和 DPP。' : 'Local fusion and cold-start. Service failure skips diversity, OON factors, and DPP.')
+            : (isZh ? `复用加权分 → 多样性 → 关注外系数 → ${summary?.dppEnabled ? 'DPP' : '话题请求跳过 DPP'}` : `Weighted score → diversity → OON factor → ${summary?.dppEnabled ? 'DPP' : 'DPP skipped for topics'}`)}</p>}
+      </button>;
+    })}
+    {!scorers.length && <p className="pipeline-empty">{isZh ? '过滤完成后，查看 Phoenix 和 VMRanker 的评分。' : 'Phoenix and VMRanker scores appear after filtering.'}</p>}
+  </section>;
 }

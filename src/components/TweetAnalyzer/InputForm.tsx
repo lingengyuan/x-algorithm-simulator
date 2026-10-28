@@ -21,7 +21,7 @@ interface InputFormProps {
 }
 
 export function InputForm({ onAnalyze, onInputChange, initialValue }: InputFormProps) {
-  const { t } = useTranslation();
+  const { t, isZh } = useTranslation();
 
   const [content, setContent] = useState(initialValue?.content || '');
   const [hasMedia, setHasMedia] = useState<'none' | 'image' | 'video'>(
@@ -59,22 +59,23 @@ export function InputForm({ onAnalyze, onInputChange, initialValue }: InputFormP
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-sky-600" />
-          {t('analyzer.title')}
+
+          {isZh ? '测试帖子' : 'Fixture post'}
         </CardTitle>
-        <p className="text-sm text-slate-600">{t('analyzer.subtitle')}</p>
+
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Tweet Content */}
         <div className="space-y-2">
           <Textarea
+            aria-label={t('analyzer.inputPlaceholder')}
             placeholder={t('analyzer.inputPlaceholder')}
             value={content}
             onChange={(e) => {
               setContent(e.target.value);
               onInputChange?.();
             }}
-            className="min-h-[120px] resize-none"
+            className="min-h-[140px]"
             maxLength={280}
           />
           <div className="flex justify-end text-xs text-slate-500">
@@ -87,7 +88,7 @@ export function InputForm({ onAnalyze, onInputChange, initialValue }: InputFormP
           <label className="text-sm font-medium text-slate-700">
             {t('analyzer.mediaType')}
           </label>
-          <div className="flex gap-2">
+          <div className="media-options">
             <Button
               type="button"
               variant={hasMedia === 'none' ? 'default' : 'outline'}

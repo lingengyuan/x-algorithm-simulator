@@ -45,14 +45,14 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
           </label>
           <div className="flex items-center gap-2">
             {isModified && (
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 {value > defaultValue ? '+' : ''}{formatWeight(value - defaultValue, meta.step)}
               </Badge>
             )}
             <span
               className={cn(
-                'text-sm font-mono w-12 text-right',
-                meta.type === 'positive' ? 'text-green-600' : 'text-red-600'
+                'text-sm tabular-nums min-w-[70px] shrink-0 text-right',
+                meta.type === 'positive' ? 'text-slate-700' : 'text-red-600'
               )}
             >
               {formatWeight(value, meta.step)}
@@ -73,7 +73,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               : '[&_[data-radix-slider-range]]:bg-red-500 [&_[data-radix-slider-thumb]]:border-red-500'
           )}
         />
-        <p className="text-xs text-slate-500">
+        <p className="weight-help">
           {isZh ? meta.descriptionZh : meta.description}
         </p>
       </div>
@@ -111,7 +111,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
-            <Users className="w-5 h-5 text-purple-500" />
+            <Users className="w-5 h-5 text-slate-600" />
             {t('weightLab.diversityParams')}
           </CardTitle>
         </CardHeader>
@@ -121,7 +121,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               <label className="text-sm font-medium text-slate-700">
                 {t('weightLab.authorDiversityDecay')}
               </label>
-              <span className="text-sm font-mono text-purple-600">
+              <span className="text-sm tabular-nums text-slate-700">
                 {weights.authorDiversityDecay.toFixed(2)}
               </span>
             </div>
@@ -131,7 +131,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               min={0.1}
               max={1}
               step={0.05}
-              className="[&_[data-radix-slider-range]]:bg-purple-500 [&_[data-radix-slider-thumb]]:border-purple-500"
+              className="[&_[data-radix-slider-range]]:bg-slate-600 [&_[data-radix-slider-thumb]]:border-slate-600"
             />
           </div>
 
@@ -140,7 +140,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               <label className="text-sm font-medium text-slate-700">
                 {t('weightLab.authorDiversityFloor')}
               </label>
-              <span className="text-sm font-mono text-purple-600">
+              <span className="text-sm tabular-nums text-slate-700">
                 {weights.authorDiversityFloor.toFixed(2)}
               </span>
             </div>
@@ -150,7 +150,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               min={0}
               max={0.5}
               step={0.05}
-              className="[&_[data-radix-slider-range]]:bg-purple-500 [&_[data-radix-slider-thumb]]:border-purple-500"
+              className="[&_[data-radix-slider-range]]:bg-slate-600 [&_[data-radix-slider-thumb]]:border-slate-600"
             />
           </div>
         </CardContent>
@@ -169,7 +169,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               <label className="text-sm font-medium text-slate-700">
                 {t('weightLab.oonWeightFactor')}
               </label>
-              <span className="text-sm font-mono text-blue-600">
+              <span className="text-sm tabular-nums text-slate-700">
                 {weights.oonWeightFactor.toFixed(2)}
               </span>
             </div>
@@ -180,7 +180,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               max={1}
               step={0.05}
             />
-            <p className="text-xs text-slate-500">
+            <p className="weight-help">
               {isZh
                 ? '关注外内容的权重乘数（1 = 与关注内相同）'
                 : 'Multiplier for out-of-network content (1 = same as in-network)'}
@@ -192,7 +192,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               <label className="text-sm font-medium text-slate-700">
                 {isZh ? '话题请求关注外权重' : 'Topic OON Factor'}
               </label>
-              <span className="text-sm font-mono text-blue-600">
+              <span className="text-sm tabular-nums text-slate-700">
                 {weights.topicOonWeightFactor.toFixed(2)}
               </span>
             </div>
@@ -229,7 +229,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
                 <label className="text-sm font-medium text-slate-700">
                   {isZh ? 'DPP theta' : 'DPP theta'}
                 </label>
-                <span className="text-sm font-mono text-blue-600">
+                <span className="text-sm tabular-nums text-slate-700">
                   {weights.vmRankerTheta.toFixed(2)}
                 </span>
               </div>
@@ -241,7 +241,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
                 step={0.01}
                 disabled={!weights.enableVMRanker}
               />
-              <p className="text-xs text-slate-500">
+              <p className="weight-help">
                 {isZh
                   ? `选择 Top ${weights.vmRankerTopK}；候选池最多 ${weights.vmRankerMaxSelectedRank}`
                   : `Select Top ${weights.vmRankerTopK} from at most ${weights.vmRankerMaxSelectedRank} candidates`}

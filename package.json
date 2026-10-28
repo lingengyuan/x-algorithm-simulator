@@ -10,7 +10,8 @@
     "test": "node scripts/run-e2e.mjs",
     "check": "npm run lint && npm run build && npm run test:e2e",
     "preview": "vite preview",
-    "test:e2e": "node scripts/run-e2e.mjs"
+    "test:e2e": "node scripts/run-e2e.mjs",
+    "test:dom-recovery": "node scripts/run-e2e.mjs --dom-recovery"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.2.6",

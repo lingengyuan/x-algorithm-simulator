@@ -11,10 +11,10 @@ export function LanguageSwitch() {
       size="sm"
       onClick={toggleLanguage}
       aria-label={language === 'en' ? '切换到中文' : 'Switch to English'}
-      className="gap-2 rounded-xl border-slate-900/20 bg-white/75 text-slate-700 hover:bg-slate-900 hover:text-white"
+      className="gap-2"
     >
       <Globe className="w-4 h-4" />
-      <span className="hidden sm:inline">
+      <span className="text-xs">
         {language === 'en' ? '中文' : 'EN'}
       </span>
     </Button>

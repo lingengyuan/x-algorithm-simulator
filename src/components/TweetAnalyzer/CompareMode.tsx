@@ -11,7 +11,6 @@ import {
   SCORE_LABELS,
   simulatePhoenixScores,
   calculateHeatScore,
-  getHeatLevel,
 } from '@/utils/scoring';
 import {
   Plus,
@@ -19,16 +18,7 @@ import {
   GitCompare,
   Flame,
 } from 'lucide-react';
-import { cn } from '@/utils/cn';
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+
 
 interface CompareModeProps {
   onClose?: () => void;
@@ -40,7 +30,7 @@ interface CompareItem {
   result?: AnalysisResult;
 }
 
-const COLORS = ['#0f172a', '#0ea5e9', '#16a34a', '#ea580c'];
+const COLORS = ['#283b43', '#1b6c80', '#596369', '#475e66'];
 
 export function CompareMode({ onClose }: CompareModeProps) {
   const { t, isZh } = useTranslation();
@@ -102,23 +92,11 @@ export function CompareMode({ onClose }: CompareModeProps) {
     .map((item, originalIndex) => ({ item, originalIndex }))
     .filter(({ item }) => item.result !== undefined);
 
-  // Prepare radar data
+  // Use aligned metrics instead of overlapping radial labels.
   const positiveKeys = (Object.keys(SCORE_LABELS) as (keyof typeof SCORE_LABELS)[])
     .filter((key) => SCORE_LABELS[key].type === 'positive')
-    .slice(0, 8); // Limit for readability
+    ;
 
-  const radarData = positiveKeys.map((key) => {
-    const data: Record<string, unknown> = {
-      subject: isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name,
-      fullMark: 100,
-    };
-    validItems.forEach(({ item, originalIndex }) => {
-      if (item.result) {
-        data[`tweet${originalIndex + 1}`] = Math.round((item.result.phoenixScores[key] ?? 0) * 100);
-      }
-    });
-    return data;
-  });
 
   return (
     <Card>
@@ -188,7 +166,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                     <div className="flex items-center gap-2">
                       <Flame
                         className="w-4 h-4"
-                        style={{ color: getHeatLevel(item.result.heatScore).color }}
+
                       />
                       <span className="text-sm text-slate-600">
                         {t('analyzer.heatScore')}
@@ -196,7 +174,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                     </div>
                     <span
                       className="font-bold text-lg"
-                      style={{ color: getHeatLevel(item.result.heatScore).color }}
+
                     >
                       {Math.round(item.result.heatScore)}
                     </span>
@@ -205,12 +183,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                     value={item.result.heatScore}
                     max={100}
                     className="mt-2 h-2"
-                    indicatorClassName={cn(
-                      item.result.heatScore >= 80 && 'bg-red-500',
-                      item.result.heatScore >= 60 && item.result.heatScore < 80 && 'bg-orange-500',
-                      item.result.heatScore >= 40 && item.result.heatScore < 60 && 'bg-yellow-500',
-                      item.result.heatScore < 40 && 'bg-green-500'
-                    )}
+
                   />
                 </div>
               )}
@@ -246,36 +219,8 @@ export function CompareMode({ onClose }: CompareModeProps) {
             <h3 className="text-sm font-semibold mb-4">
               {isZh ? '对比分析' : 'Comparison Analysis'}
             </h3>
-            <div className="h-[350px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={radarData}>
-                  <PolarGrid stroke="#cbd5e1" />
-                  <PolarAngleAxis
-                    dataKey="subject"
-                    tick={{ fill: '#475569', fontSize: 10 }}
-                  />
-                  <PolarRadiusAxis
-                    angle={90}
-                    domain={[0, 100]}
-                    tick={{ fill: '#94a3b8', fontSize: 10 }}
-                  />
-                  {validItems.map(({ item, originalIndex }) => (
-                    <Radar
-                      key={item.id}
-                      name={`Tweet ${String.fromCharCode(65 + originalIndex)}`}
-                      dataKey={`tweet${originalIndex + 1}`}
-                      stroke={COLORS[originalIndex]}
-                      fill={COLORS[originalIndex]}
-                      fillOpacity={0.2}
-                    />
-                  ))}
-                  <Legend />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-
             {/* Score Comparison Table */}
-            <div className="mt-4 overflow-x-auto">
+            <div className="comparison-table-well">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-900/10">
@@ -283,7 +228,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                     {validItems.map(({ item, originalIndex }) => (
                       <th
                         key={item.id}
-                        className="text-center py-2 px-2"
+                        className="text-right py-2 px-2"
                         style={{ color: COLORS[originalIndex] }}
                       >
                         {String.fromCharCode(65 + originalIndex)}
@@ -299,20 +244,20 @@ export function CompareMode({ onClose }: CompareModeProps) {
                     {validItems.map(({ item, originalIndex }) => (
                       <td
                         key={item.id}
-                        className="text-center py-2 px-2 font-bold"
+                        className="text-right py-2 px-2 font-medium"
                         style={{ color: COLORS[originalIndex] }}
                       >
                         {item.result ? Math.round(item.result.heatScore) : '-'}
                       </td>
                     ))}
                   </tr>
-                  {positiveKeys.slice(0, 6).map((key) => (
+                  {positiveKeys.map((key) => (
                     <tr key={key} className="border-b border-slate-900/10">
                       <td className="py-2 pr-4">
                         {isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name}
                       </td>
                       {validItems.map(({ item }) => (
-                        <td key={item.id} className="text-center py-2 px-2">
+                        <td key={item.id} className="text-right py-2 px-2">
                           {item.result
                             ? `${Math.round((item.result.phoenixScores[key] ?? 0) * 100)}%`
                             : '-'}
@@ -329,7 +274,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                             : CONTINUOUS_OUTPUT_LABELS[key].name}
                         </td>
                         {validItems.map(({ item }) => (
-                          <td key={item.id} className="text-center py-2 px-2 font-mono">
+                          <td key={item.id} className="text-right py-2 px-2 tabular-nums">
                             {item.result && item.result.phoenixScores[key] !== undefined
                               ? `${item.result.phoenixScores[key].toFixed(3)}${CONTINUOUS_OUTPUT_LABELS[key].unit}`
                               : '-'}

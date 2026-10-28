@@ -15,8 +15,7 @@ import { LiveRanking } from './LiveRanking';
 import { DEFAULT_WEIGHTS } from '@/data/defaultWeights';
 import { generateMockTweets } from '@/data/mockTweets';
 import { getSavedWeights, saveWeightPreset, deleteWeightPreset } from '@/utils/storage';
-import { SlidersHorizontal, RotateCcw, Save, Trash2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { RotateCcw, Save, Trash2 } from 'lucide-react';
 
 export function WeightLab() {
   const { t, isZh } = useTranslation();
@@ -52,6 +51,7 @@ export function WeightLab() {
     }
   });
 
+  const [activeView, setActiveView] = useState('weights');
   const [weights, setWeights] = useState<WeightConfig>({ ...DEFAULT_WEIGHTS });
   const [previousWeights, setPreviousWeights] = useState<WeightConfig | undefined>();
   const [candidates] = useState<TweetCandidate[]>(bootstrap.candidates);
@@ -147,13 +147,10 @@ export function WeightLab() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-heading">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Live Tuning
-          </p>
           <h1 className="mt-1 text-2xl font-bold flex items-center gap-2 text-slate-900">
-            <SlidersHorizontal className="w-6 h-6 text-sky-600" />
+
             {t('weightLab.title')}
           </h1>
           <p className="text-slate-600 text-sm mt-1">{t('weightLab.subtitle')}</p>
@@ -186,6 +183,7 @@ export function WeightLab() {
               variant="outline"
               size="icon"
               onClick={() => handleDeletePreset(selectedPreset)}
+              aria-label={isZh ? '删除预设' : 'Delete preset'}
             >
               <Trash2 className="w-4 h-4 text-red-500" />
             </Button>
@@ -193,9 +191,7 @@ export function WeightLab() {
 
           {/* Save Preset */}
           {showSaveInput ? (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
+            <div
               className="flex items-center gap-2"
             >
               <Input
@@ -215,7 +211,7 @@ export function WeightLab() {
               >
                 {t('common.close')}
               </Button>
-            </motion.div>
+            </div>
           ) : (
             <Button
               variant="outline"
@@ -236,14 +232,18 @@ export function WeightLab() {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="workspace-tabs weight-view-tabs" role="tablist" aria-label={isZh ? '权重工作区视图' : 'Weight workspace view'}>
+        <button role="tab" aria-selected={activeView === 'weights'} aria-controls="weight-controls" onClick={() => setActiveView('weights')}>{isZh ? '权重参数' : 'Weights'}</button>
+        <button role="tab" aria-selected={activeView === 'ranking'} aria-controls="weight-ranking" onClick={() => setActiveView('ranking')}>{t('weightLab.liveRanking')}</button>
+      </div>
+      <div className="weight-workbench">
         {/* Left Column - Weight Sliders */}
-        <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2">
+        <div className="weight-controls space-y-4" id="weight-controls" data-active={activeView === 'weights'}>
           <WeightSliders weights={weights} onChange={handleWeightChange} />
         </div>
 
         {/* Right Column - Live Ranking */}
-        <div>
+        <div className="weight-ranking" id="weight-ranking" data-active={activeView === 'ranking'}>
           <LiveRanking
             candidates={candidates}
             weights={weights}

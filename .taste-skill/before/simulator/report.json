@@ -1,0 +1,1577 @@
+{
+ "url": "http://127.0.0.1:5173/simulator",
+ "at": "2026-10-28T04:16:48.120Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.52,
+    0.55
+   ],
+   "motion": {
+    "elements": 91,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 91,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 1154,
+     "screens": 1.3,
+     "words": 1745,
+     "img": 0,
+     "video": 0,
+     "canvas": 0,
+     "svg": 211,
+     "sections": 0,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [
+      "👤",
+      "🚀",
+      "👩",
+      "💻",
+      "📊",
+      "😂",
+      "🎨",
+      "🧰",
+      "🧵",
+      "📈"
+     ],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "chars": 17,
+     "lines": 1,
+     "size": 24,
+     "vw": 1.7,
+     "font": "Archivo",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.33,
+     "top": 126,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "lines": 1,
+     "size": 24,
+     "font": "Archivo"
+    },
+    "headings": [],
+    "headingSummary": {
+     "count": 0,
+     "maxLines": 0,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "IBM Plex Sans",
+       "share": 0.99,
+       "mono": false
+      },
+      {
+       "family": "Archivo",
+       "share": 0.01,
+       "mono": false
+      },
+      {
+       "family": "ui-monospace",
+       "share": 0,
+       "mono": false
+      }
+     ],
+     "familyCount": 3,
+     "sizes": [
+      10,
+      11,
+      12,
+      14,
+      16,
+      18,
+      24
+     ],
+     "sizeCount": 7,
+     "notLoaded": [],
+     "body": {
+      "font": "IBM Plex Sans",
+      "size": 14,
+      "leading": 1.43,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": null
+     },
+     "measureChars": 18,
+     "max": {
+      "size": 24,
+      "vw": 1.7,
+      "font": "Archivo",
+      "text": "Ranking Simulator"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [
+      "ui-monospace"
+     ],
+     "monoSamples": [
+      "upstream 5ed7963"
+     ],
+     "microLabels": 2,
+     "microLabelShare": 0.004,
+     "microSamples": [
+      "Recommendation Workshop",
+      "Pipeline Explorer"
+     ],
+     "upperShare": 0,
+     "centerShare": 0.01,
+     "smallText": 58
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f2eee5",
+     "bodyBgHsl": {
+      "h": 42,
+      "s": 0.33,
+      "l": 0.92
+     },
+     "dark": false,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#1d293d",
+       "share": 0.56
+      },
+      {
+       "color": "#62748e",
+       "share": 0.12
+      },
+      {
+       "color": "#0f172b",
+       "share": 0.11
+      },
+      {
+       "color": "#314158",
+       "share": 0.11
+      },
+      {
+       "color": "#007a55",
+       "share": 0.05
+      }
+     ],
+     "button": {
+      "bg": "#0f172b",
+      "hsl": {
+       "h": 223,
+       "s": 0.48,
+       "l": 0.11
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 4,
+     "inHero": 4,
+     "radius": 12,
+     "height": 40,
+     "withShadow": 0,
+     "withGradient": 1,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Ranking Simulator",
+      "中文",
+      "For You default",
+      "Play"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 99,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "a.flex.items-center → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "button.inline-flex.items-center → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "button.flex.h-10 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.rounded-2xl.border → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 1,
+     "hairlineSamples": [
+      "header.sticky.top-0 1440px"
+     ],
+     "outlinedBoxes": 97,
+     "dashed": 1,
+     "blurred": 96,
+     "roundedBoxes": 100,
+     "boxRadius": 16,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 5,
+     "fixed": true,
+     "height": 73,
+     "floatingPill": false,
+     "blur": true
+    },
+    "fontsLoaded": [
+     "archivo",
+     "ibm plex sans"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 1154,
+    "margins": {
+     "left": 129,
+     "right": 125
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Ranking Simulator",
+      "size": 24,
+      "top": 126,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 144,
+      "n": 3
+     },
+     {
+      "x": 326,
+      "n": 2
+     },
+     {
+      "x": 578,
+      "n": 2
+     },
+     {
+      "x": 165,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 8,
+    "bodySize": 14,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.17,
+    "voidBox": {
+     "x": 720,
+     "y": 420,
+     "w": 720,
+     "h": 300
+    }
+   },
+   "app": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "dark": false,
+    "ground": "#f2eee5",
+    "sidebar": null,
+    "topbar": {
+     "h": 73
+    },
+    "canvas": {
+     "left": 154,
+     "right": 389
+    },
+    "hero": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "chars": 17,
+     "lines": 1,
+     "size": 24,
+     "vw": 1.7,
+     "font": "Archivo",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.33,
+     "top": 126,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 0,
+    "layout": {
+     "panels": 7,
+     "firstScreen": 7,
+     "ragged": [
+      {
+       "diff": 468,
+       "top": 474
+      },
+      {
+       "diff": 468,
+       "top": 474
+      }
+     ],
+     "voids": [
+      {
+       "gap": 281,
+       "at": 840,
+       "panel": "Final timeline will appear after all ste"
+      }
+     ]
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 97,
+     "radii": [
+      [
+       16,
+       95
+      ],
+      [
+       8,
+       2
+      ]
+     ],
+     "heavyBorders": 95,
+     "borderSamples": [
+      "#0d1428 on #f2eee5 (15.8:1)",
+      "#141427 on #f2eee5 (15.65:1)",
+      "#141427 on #f2eee5 (15.65:1)"
+     ],
+     "heavyShadows": 95,
+     "softShadows": 0,
+     "shadowSamples": [
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px",
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px",
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px"
+     ],
+     "glass": 95
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 91,
+     "tabularShare": 0,
+     "kpiMax": 14
+    },
+    "rows": null,
+    "chartHues": 0,
+    "placeholders": [
+     "john doe"
+    ],
+    "type": {
+     "under13": 0.22,
+     "tiny": 92,
+     "tinySamples": [
+      "upstream 10px",
+      "5ed7963 10px",
+      "Out of Network 10px",
+      "In Network 10px"
+     ],
+     "sizes": [
+      10,
+      11,
+      12,
+      14,
+      16,
+      18,
+      24
+     ]
+    },
+    "title": {
+     "text": "Ranking Simulator",
+     "size": 24,
+     "top": 126
+    },
+    "colourShare": 0.002
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.78,
+    0.92
+   ],
+   "motion": {
+    "elements": 91,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 91,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 1537,
+     "screens": 1.5,
+     "words": 1745,
+     "img": 0,
+     "video": 0,
+     "canvas": 0,
+     "svg": 211,
+     "sections": 0,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [
+      "👤",
+      "🚀",
+      "👩",
+      "💻",
+      "📊",
+      "😂",
+      "🎨",
+      "🧰",
+      "🧵",
+      "📈"
+     ],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "chars": 17,
+     "lines": 1,
+     "size": 24,
+     "vw": 3.1,
+     "font": "Archivo",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.33,
+     "top": 118,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "lines": 1,
+     "size": 24,
+     "font": "Archivo"
+    },
+    "headings": [],
+    "headingSummary": {
+     "count": 0,
+     "maxLines": 0,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "IBM Plex Sans",
+       "share": 0.99,
+       "mono": false
+      },
+      {
+       "family": "Archivo",
+       "share": 0.01,
+       "mono": false
+      },
+      {
+       "family": "ui-monospace",
+       "share": 0,
+       "mono": false
+      }
+     ],
+     "familyCount": 3,
+     "sizes": [
+      10,
+      11,
+      12,
+      14,
+      16,
+      18,
+      24
+     ],
+     "sizeCount": 7,
+     "notLoaded": [],
+     "body": {
+      "font": "IBM Plex Sans",
+      "size": 14,
+      "leading": 1.43,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": null
+     },
+     "measureChars": 42,
+     "max": {
+      "size": 24,
+      "vw": 3.1,
+      "font": "Archivo",
+      "text": "Ranking Simulator"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [
+      "ui-monospace"
+     ],
+     "monoSamples": [
+      "upstream 5ed7963"
+     ],
+     "microLabels": 2,
+     "microLabelShare": 0.004,
+     "microSamples": [
+      "Recommendation Workshop",
+      "Pipeline Explorer"
+     ],
+     "upperShare": 0,
+     "centerShare": 0.01,
+     "smallText": 58
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f2eee5",
+     "bodyBgHsl": {
+      "h": 42,
+      "s": 0.33,
+      "l": 0.92
+     },
+     "dark": false,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#1d293d",
+       "share": 0.56
+      },
+      {
+       "color": "#62748e",
+       "share": 0.12
+      },
+      {
+       "color": "#0f172b",
+       "share": 0.11
+      },
+      {
+       "color": "#314158",
+       "share": 0.11
+      },
+      {
+       "color": "#007a55",
+       "share": 0.05
+      }
+     ],
+     "button": {
+      "bg": "#0f172b",
+      "hsl": {
+       "h": 223,
+       "s": 0.48,
+       "l": 0.11
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 4,
+     "inHero": 4,
+     "radius": 12,
+     "height": 40,
+     "withShadow": 0,
+     "withGradient": 1,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Ranking Simulator",
+      "中文",
+      "For You default",
+      "Play"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 99,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "a.flex.items-center → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "button.inline-flex.items-center → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "button.flex.h-10 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.rounded-2xl.border → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 1,
+     "hairlineSamples": [
+      "header.sticky.top-0 768px"
+     ],
+     "outlinedBoxes": 98,
+     "dashed": 1,
+     "blurred": 96,
+     "roundedBoxes": 101,
+     "boxRadius": 16,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 5,
+     "fixed": true,
+     "height": 73,
+     "floatingPill": false,
+     "blur": true
+    },
+    "fontsLoaded": [
+     "archivo",
+     "ibm plex sans"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 1537,
+    "margins": {
+     "left": 41,
+     "right": 24
+    },
+    "sections": [
+     {
+      "sel": "div.lg:col-span-1",
+      "tag": "div",
+      "top": 481,
+      "height": 618,
+      "words": 139,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Candidate Pool",
+       "size": 16,
+       "tag": "h3"
+      },
+      "left": 66,
+      "right": 85,
+      "textLeft": 66,
+      "textRight": 85,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "div.lg:col-span-1.space-y-4",
+      "tag": "div",
+      "top": 1123,
+      "height": 180,
+      "words": 4,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Filter Stage",
+       "size": 16,
+       "tag": "h3"
+      },
+      "left": 77,
+      "right": 588,
+      "textLeft": 77,
+      "textRight": 588,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "div.lg:col-span-1",
+      "tag": "div",
+      "top": 1327,
+      "height": 186,
+      "words": 7,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 243,
+      "right": 243,
+      "textLeft": 243,
+      "textRight": 243,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Ranking Simulator",
+      "size": 24,
+      "top": 118,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "VMRanker",
+      "side": "right",
+      "px": 0
+     },
+     {
+      "text": "Service available",
+      "side": "right",
+      "px": 0
+     }
+    ],
+    "edges": [
+     {
+      "x": 56,
+      "n": 3
+     },
+     {
+      "x": 77,
+      "n": 3
+     },
+     {
+      "x": 403,
+      "n": 3
+     }
+    ],
+    "leftBlocks": 9,
+    "bodySize": 14,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "dark": false,
+    "ground": "#f2eee5",
+    "sidebar": null,
+    "topbar": {
+     "h": 73
+    },
+    "canvas": {
+     "left": 66,
+     "right": 86
+    },
+    "hero": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "chars": 17,
+     "lines": 1,
+     "size": 24,
+     "vw": 3.1,
+     "font": "Archivo",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.33,
+     "top": 118,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 0,
+    "layout": {
+     "panels": 8,
+     "firstScreen": 5,
+     "ragged": [],
+     "voids": [
+      {
+       "gap": 50,
+       "at": 1462,
+       "panel": "Final timeline will appear after all ste"
+      }
+     ]
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 98,
+     "radii": [
+      [
+       16,
+       96
+      ],
+      [
+       8,
+       2
+      ]
+     ],
+     "heavyBorders": 96,
+     "borderSamples": [
+      "#141427 on #f2eee5 (15.65:1)",
+      "#0d1428 on #f2eee5 (15.8:1)",
+      "#141427 on #f2eee5 (15.65:1)"
+     ],
+     "heavyShadows": 96,
+     "softShadows": 0,
+     "shadowSamples": [
+      "rgba(15, 23, 42, 0.1) 0px 12px 30px 0px",
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px",
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px"
+     ],
+     "glass": 95
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 91,
+     "tabularShare": 0,
+     "kpiMax": 14
+    },
+    "rows": null,
+    "chartHues": 0,
+    "placeholders": [
+     "john doe"
+    ],
+    "type": {
+     "under13": 0.22,
+     "tiny": 92,
+     "tinySamples": [
+      "upstream 10px",
+      "5ed7963 10px",
+      "Out of Network 10px",
+      "In Network 10px"
+     ],
+     "sizes": [
+      10,
+      11,
+      12,
+      14,
+      16,
+      18,
+      24
+     ]
+    },
+    "title": {
+     "text": "Ranking Simulator",
+     "size": 24,
+     "top": 118
+    },
+    "colourShare": 0.006
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 3,
+   "filled": [
+    0.63,
+    0.87,
+    0.9
+   ],
+   "motion": {
+    "elements": 91,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 91,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 1828,
+     "screens": 2.2,
+     "words": 1732,
+     "img": 0,
+     "video": 0,
+     "canvas": 0,
+     "svg": 211,
+     "sections": 0,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [
+      "👤",
+      "🚀",
+      "👩",
+      "💻",
+      "📊",
+      "😂",
+      "🎨",
+      "🧰",
+      "🧵",
+      "📈"
+     ],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "chars": 17,
+     "lines": 1,
+     "size": 24,
+     "vw": 6.2,
+     "font": "Archivo",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.33,
+     "top": 118,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "lines": 1,
+     "size": 24,
+     "font": "Archivo"
+    },
+    "headings": [
+     {
+      "text": "Ranking Simulator",
+      "words": 2,
+      "chars": 17,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Archivo",
+      "weight": 700,
+      "tracking": -0.02,
+      "leading": 1.33,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 118,
+      "tag": "h1",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 1,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "IBM Plex Sans",
+       "share": 0.99,
+       "mono": false
+      },
+      {
+       "family": "Archivo",
+       "share": 0.01,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      10,
+      11,
+      12,
+      14,
+      16,
+      18,
+      24
+     ],
+     "sizeCount": 7,
+     "notLoaded": [],
+     "body": {
+      "font": "IBM Plex Sans",
+      "size": 14,
+      "leading": 1.43,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": null
+     },
+     "measureChars": 38,
+     "max": {
+      "size": 24,
+      "vw": 6.2,
+      "font": "Archivo",
+      "text": "Ranking Simulator"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 1,
+     "microLabelShare": 0.002,
+     "microSamples": [
+      "Pipeline Explorer"
+     ],
+     "upperShare": 0,
+     "centerShare": 0.01,
+     "smallText": 56
+    },
+    "eyebrows": [
+     {
+      "text": "Pipeline Explorer",
+      "above": "Ranking Simulator",
+      "upper": true,
+      "tracked": true,
+      "mono": false,
+      "pill": false,
+      "size": 11,
+      "top": 97
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f2eee5",
+     "bodyBgHsl": {
+      "h": 42,
+      "s": 0.33,
+      "l": 0.92
+     },
+     "dark": false,
+     "sectionBgs": [],
+     "textColors": [
+      {
+       "color": "#1d293d",
+       "share": 0.57
+      },
+      {
+       "color": "#62748e",
+       "share": 0.12
+      },
+      {
+       "color": "#0f172b",
+       "share": 0.12
+      },
+      {
+       "color": "#314158",
+       "share": 0.11
+      },
+      {
+       "color": "#007a55",
+       "share": 0.05
+      }
+     ],
+     "button": {
+      "bg": "#ffffff",
+      "hsl": {
+       "h": 0,
+       "s": 0,
+       "l": 1
+      },
+      "fg": "#0f172b"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 2,
+     "inHero": 2,
+     "radius": 12,
+     "height": 40,
+     "withShadow": 0,
+     "withGradient": 1,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "For You default",
+      "Play"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 97,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "button.flex.h-10 → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.rounded-2xl.border → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "button.inline-flex.items-center → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0",
+      "div.rounded-2xl.border → rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0"
+     ],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 1,
+     "hairlineSamples": [
+      "header.sticky.top-0 390px"
+     ],
+     "outlinedBoxes": 96,
+     "dashed": 1,
+     "blurred": 96,
+     "roundedBoxes": 99,
+     "boxRadius": 16,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 4,
+     "fixed": true,
+     "height": 73,
+     "floatingPill": false,
+     "blur": true
+    },
+    "fontsLoaded": [
+     "archivo",
+     "ibm plex sans"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 1828,
+    "margins": {
+     "left": 16,
+     "right": 26
+    },
+    "sections": [
+     {
+      "sel": "div.pointer-events-none.absolute",
+      "tag": "div",
+      "top": 96,
+      "height": 256,
+      "words": 0,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": null,
+      "right": null,
+      "textLeft": null,
+      "textRight": null,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "main.relative.z-10",
+      "tag": "main",
+      "top": 73,
+      "height": 1755,
+      "words": 147,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Ranking Simulator",
+       "size": 24,
+       "tag": "h1"
+      },
+      "left": 16,
+      "right": 26,
+      "textLeft": 16,
+      "textRight": 26,
+      "fullBleed": false,
+      "footer": true,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Ranking Simulator",
+      "size": 24,
+      "top": 118,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 48,
+      "n": 4
+     },
+     {
+      "x": 69,
+      "n": 3
+     }
+    ],
+    "leftBlocks": 7,
+    "bodySize": 14,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "dark": false,
+    "ground": "#f2eee5",
+    "sidebar": null,
+    "topbar": {
+     "h": 73
+    },
+    "canvas": {
+     "left": 54,
+     "right": 75
+    },
+    "hero": {
+     "text": "Ranking Simulator",
+     "words": 2,
+     "chars": 17,
+     "lines": 1,
+     "size": 24,
+     "vw": 6.2,
+     "font": "Archivo",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.33,
+     "top": 118,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 0,
+    "layout": {
+     "panels": 7,
+     "firstScreen": 4,
+     "ragged": [],
+     "voids": [
+      {
+       "gap": 50,
+       "at": 1753,
+       "panel": "Final timeline will appear after all ste"
+      }
+     ]
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 97,
+     "radii": [
+      [
+       16,
+       95
+      ],
+      [
+       8,
+       2
+      ]
+     ],
+     "heavyBorders": 95,
+     "borderSamples": [
+      "#0d1428 on #f2eee5 (15.8:1)",
+      "#141427 on #f2eee5 (15.65:1)",
+      "#141427 on #f2eee5 (15.65:1)"
+     ],
+     "heavyShadows": 95,
+     "softShadows": 0,
+     "shadowSamples": [
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px",
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px",
+      "rgba(15, 23, 42, 0.1) 0px 10px 28px 0px"
+     ],
+     "glass": 95
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 91,
+     "tabularShare": 0,
+     "kpiMax": 14
+    },
+    "rows": null,
+    "chartHues": 0,
+    "placeholders": [
+     "john doe"
+    ],
+    "type": {
+     "under13": 0.21,
+     "tiny": 90,
+     "tinySamples": [
+      "Out of Network 10px",
+      "In Network 10px",
+      "Out of Network 10px",
+      "Out of Network 10px"
+     ],
+     "sizes": [
+      10,
+      11,
+      12,
+      14,
+      16,
+      18,
+      24
+     ]
+    },
+    "title": {
+     "text": "Ranking Simulator",
+     "size": 24,
+     "top": 118
+    },
+    "colourShare": 0.003
+   },
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "micro-label",
+   "width": 1440,
+   "message": "2 tiny uppercase letter-spaced label(s): \"Recommendation Workshop\", \"Pipeline Explorer\"",
+   "fix": "Prefer sentence case at body size.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "emoji",
+   "width": 1440,
+   "message": "Emoji in the page: 👤 🚀 👩 💻 📊 😂 🎨 🧰 🧵 📈",
+   "fix": "Remove. Use words or real imagery.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "button-fx",
+   "width": 1440,
+   "message": "Buttons with gradient fill.",
+   "fix": "Flat fill, one colour.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "palette-cream",
+   "width": 1440,
+   "message": "Yellow-cream background (page background #f2eee5).",
+   "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "dev-server",
+   "width": 1440,
+   "message": "This page is served by a development server (Vite, webpack or Next in dev mode).",
+   "fix": "Run the last gate on the production build too (vite build && vite preview, next build && next start, or the built index.html): minifiers and bundlers change the CSS a visitor receives.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "unused-canvas",
+   "width": 1440,
+   "message": "The content stops 389px short of the right edge while it starts 154px from the sidebar.",
+   "fix": "Let the grid fill the canvas (columns in fr units), or centre a capped canvas with equal margins. A dead strip on one side reads as unfinished."
+  },
+  {
+   "level": "FAIL",
+   "id": "heavy-shadow",
+   "width": 1440,
+   "message": "95 panel shadow(s) heavy enough to read as floating: rgba(15, 23, 42, 0.1) 0px 10px 28px 0px | rgba(15, 23, 42, 0.1) 0px 10px 28px 0px | rgba(15, 23, 42, 0.1) 0px 10px 28px 0px",
+   "fix": "Panels sit on the ground: separate them with a fill one step from the ground or a quiet 1px border. A shadow, if any, is under 8% black with a small blur. Real overlays (menus, dialogs, popovers) may float.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "heavy-borders",
+   "width": 1440,
+   "message": "95 panel borders are dark against their ground: #0d1428 on #f2eee5 (15.8:1) | #141427 on #f2eee5 (15.65:1) | #141427 on #f2eee5 (15.65:1)",
+   "fix": "A panel border is a whisper: about 1.1–1.3:1 against its ground on a light screen (#e5e7eb–#ededed on white), and about 1.2–1.5:1 on a dark one (#1a1a1a on #000, #2e2e2e on #111). Darker lines turn the screen into a grid of boxes; keep the stronger line for controls.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "tabular",
+   "width": 1440,
+   "message": "Only 0% of the figures use tabular numerals.",
+   "fix": "Set font-variant-numeric: tabular-nums on tables, KPIs and anything that updates, so digits keep their width.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "placeholder-data",
+   "width": 1440,
+   "message": "Placeholder data on screen: john doe.",
+   "fix": "Use believable data for this product: real-looking names, amounts that add up, dates in order, units on every figure.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "FAIL",
+   "id": "tiny-text",
+   "width": 1440,
+   "message": "92 text blocks under 11px: upstream 10px, 5ed7963 10px, Out of Network 10px, In Network 10px.",
+   "fix": "Nothing below 11px; secondary text 12px, data 13–14px.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "ragged-row",
+   "width": 1440,
+   "message": "2 pair(s) of cards in one row end at different heights (by 468px, 468px).",
+   "fix": "Cards that share a row share a bottom edge: balance them by their content (the same number of rows, a block of similar height beside it), or stack them. In testing, ragged rows were marked down every time."
+  },
+  {
+   "level": "WARN",
+   "id": "panel-void",
+   "width": 1440,
+   "message": "1 card(s) hold a blank band inside: 281px in \"Final timeline will appear after all ste\".",
+   "fix": "A card stretches to its neighbour only when it has content to fill. Keep a legend or a note directly under its chart (only an action or a total may sit at a stretched card's foot), let a short card keep its own height (align-items: start), and let a filtered block shrink to its rows."
+  },
+  {
+   "level": "FAIL",
+   "id": "edge-text",
+   "width": 768,
+   "message": "2 text block(s) sit within 16px of the screen edge: \"VMRanker\" (0px from the right); \"Service available\" (0px from the right)",
+   "fix": "Keep text inside the page margin (16–32px or more). Only display type deliberately bled past the edge may touch it."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "/Users/hughlin/Projects/x-algorithm-simulator/.taste-skill/before/simulator/desktop-fold.jpg",
+   "pages": [
+    "/Users/hughlin/Projects/x-algorithm-simulator/.taste-skill/before/simulator/desktop-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "/Users/hughlin/Projects/x-algorithm-simulator/.taste-skill/before/simulator/tablet-fold.jpg",
+   "pages": [
+    "/Users/hughlin/Projects/x-algorithm-simulator/.taste-skill/before/simulator/tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "/Users/hughlin/Projects/x-algorithm-simulator/.taste-skill/before/simulator/mobile-fold.jpg",
+   "pages": [
+    "/Users/hughlin/Projects/x-algorithm-simulator/.taste-skill/before/simulator/mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

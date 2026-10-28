@@ -1,0 +1,12 @@
+{
+  "trigger": "Replace selected-option text with font wrappers, then navigate simulator → weights",
+  "reproduced": true,
+  "evidence": {
+    "body": "X 算法工作台\n推荐流程 · 本地模拟\nPhoenix 输出探索\n排序模拟器\n权重实验室\n历史记录\n上游版本\n5ed7963\nEN\nSomething went wrong\n\nFailed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.\n\nTry again",
+    "errors": [
+      "%o\n\n%s\n\n%s\n NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node. The above error occurred in the <Text> component. React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.",
+      "ErrorBoundary caught an error: NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node. [object Object]"
+    ],
+    "lang": "en"
+  }
+}

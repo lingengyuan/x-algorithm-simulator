@@ -1,0 +1,86 @@
+{
+  "baseUrl": "http://127.0.0.1:4173",
+  "startedAt": "2026-10-28T05:38:20.958Z",
+  "browser": "ego-browser",
+  "mechanism": "Translator-style text-node replacement in the actual application",
+  "checks": [
+    {
+      "name": "translation-policy-en",
+      "status": "passed",
+      "detail": {
+        "locale": "en-US",
+        "replaced": 0,
+        "skipped": 428
+      }
+    },
+    {
+      "name": "translated-scenario-navigation-en",
+      "status": "passed",
+      "detail": {
+        "replaced": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "translated-preset-reset-en",
+      "status": "passed",
+      "detail": "Save, translated selection, reset, reload preset, and delete own preset"
+    },
+    {
+      "name": "protected-playback-en",
+      "status": "passed",
+      "detail": "Next, previous, play, and pause remain usable after translation attempts"
+    },
+    {
+      "name": "translated-author-navigation-en",
+      "status": "passed",
+      "detail": "Unmount a translated author selection through real route navigation"
+    },
+    {
+      "name": "translation-policy-zh",
+      "status": "passed",
+      "detail": {
+        "locale": "zh-CN",
+        "replaced": 0,
+        "skipped": 428
+      }
+    },
+    {
+      "name": "translated-scenario-navigation-zh",
+      "status": "passed",
+      "detail": {
+        "replaced": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "translated-preset-reset-zh",
+      "status": "passed",
+      "detail": "Save, translated selection, reset, reload preset, and delete own preset"
+    },
+    {
+      "name": "protected-playback-zh",
+      "status": "passed",
+      "detail": "Next, previous, play, and pause remain usable after translation attempts"
+    },
+    {
+      "name": "translated-author-navigation-zh",
+      "status": "passed",
+      "detail": "Unmount a translated author selection through real route navigation"
+    },
+    {
+      "name": "corrupted-document-reload",
+      "status": "passed",
+      "detail": "Retry reloads a damaged DOM and renders the weights route again"
+    }
+  ],
+  "screenshots": [
+    "weights-en.png",
+    "simulator-en.png",
+    "weights-zh.png",
+    "simulator-zh.png",
+    "recovered.png"
+  ],
+  "status": "passed",
+  "completedAt": "2026-10-28T05:38:49.734Z"
+}

@@ -1,11 +1,5 @@
-import { PipelineStep, FilterResult } from '@/core/types';
+import type { PipelineStep, FilterResult } from '@/core/types';
 import { useTranslation } from '@/hooks/useI18n';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { cn } from '@/utils/cn';
-import { Filter, CheckCircle, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface FilterPipelineProps {
   steps: PipelineStep[];
@@ -15,122 +9,24 @@ interface FilterPipelineProps {
 
 export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterPipelineProps) {
   const { t, isZh } = useTranslation();
-
-  const filterSteps = steps.filter((step) => step.type === 'filter');
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Filter className="w-5 h-5 text-orange-500" />
-          {t('simulator.filterStage')}
-          <Badge variant="secondary">{filterSteps.length}</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {filterSteps.map((step, index) => {
-            const isActive = steps.indexOf(step) === currentStepIndex;
-            const isPassed = steps.indexOf(step) < currentStepIndex;
-            const filterResult = step.details as FilterResult | undefined;
-            const filteredCount = filterResult
-              ? filterResult.inputCount - filterResult.outputCount
-              : 0;
-            const passRate = filterResult && filterResult.inputCount > 0
-              ? (filterResult.outputCount / filterResult.inputCount) * 100
-              : undefined;
-
-            return (
-              <motion.div
-                key={step.id}
-                data-step-id={step.id}
-                data-input-count={step.inputCount}
-                data-output-count={step.outputCount}
-                data-kept-sources={step.id === 'fair_share_ranking' ? JSON.stringify(filterResult?.passedCandidates.map((candidate) => candidate.servedType)) : undefined}
-                data-removed-sources={step.id === 'fair_share_ranking' ? JSON.stringify(filterResult?.filteredCandidates.map((candidate) => candidate.servedType)) : undefined}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={cn(
-                  'cursor-pointer rounded-xl border p-3 transition-all',
-                  isActive && 'border-sky-300 bg-sky-50',
-                  isPassed && 'border-emerald-300 bg-emerald-50',
-                  !isActive && !isPassed && 'border-slate-300/60 hover:border-slate-400/70'
-                )}
-                onClick={() => onStepClick?.(steps.indexOf(step))}
-              >
-                <div className="flex items-center gap-3">
-                  {/* Status Icon */}
-                  <div
-                    className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold',
-                      isActive && 'bg-sky-600 text-white',
-                      isPassed && 'bg-green-500 text-white',
-                      !isActive && !isPassed && 'bg-slate-200 text-slate-600'
-                    )}
-                  >
-                    {isPassed ? <CheckCircle className="w-4 h-4" /> : index + 1}
-                  </div>
-
-                  {/* Filter Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm truncate">
-                        {isZh ? step.nameZh : step.name}
-                      </span>
-                      {filteredCount > 0 && (
-                        <Badge variant="negative" className="text-[10px]">
-                          -{filteredCount}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-600 truncate">
-                      {isZh ? step.descriptionZh : step.description}
-                    </p>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="text-right text-xs">
-                    <div className="text-slate-500">
-                      {step.inputCount} → {step.outputCount}
-                    </div>
-                    {filterResult && (
-                      <div className={cn(
-                        'font-medium',
-                        passRate === undefined
-                          ? 'text-slate-400'
-                          : passRate >= 90
-                            ? 'text-green-500'
-                            : passRate >= 70
-                              ? 'text-yellow-500'
-                              : 'text-red-500'
-                      )}>
-                        {passRate === undefined ? 'N/A' : `${passRate.toFixed(0)}%`}
-                      </div>
-                    )}
-                  </div>
-
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
-                </div>
-
-                {/* Progress Bar */}
-                {filterResult && passRate !== undefined && (
-                  <Progress
-                    value={passRate}
-                    max={100}
-                    className="mt-2 h-1"
-                    indicatorClassName={cn(
-                      passRate >= 90 && 'bg-green-500',
-                      passRate >= 70 && passRate < 90 && 'bg-yellow-500',
-                      passRate < 70 && 'bg-red-500'
-                    )}
-                  />
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const filters = steps.filter((step) => step.type === 'filter');
+  return <section className="pipeline-section">
+    <div className="section-heading"><h2>{t('simulator.filterStage')}</h2><small>{filters.length}</small></div>
+    <div className="pipeline-step-list">
+      {filters.map((step) => {
+        const index = steps.indexOf(step);
+        const details = step.details as FilterResult | undefined;
+        const active = index === currentStepIndex;
+        return <button key={step.id} type="button" className="pipeline-step" aria-pressed={active}
+          data-step-id={step.id} data-input-count={step.inputCount} data-output-count={step.outputCount}
+          data-kept-sources={step.id === 'fair_share_ranking' ? JSON.stringify(details?.passedCandidates.map((candidate) => candidate.servedType)) : undefined}
+          data-removed-sources={step.id === 'fair_share_ranking' ? JSON.stringify(details?.filteredCandidates.map((candidate) => candidate.servedType)) : undefined}
+          onClick={() => onStepClick?.(index)}>
+          <span className="pipeline-step-main"><span className="pipeline-step-name">{isZh ? step.nameZh : step.name}</span><span className="pipeline-step-metric">{step.inputCount.toLocaleString()} → {step.outputCount.toLocaleString()}</span></span>
+          {active && <p className="pipeline-step-description">{isZh ? step.descriptionZh : step.description}</p>}
+        </button>;
+      })}
+      {!filters.length && <p className="pipeline-empty">{isZh ? '过滤决策会随流程逐步出现。' : 'Filter decisions appear as the pipeline advances.'}</p>}
+    </div>
+  </section>;
 }
