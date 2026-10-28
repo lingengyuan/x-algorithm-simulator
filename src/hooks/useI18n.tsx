@@ -52,7 +52,7 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
     },
     simulator: {
       title: 'Ranking Simulator',
-      subtitle: 'Walk through the pipeline pinned to upstream c65aa17',
+      subtitle: 'Walk through the pipeline pinned to upstream 5ed7963',
       selectScenario: 'Select Scenario',
       candidatePool: 'Candidate Pool',
       filterStage: 'Filter Stage',
@@ -161,7 +161,7 @@ const DEFAULT_TRANSLATIONS: Record<string, Translations> = {
     },
     simulator: {
       title: '排序模拟器',
-      subtitle: '逐步查看与上游 c65aa17 对齐的流水线',
+      subtitle: '逐步查看与上游 5ed7963 对齐的流水线',
       selectScenario: '选择场景',
       candidatePool: '候选池',
       filterStage: '过滤阶段',

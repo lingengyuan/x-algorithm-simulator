@@ -22,7 +22,7 @@ import { RANKING_SCENARIOS, generateScenarioTweets, getDefaultFilterContext } fr
 import { FILTERS } from '@/core/filters';
 import { DEFAULT_WEIGHTS } from '@/data/defaultWeights';
 import { BLENDING_DEFAULTS } from '@/data/upstreamSnapshot';
-import { runPipelineStepByStep } from '@/core/pipeline';
+import { runPipelineStepByStep, type PipelineFrame, type PipelineTrace } from '@/core/pipeline';
 import {
   Play,
   Pause,
@@ -32,6 +32,7 @@ import {
   BarChart3,
   Layers3,
   Shuffle,
+  Download,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -53,7 +54,8 @@ export function RankingSimulator() {
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const pipelineGeneratorRef = useRef<Generator<{ step: PipelineStep; candidates: TweetCandidate[]; feedItems?: FeedItem[] }> | null>(null);
+  const pipelineGeneratorRef = useRef<Generator<PipelineFrame> | null>(null);
+  const traceRef = useRef<PipelineTrace | undefined>(undefined);
   const playIntervalRef = useRef<number | null>(null);
 
   // Initialize scenario function
@@ -66,6 +68,7 @@ export function RankingSimulator() {
       setStepSnapshots([]);
       setCurrentStepIndex(0);
       setIsPlaying(false);
+      traceRef.current = undefined;
 
       // Initialize pipeline generator
       const context = getDefaultFilterContext(newCandidates, scenario);
@@ -127,6 +130,7 @@ export function RankingSimulator() {
     }
 
     if (result.value) {
+      if (result.value.trace) traceRef.current = result.value.trace;
       setSteps((prev) => [...prev, result.value.step]);
       setStepSnapshots((prev) => [
         ...prev,
@@ -182,6 +186,16 @@ export function RankingSimulator() {
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
+  };
+
+  const exportTrace = () => {
+    if (!traceRef.current) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(traceRef.current)], { type: 'application/json' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `x-pipeline-${selectedScenario.id}-${traceRef.current.upstream.shortCommit}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleStepClick = (index: number) => {
@@ -283,13 +297,14 @@ export function RankingSimulator() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Playback Controls */}
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={reset}>
+              <Button variant="outline" size="icon" onClick={reset} aria-label={isZh ? '重新开始' : 'Restart'}>
                 <RotateCcw className="w-4 h-4" />
               </Button>
               <Button
                 variant="outline"
                 size="icon"
                 onClick={prevStep}
+                aria-label={isZh ? '上一步' : 'Previous step'}
                 disabled={currentStepIndex === 0}
               >
                 <SkipBack className="w-4 h-4" />
@@ -316,6 +331,7 @@ export function RankingSimulator() {
                 variant="outline"
                 size="icon"
                 onClick={nextStep}
+                aria-label={isZh ? '下一步' : 'Next step'}
                 disabled={isComplete}
               >
                 <SkipForward className="w-4 h-4" />
@@ -324,7 +340,7 @@ export function RankingSimulator() {
 
             {/* Progress */}
             <div className="flex items-center gap-4">
-              <Badge variant="secondary">
+              <Badge variant="secondary" data-testid="pipeline-progress" data-step={currentStep?.id}>
                 {t('simulator.step')} {currentStepIndex + 1} {t('simulator.of')} {steps.length || '?'}
               </Badge>
               {currentStep && (
@@ -352,20 +368,27 @@ export function RankingSimulator() {
               <Switch
                 checked={enableVMRanker}
                 onCheckedChange={setEnableVMRanker}
-                aria-label={isZh ? '启用 VMRanker DPP' : 'Enable VMRanker DPP'}
+                aria-label={isZh ? 'VMRanker 服务可用' : 'VMRanker service available'}
               />
               <div className="text-xs leading-tight">
                 <div className="font-semibold text-slate-700">
-                  {isZh ? 'VMRanker DPP' : 'VMRanker DPP'}
+                  VMRanker
                 </div>
                 <div className="text-slate-500">
-                  {enableVMRanker ? (isZh ? '公开默认开启' : 'Published default') : (isZh ? '手动关闭' : 'Manually off')}
+                  {enableVMRanker ? (isZh ? '服务正常' : 'Service available') : (isZh ? '本地回退评分' : 'Local fallback')}
                 </div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {isComplete && (
+        <Button variant="outline" onClick={exportTrace} data-testid="export-trace" className="gap-2">
+          <Download className="h-4 w-4" />
+          {isZh ? '导出流程 JSON' : 'Export pipeline JSON'}
+        </Button>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-lg border border-slate-200 bg-white/80 p-4">

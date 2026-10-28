@@ -21,8 +21,6 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
     switch (stepId) {
       case 'phoenix':
         return '🤖';
-      case 'ranking':
-        return '⚖️';
       case 'vm_ranker':
         return '📈';
       default:
@@ -54,6 +52,8 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}
+                data-step-id={step.id}
+                data-summary={summary ? JSON.stringify(summary) : undefined}
                 className={cn(
                   'cursor-pointer rounded-xl border p-3 transition-all',
                   isActive && 'border-sky-300 bg-sky-50',
@@ -65,7 +65,9 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                 <div className="flex items-center gap-3">
                   {/* Status Icon */}
                   <div
-                    className={cn(
+                    data-step-id={step.id}
+                data-summary={summary ? JSON.stringify(summary) : undefined}
+                className={cn(
                       'w-8 h-8 rounded-full flex items-center justify-center text-lg',
                       isActive && 'bg-sky-600',
                       isPassed && 'bg-green-500',
@@ -133,18 +135,6 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                   </motion.div>
                 )}
 
-                {isActive && step.id === 'ranking' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-3 border-t border-slate-200 pt-3"
-                  >
-                    <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      score = weighted actions → author cold-start → author diversity → OON factor
-                    </div>
-                  </motion.div>
-                )}
-
                 {isActive && step.id === 'vm_ranker' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
@@ -152,7 +142,9 @@ export function ScorerPipeline({ steps, currentStepIndex, onStepClick }: ScorerP
                     className="mt-3 border-t border-slate-200 pt-3"
                   >
                     <div className="overflow-x-auto rounded bg-slate-100 p-2 font-mono text-xs text-slate-700">
-                      published DPP selection · deterministic local fixture embeddings
+                      {summary?.valueModelMode === 'local-weighted-fallback'
+                        ? (isZh ? '本地加权分与冷启动；不执行 VM 多样性、关注外系数或 DPP' : 'Local fusion and cold-start; VM multipliers and DPP are skipped')
+                        : (isZh ? `复用 Home Mixer 加权分 → 多样性 → 关注外系数 → ${summary?.dppEnabled ? 'DPP' : '话题请求跳过 DPP'}` : `Cached Home Mixer fusion → diversity → OON → ${summary?.dppEnabled ? 'DPP' : 'DPP skipped for topics'}`)}
                     </div>
                   </motion.div>
                 )}

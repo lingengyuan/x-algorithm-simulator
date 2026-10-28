@@ -43,6 +43,11 @@ export function FilterPipeline({ steps, currentStepIndex, onStepClick }: FilterP
             return (
               <motion.div
                 key={step.id}
+                data-step-id={step.id}
+                data-input-count={step.inputCount}
+                data-output-count={step.outputCount}
+                data-kept-sources={step.id === 'fair_share_ranking' ? JSON.stringify(filterResult?.passedCandidates.map((candidate) => candidate.servedType)) : undefined}
+                data-removed-sources={step.id === 'fair_share_ranking' ? JSON.stringify(filterResult?.filteredCandidates.map((candidate) => candidate.servedType)) : undefined}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.05 }}

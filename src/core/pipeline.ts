@@ -17,6 +17,7 @@ import {
   CACHED_POSTS_MIN_COUNT,
   HYDRATOR_DEFAULTS,
   SOURCE_DEFAULTS,
+  UPSTREAM_SNAPSHOT,
 } from '@/data/upstreamSnapshot';
 
 export interface PipelineConfig {
@@ -39,6 +40,15 @@ export interface PipelineFrame {
   step: PipelineStep;
   candidates: TweetCandidate[];
   feedItems?: FeedItem[];
+  trace?: PipelineTrace;
+}
+
+export interface PipelineTrace {
+  upstream: typeof UPSTREAM_SNAPSHOT;
+  rawCandidates: TweetCandidate[];
+  context: FilterContext;
+  config: PipelineConfig;
+  result: PipelineResult;
 }
 
 type StepTemplate = Pick<
@@ -48,6 +58,7 @@ type StepTemplate = Pick<
 
 const QUERY_HYDRATOR_NAMES = [
   'ScoringSequenceQueryHydrator',
+  'ImmersiveScoringSequenceQueryHydrator',
   'RetrievalSequenceQueryHydrator',
   'BlockedUserIdsQueryHydrator',
   'MutedUserIdsQueryHydrator',
@@ -59,6 +70,7 @@ const QUERY_HYDRATOR_NAMES = [
   'FollowedGrokTopicsQueryHydrator',
   'FollowedStarterPacksQueryHydrator',
   'UserInstalledAppsQueryHydrator',
+  'RecentSearchQueriesQueryHydrator',
   'ExplicitEngagementSignalsQueryHydrator',
   'ImplicitEngagementSignalsQueryHydrator',
   'ImpressionBloomFilterQueryHydrator',
@@ -70,6 +82,7 @@ const CANDIDATE_HYDRATORS = [
   'InNetworkCandidateHydrator',
   'BidirectionalFollowHydrator',
   'CoreDataCandidateHydrator',
+  'PhoenixReplyAncestorsHydrator',
   'QuoteHydrator',
   'MediaInfoHydrator',
   'SubscriptionHydrator',
@@ -78,7 +91,9 @@ const CANDIDATE_HYDRATORS = [
   'FilteredTopicsHydrator',
   'LanguageCodeHydrator',
   'EngagementCountsHydrator',
+  'PostEngagersHydrator',
   'SemanticIdHydrator',
+  'NewUserSoftNsfwLabelHydrator',
 ] as const;
 
 const POST_SELECTION_HYDRATORS = [
@@ -88,13 +103,20 @@ const POST_SELECTION_HYDRATORS = [
   'FollowingRepliedUsersHydrator',
   'MutualFollowJaccardHydrator',
   'TopicFeedbackContextHydrator',
+  'AiTrendFeedbackContextHydrator',
+  'VideoMediaHydrator',
+  'VideoEmbeddingHydrator',
+  'AncestorVideoHydrator',
 ] as const;
 
 const SCORED_POSTS_SIDE_EFFECTS = [
   'PhoenixExperimentsSideEffect',
   'RerankingKafkaSideEffect',
+  'RetrievalCandidatesKafkaSideEffect',
   'RedisPostCandidateCacheSideEffect',
   'ScoredStatsSideEffect',
+  'ResponseDiversityStatsSideEffect',
+  'SerendipityStatsSideEffect',
   'AuthorServedMetricsSideEffect',
   'MutualFollowStatsSideEffect',
   'DebugSideEffect',
@@ -149,13 +171,14 @@ function step(
 
 function resetForSource(
   candidate: TweetCandidate,
-  sourceType: TweetCandidate['sourceType'],
+  sourceType: NonNullable<TweetCandidate['sourceType']>,
   servedType: TweetCandidate['servedType']
 ): TweetCandidate {
   return {
     ...candidate,
     sourceType,
     servedType,
+    retrievalSources: [sourceType],
     filtered: false,
     filteredBy: undefined,
     filterReason: undefined,
@@ -172,7 +195,8 @@ function sourceCandidates(
   const noRemoteSources = context.inNetworkOnly || hasCachedPosts;
 
   const thunder = SOURCE_DEFAULTS.thunder.enabled && !hasCachedPosts
-    ? raw.filter((candidate) => context.followedAuthorIds.includes(candidate.authorId))
+    ? raw.filter((candidate) => context.followedAuthorIds.includes(candidate.authorId) &&
+        (!candidate.fixtureSources || candidate.fixtureSources.includes('thunder')))
         .slice(0, SOURCE_DEFAULTS.thunder.maxResults)
         .map((candidate) => resetForSource(
           candidate,
@@ -180,20 +204,29 @@ function sourceCandidates(
           context.inNetworkOnly ? 'ranked_following' : 'for_you_in_network'
         ))
     : [];
+  const popularPosts = SOURCE_DEFAULTS.popularPosts.enabled && !noRemoteSources
+    ? raw.filter((candidate) => candidate.popularPostRank !== undefined)
+        .sort((a, b) => a.popularPostRank! - b.popularPostRank!)
+        .slice(0, SOURCE_DEFAULTS.popularPosts.maxResults)
+        .filter((candidate) => !context.seenTweetIds.includes(candidate.id))
+        .map((candidate) => resetForSource(candidate, 'popular_posts', 'for_you_popular_posts'))
+    : [];
   // These sources are registered upstream but disabled by the pinned defaults. Their retrieval
   // behavior is intentionally not fabricated from the local fixture corpus.
   const tweetMixer: TweetCandidate[] = [];
   const simclusters = SOURCE_DEFAULTS.simclusters.enabled &&
     context.hasPostEngagementSignals &&
     !noRemoteSources
-    ? raw.filter((_, index) => index % 3 === 0)
+    ? raw.filter((candidate, index) => candidate.fixtureSources
+        ? candidate.fixtureSources.includes('simclusters') : index % 3 === 0)
         .slice(0, SOURCE_DEFAULTS.simclusters.maxResults)
         .map((candidate) => resetForSource(candidate, 'simclusters', 'for_you_simclusters'))
     : [];
   const phoenix = SOURCE_DEFAULTS.phoenix.enabled &&
     !noRemoteSources &&
     (!isNormalTopicRequest || context.isBulkTopicRequest)
-    ? raw.slice(0, SOURCE_DEFAULTS.phoenix.maxResults)
+    ? raw.filter((candidate) => !candidate.fixtureSources || candidate.fixtureSources.includes('phoenix'))
+        .slice(0, SOURCE_DEFAULTS.phoenix.maxResults)
         .map((candidate) => resetForSource(candidate, 'phoenix', 'for_you_phoenix_retrieval'))
     : [];
   const phoenixTopics = SOURCE_DEFAULTS.phoenixTopics.enabled &&
@@ -215,11 +248,13 @@ function sourceCandidates(
 
   return [
     { template: template('source_thunder', 'ThunderSource', 'Thunder 来源', 'source'), candidates: thunder },
+    { template: template('source_popular_posts', 'PopularPostsSource', '热门帖子来源', 'source', 'Published default; local ranked popular-post fixture', '公开默认开启；使用本地热门帖子列表'), candidates: popularPosts },
     { template: template('source_tweet_mixer', 'TweetMixerSource', 'TweetMixer 来源（默认关闭）', 'source'), candidates: tweetMixer },
     { template: template('source_simclusters', 'SimclustersSource', 'Simclusters 来源', 'source'), candidates: simclusters },
     { template: template('source_phoenix', 'PhoenixSource', 'Phoenix 来源', 'source'), candidates: phoenix },
     { template: template('source_phoenix_topics', 'PhoenixTopicsSource', 'Phoenix 话题来源', 'source'), candidates: phoenixTopics },
     { template: template('source_phoenix_moe', 'PhoenixMOESource', 'Phoenix MOE 来源（默认关闭）', 'source'), candidates: phoenixMoe },
+    { template: template('source_sid', 'SidSource (disabled)', 'SID 来源（默认关闭）', 'source'), candidates: [] },
     { template: template('source_cached_posts', 'CachedPostsSource', '缓存帖子来源', 'source'), candidates: cachedPosts },
   ];
 }
@@ -256,6 +291,10 @@ function queryHydratorEnabled(
   switch (name) {
     case 'ScoringSequenceQueryHydrator':
       return HYDRATOR_DEFAULTS.scoringSequence;
+    case 'ImmersiveScoringSequenceQueryHydrator':
+      return HYDRATOR_DEFAULTS.immersiveScoringSequence;
+    case 'RecentSearchQueriesQueryHydrator':
+      return HYDRATOR_DEFAULTS.recentSearchQueries;
     case 'RetrievalSequenceQueryHydrator':
       return HYDRATOR_DEFAULTS.retrievalSequence;
     case 'FollowedUserIdsQueryHydrator':
@@ -289,6 +328,9 @@ function candidateHydratorEnabled(
   name: typeof CANDIDATE_HYDRATORS[number],
   context: FilterContext
 ): boolean {
+  if (name === 'PhoenixReplyAncestorsHydrator') return HYDRATOR_DEFAULTS.phoenixReplyAncestors;
+  if (name === 'PostEngagersHydrator') return HYDRATOR_DEFAULTS.postEngagers;
+  if (name === 'NewUserSoftNsfwLabelHydrator') return HYDRATOR_DEFAULTS.newUserSoftNsfw;
   if (name === 'FilteredTopicsHydrator') {
     return context.topicIds.length > 0 || context.excludedTopicIds.length > 0;
   }
@@ -345,11 +387,19 @@ function hydratePostSelectionStage(
         const matched = candidate.semanticIds?.find((id) => context.engagedSemanticIds.includes(id));
         return matched ? { ...candidate, topicFeedbackTopicId: matched } : candidate;
       });
+    case 'AncestorVideoHydrator':
+      return candidates.map((candidate) => ({
+        ...candidate,
+        ancestorHasVideo: candidate.ancestors?.some((id) => candidate.relatedPosts?.[id]?.hasVideo) ?? false,
+      }));
+    default:
+      return candidates;
   }
 }
 
 function postSelectionHydratorEnabled(
-  name: typeof POST_SELECTION_HYDRATORS[number]
+  name: typeof POST_SELECTION_HYDRATORS[number],
+  context: FilterContext
 ): boolean {
   switch (name) {
     case 'FollowingRepliedUsersHydrator':
@@ -358,6 +408,13 @@ function postSelectionHydratorEnabled(
       return HYDRATOR_DEFAULTS.mutualFollowJaccard;
     case 'TopicFeedbackContextHydrator':
       return HYDRATOR_DEFAULTS.topicFeedbackContext;
+    case 'AiTrendFeedbackContextHydrator':
+      return HYDRATOR_DEFAULTS.aiTrendFeedbackContext;
+    case 'VideoMediaHydrator':
+    case 'VideoEmbeddingHydrator':
+      return false; // Video carousel is disabled in this snapshot.
+    case 'AncestorVideoHydrator':
+      return context.excludeVideos;
     default:
       return true;
   }
@@ -513,24 +570,22 @@ function executePipeline(
   }
 
   const ranking = runRankingScorer(candidates, config.weights, context);
-  candidates = ranking.updatedCandidates;
+  const vmRanker = config.weights.enableVMRanker
+    ? runVMRanker(ranking.updatedCandidates, config.weights, context)
+    : undefined;
+  candidates = vmRanker?.updatedCandidates ?? ranking.updatedCandidates;
   add(step(
-    template('ranking', 'RankingScorer', '排序评分器', 'scorer'),
-    candidates.length,
-    candidates.length,
-    ranking.result
+    template('vm_ranker', ranking.result.scorerName,
+      config.weights.enableVMRanker ? 'VMRanker 价值评分与重排' : 'VMRanker（本地回退）',
+      'scorer',
+      config.weights.enableVMRanker ? 'Cached weighted score → diversity/OON → DPP (off for topics)' : 'RPC failure fixture: local weighted score and cold-start only',
+      config.weights.enableVMRanker ? '复用加权分 → 多样性与关注外系数 → DPP（话题请求关闭）' : 'RPC 失败测试数据：仅本地加权评分与冷启动'),
+    candidates.length, candidates.length,
+    { ...ranking.result,
+      summary: { ...ranking.result.summary, dppEnabled: false, ...vmRanker?.result.summary },
+      candidateScores: vmRanker?.result.candidateScores ?? ranking.result.candidateScores,
+    }
   ));
-
-  if (config.weights.enableVMRanker) {
-    const vmRanker = runVMRanker(candidates, config.weights);
-    candidates = vmRanker.updatedCandidates;
-    add(step(
-      template('vm_ranker', 'VMRanker DPP', 'VMRanker DPP 重排', 'scorer'),
-      candidates.length,
-      candidates.length,
-      vmRanker.result
-    ));
-  }
 
   candidates = sortByScore(candidates).slice(0, config.topK);
   add(step(
@@ -548,7 +603,7 @@ function executePipeline(
 
   for (const name of POST_SELECTION_HYDRATORS) {
     const inputCount = candidates.length;
-    const enabled = postSelectionHydratorEnabled(name);
+    const enabled = postSelectionHydratorEnabled(name, context);
     if (enabled) {
       candidates = hydratePostSelectionStage(name, candidates, context);
     }
@@ -681,6 +736,7 @@ function executePipeline(
     finalFeedItems: feedItems,
     allCandidates: [...candidates, ...filteredCandidates],
   };
+  frames[frames.length - 1].trace = { upstream: UPSTREAM_SNAPSHOT, rawCandidates, context, config, result };
   return { frames, result };
 }
 

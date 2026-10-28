@@ -1,13 +1,13 @@
 import type { FilterConfig, FilterContext, FilterResult, TweetCandidate } from '@/core/types';
 import {
   ALL_PRODUCTION_TOPIC_IDS,
-  BRAZIL_2026_ELECTION_USER_IDS,
   TOPIC_CATEGORY_MAP,
   expandSupertopic,
   expandTopicIds,
 } from '@/data/upstreamPolicyData';
 import { extractTimestampFromSnowflake } from '@/utils/snowflake';
 import { containsKeywordSequence, tokenizePostText } from '@/utils/textTokens';
+import { CACHED_POSTS_MIN_COUNT, FILTER_DEFAULTS } from '@/data/upstreamSnapshot';
 
 export const PRE_SCORING_FILTERS: FilterConfig[] = [
   ['drop_duplicates', 'DropDuplicatesFilter', '重复帖子过滤器'],
@@ -21,13 +21,13 @@ export const PRE_SCORING_FILTERS: FilterConfig[] = [
   ['previously_seen_posts', 'PreviouslySeenPostsFilter', '已看内容过滤器'],
   ['previously_seen_posts_backup', 'PreviouslySeenPostsBackupFilter', '已曝光内容备用过滤器'],
   ['previously_served_posts', 'PreviouslyServedPostsFilter', '已下发内容过滤器'],
-  ['muted_keyword', 'MutedKeywordFilter', '静音关键词过滤器'],
+  ['muted_keyword', 'ViewerMutedKeywordFilter', '查看者静音关键词过滤器'],
   ['author_socialgraph', 'AuthorSocialgraphFilter', '作者社交图过滤器'],
-  ['brazil_2026_election', 'Brazil2026ElectionFilter', '巴西 2026 选举过滤器'],
   ['video', 'VideoFilter', '视频过滤器'],
   ['topic_ids', 'TopicIdsFilter', '话题过滤器'],
   ['new_user_min_engagement', 'NewUserMinEngagementFilter', '新用户最低互动过滤器'],
   ['inventory_holdout', 'InventoryHoldoutFilter', '库存留出过滤器'],
+  ['fair_share_ranking', 'FairShareRankingFilter', '来源比例评分预算过滤器'],
 ].map(([id, name, nameZh]) => ({
   id,
   name,
@@ -40,6 +40,7 @@ export const PRE_SCORING_FILTERS: FilterConfig[] = [
 export const POST_SELECTION_FILTERS: FilterConfig[] = [
   ['vf', 'VFFilter', '可见性过滤器'],
   ['ancillary_vf', 'AncillaryVFFilter', '附属内容可见性过滤器'],
+  ['ancestor_video', 'AncestorVideoFilter', '祖先帖子视频过滤器'],
   ['dedup_conversation', 'DedupConversationFilter', '对话去重过滤器'],
 ].map(([id, name, nameZh]) => ({
   id,
@@ -271,6 +272,56 @@ function runConversationDedup(
   };
 }
 
+function runDedup(
+  candidates: TweetCandidate[],
+  filter: FilterConfig,
+  key: (candidate: TweetCandidate) => string
+): FilterResult {
+  const kept = new Map<string, TweetCandidate>();
+  const removed: TweetCandidate[] = [];
+  for (const candidate of candidates) {
+    const id = key(candidate);
+    const previous = kept.get(id);
+    if (previous) {
+      previous.retrievalSources = [...(previous.retrievalSources || []), ...(candidate.retrievalSources || [])];
+      removed.push(markFiltered(candidate, filter));
+    } else {
+      kept.set(id, { ...candidate });
+    }
+  }
+  return {
+    filterId: filter.id, filterName: filter.name,
+    inputCount: candidates.length, outputCount: kept.size,
+    passedCandidates: [...kept.values()], filteredCandidates: removed,
+  };
+}
+
+function runFairShare(candidates: TweetCandidate[], filter: FilterConfig, context: FilterContext): FilterResult {
+  const budget = FILTER_DEFAULTS.fairShareRanking.budget;
+  if (!FILTER_DEFAULTS.fairShareRanking.enabled ||
+      context.cachedPostIds.length >= CACHED_POSTS_MIN_COUNT || candidates.length <= budget) {
+    return unchanged(filter, candidates);
+  }
+  const groups = new Map<TweetCandidate['servedType'], { indexes: number[]; count: number; remainder: number }>();
+  candidates.forEach((candidate, index) => {
+    const group = groups.get(candidate.servedType) || { indexes: [], count: 0, remainder: 0 };
+    group.indexes.push(index);
+    groups.set(candidate.servedType, group);
+  });
+  const allocations = [...groups.values()];
+  for (const group of allocations) {
+    const product = group.indexes.length * budget;
+    group.count = Math.floor(product / candidates.length);
+    group.remainder = product % candidates.length;
+  }
+  const remaining = budget - allocations.reduce((sum, group) => sum + group.count, 0);
+  [...allocations].sort((a, b) => b.remainder - a.remainder)
+    .slice(0, remaining).forEach((group) => { group.count += 1; });
+  const selected = new Set(allocations.flatMap((group) => group.indexes.slice(0, group.count)));
+  let index = 0;
+  return runPredicateFilter(candidates, filter, () => selected.has(index++));
+}
+
 export function runFilter(
   filterId: string,
   candidates: TweetCandidate[],
@@ -290,6 +341,7 @@ export function runFilter(
   }
 
   if (filterId === 'dedup_conversation') return runConversationDedup(candidates, filter);
+  if (filterId === 'fair_share_ranking') return runFairShare(candidates, filter, context);
   const mutedTokenSequences = context.mutedKeywords
     .map(tokenizePostText)
     .filter((tokens) => tokens.length > 0);
@@ -298,14 +350,8 @@ export function runFilter(
   const servedIds = new Set(context.servedTweetIds);
 
   switch (filterId) {
-    case 'drop_duplicates': {
-      const seen = new Set<string>();
-      return runPredicateFilter(candidates, filter, (candidate) => {
-        if (seen.has(candidate.id)) return false;
-        seen.add(candidate.id);
-        return true;
-      });
-    }
+    case 'drop_duplicates':
+      return runDedup(candidates, filter, (candidate) => candidate.id);
     case 'core_data_hydration':
       return runPredicateFilter(candidates, filter, (candidate) =>
         Boolean(candidate.authorId.trim()) && candidate.authorId !== '0'
@@ -336,15 +382,8 @@ export function runFilter(
         candidate.inNetwork === false &&
         candidate.nsfwAuthor === true
       ));
-    case 'retweet_deduplication': {
-      const seen = new Set<string>();
-      return runPredicateFilter(candidates, filter, (candidate) => {
-        const id = originalPostId(candidate);
-        if (seen.has(id)) return false;
-        seen.add(id);
-        return true;
-      });
-    }
+    case 'retweet_deduplication':
+      return runDedup(candidates, filter, originalPostId);
     case 'ineligible_subscription':
       return runPredicateFilter(candidates, filter, (candidate) =>
         !candidate.subscriptionAuthorId || context.subscribedAuthorIds.includes(candidate.subscriptionAuthorId)
@@ -382,22 +421,14 @@ export function runFilter(
         !candidate.authorBlocksViewer &&
         !candidate.quotedAuthorBlocksViewer
       );
-    case 'brazil_2026_election': {
-      const isExcluded = (authorId: string | undefined) => Boolean(
-        authorId &&
-        BRAZIL_2026_ELECTION_USER_IDS.has(authorId) &&
-        !context.followedAuthorIds.includes(authorId)
-      );
-      return runPredicateFilter(candidates, filter, (candidate) => !(
-        isExcluded(candidate.authorId) ||
-        isExcluded(candidate.retweetedAuthorId) ||
-        isExcluded(candidate.quotedAuthorId) ||
-        candidate.ancestorUserIds?.some(isExcluded)
-      ));
-    }
     case 'video':
       if (!context.excludeVideos) return unchanged(filter, candidates);
-      return runPredicateFilter(candidates, filter, (candidate) => candidate.videoDurationMs === undefined);
+      return runPredicateFilter(candidates, filter, (candidate) =>
+        candidate.videoDurationMs === undefined && candidate.quotedVideoDurationMs === undefined
+      );
+    case 'ancestor_video':
+      if (!context.excludeVideos) return unchanged(filter, candidates);
+      return runPredicateFilter(candidates, filter, (candidate) => !candidate.ancestorHasVideo);
     case 'topic_ids':
       return runTopicFilter(candidates, filter, context);
     case 'new_user_min_engagement': {

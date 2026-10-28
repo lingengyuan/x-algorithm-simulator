@@ -114,7 +114,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
     };
     validItems.forEach(({ item, originalIndex }) => {
       if (item.result) {
-        data[`tweet${originalIndex + 1}`] = Math.round(item.result.phoenixScores[key] * 100);
+        data[`tweet${originalIndex + 1}`] = Math.round((item.result.phoenixScores[key] ?? 0) * 100);
       }
     });
     return data;
@@ -314,7 +314,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                       {validItems.map(({ item }) => (
                         <td key={item.id} className="text-center py-2 px-2">
                           {item.result
-                            ? `${Math.round(item.result.phoenixScores[key] * 100)}%`
+                            ? `${Math.round((item.result.phoenixScores[key] ?? 0) * 100)}%`
                             : '-'}
                         </td>
                       ))}
@@ -330,7 +330,7 @@ export function CompareMode({ onClose }: CompareModeProps) {
                         </td>
                         {validItems.map(({ item }) => (
                           <td key={item.id} className="text-center py-2 px-2 font-mono">
-                            {item.result
+                            {item.result && item.result.phoenixScores[key] !== undefined
                               ? `${item.result.phoenixScores[key].toFixed(3)}${CONTINUOUS_OUTPUT_LABELS[key].unit}`
                               : '-'}
                           </td>

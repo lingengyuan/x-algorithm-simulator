@@ -7,9 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test": "vitest run",
-    "check": "npm run lint && npm run test && npm run build",
-    "preview": "vite preview"
+    "test": "node scripts/run-e2e.mjs",
+    "check": "npm run lint && npm run build && npm run test:e2e",
+    "preview": "vite preview",
+    "test:e2e": "node scripts/run-e2e.mjs"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.2.6",

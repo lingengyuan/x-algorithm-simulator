@@ -4,7 +4,7 @@ Interactive simulator for the public X recommendation pipeline.
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-Pinned to [`xai-org/x-algorithm@c65aa17`](https://github.com/xai-org/x-algorithm/tree/c65aa179db7bdd61e2c2821eac87f208a105c053) · [English](#english) · [简体中文](#简体中文)
+Pinned to [`xai-org/x-algorithm@5ed7963`](https://github.com/xai-org/x-algorithm/tree/5ed796374ea48ee26058aab66ab10c266bea2bef) · [English](#english) · [简体中文](#简体中文)
 
 ## Interface Comparison / 界面对比
 
@@ -19,27 +19,27 @@ The current screenshots were regenerated from this version. / 当前截图由本
   <tr>
     <td>Output Explorer<br>输出探索</td>
     <td><img src="docs/screenshots/before-analyzer-en.jpg" alt="Output Explorer before" width="420"></td>
-    <td><img src="docs/screenshots/after-analyzer-result-en.jpg" alt="Output Explorer current" width="420"></td>
+    <td><img src="artifacts/e2e/analyzer-en.png" alt="Output Explorer current" width="420"></td>
   </tr>
   <tr>
     <td>Ranking Simulator<br>排序模拟</td>
     <td><img src="docs/screenshots/before-simulator-en.jpg" alt="Ranking Simulator before" width="420"></td>
-    <td><img src="docs/screenshots/after-simulator-final-en.jpg" alt="Ranking Simulator current" width="420"></td>
+    <td><img src="artifacts/e2e/for-you-en.png" alt="Ranking Simulator current" width="420"></td>
   </tr>
 </table>
 
-More screenshots: [`docs/screenshots`](docs/screenshots)
+E2E screenshots and report: [`artifacts/e2e`](artifacts/e2e)
 
 ## English
 
 ### Project Description
 
-Visualizes the public primary default path at upstream commit `c65aa17`. It uses deterministic local fixtures and cannot predict production reach or engagement.
+Visualizes the public primary default path at upstream commit `5ed7963`. It uses deterministic local fixtures and cannot predict production reach or engagement.
 
 ### Features
 
 - Step through the Scored Posts and For You pipelines.
-- Explore 26 Phoenix outputs, ranking weights, filters, visibility, brand safety, and VMRanker DPP.
+- Explore 26 default Phoenix outputs and two optional excursion fields, ranking weights, filters, visibility, brand safety, and VMRanker DPP.
 - Compare fixture outputs, tune weights, and keep local history in English or Chinese.
 
 Production retrieval, models, social graph, safety services, and ads are not included. The public repository also omits `xai_post_text`, so local multilingual tokenization is not guaranteed to match production.
@@ -61,7 +61,7 @@ This is a web app, not a Codex skill package. Routes: `/`, `/simulator`, `/weigh
 
 ### Project Structure
 
-Core references: [`upstreamSnapshot.ts`](src/data/upstreamSnapshot.ts), [`upstreamPolicyData.ts`](src/data/upstreamPolicyData.ts), [`pipeline.ts`](src/core/pipeline.ts), and [`upstreamParity.test.ts`](src/core/upstreamParity.test.ts).
+Core references: [`upstreamSnapshot.ts`](src/data/upstreamSnapshot.ts), [`pipeline.ts`](src/core/pipeline.ts), and [`e2e.mjs`](scripts/e2e.mjs).
 
 ### Configuration
 
@@ -73,15 +73,15 @@ No environment variables, credentials, or external services are required.
 npm run check
 ```
 
-Runs ESLint, Vitest, TypeScript, and the production build. The current parity suite and full bilingual screenshot flow have been verified.
+Runs ESLint, TypeScript, the production build, and ego-browser E2E tests. Requires ego lite and the ego-browser CLI. The E2E runner starts a preview server on port 4173. Results, screenshots, and compressed pipeline traces (`.json.gz`) are saved in `artifacts/e2e/`. Each trace includes the input fixtures, request context, and weights.
 
 ### Contributing
 
-Pin upstream changes and add a regression test for every behavior change.
+Pin upstream changes. Verify behavior through the browser E2E flow.
 
 ### Maintenance Guide
 
-Update the snapshot, implementation, tests, and screenshots together. Screenshot command: `node scripts/capture-screenshots.mjs` with the app running on port `4173`.
+Update the snapshot and implementation together. Run `npm run check` at completion. The default path preserves Home Mixer weighted scores in VMRanker. Topic requests skip DPP. Remote retrieval, embeddings, and Thompson draws use repeatable local fixtures.
 
 ### License
 
@@ -91,12 +91,12 @@ Update the snapshot, implementation, tests, and screenshots together. Screenshot
 
 ### 项目说明
 
-可视化上游提交 `c65aa17` 公开的主默认路径。项目使用确定性本地测试数据，不能预测生产环境的真实曝光或互动。
+可视化上游提交 `5ed7963` 公开的主默认路径。项目使用确定性本地测试数据，不能预测生产环境的真实曝光或互动。
 
 ### 功能特性
 
 - 逐步查看 Scored Posts 和 For You 流程。
-- 探索 26 个 Phoenix 输出、排序权重、过滤、可见性、品牌安全和 VMRanker DPP。
+- 探索 26 个默认 Phoenix 输出及两个可选续看与主页停留字段、排序权重、过滤、可见性、品牌安全和 VMRanker DPP。
 - 对比测试输出、实时调节权重，并保存中英文本地历史记录。
 
 项目不包含生产召回、模型、社交图、安全服务和广告。公开仓库也没有 `xai_post_text`，因此本地多语言分词不保证与生产环境一致。
@@ -118,7 +118,7 @@ npm run dev
 
 ### 项目结构
 
-核心文件：[`upstreamSnapshot.ts`](src/data/upstreamSnapshot.ts)、[`upstreamPolicyData.ts`](src/data/upstreamPolicyData.ts)、[`pipeline.ts`](src/core/pipeline.ts) 和 [`upstreamParity.test.ts`](src/core/upstreamParity.test.ts)。
+核心文件：[`upstreamSnapshot.ts`](src/data/upstreamSnapshot.ts)、[`pipeline.ts`](src/core/pipeline.ts) 和 [`e2e.mjs`](scripts/e2e.mjs)。
 
 ### 配置
 
@@ -130,15 +130,15 @@ npm run dev
 npm run check
 ```
 
-该命令运行 ESLint、Vitest、TypeScript 和生产构建。当前一致性测试与中英文完整截图流程均已验证。
+该命令运行 ESLint、TypeScript、生产构建和 ego-browser 端到端测试。需要安装 ego lite 与 ego-browser CLI。测试脚本在 4173 端口启动预览服务。报告、截图和压缩流程记录（`.json.gz`）保存在 `artifacts/e2e/`。流程记录包含候选输入、请求上下文和权重。
 
 ### 贡献指南
 
-固定上游提交，并为每项行为变化添加回归测试。
+固定上游提交。通过浏览器端到端流程验证行为。
 
 ### 维护指南
 
-同步更新快照、实现、测试和截图。截图命令：应用在 `4173` 端口运行时执行 `node scripts/capture-screenshots.mjs`。
+同步更新快照和实现。完成后运行 `npm run check`。默认路径在 VMRanker 中复用 Home Mixer 加权分。话题请求跳过 DPP。远程召回、向量和 Thompson 抽样使用可重复的本地测试数据。
 
 ### 许可证
 

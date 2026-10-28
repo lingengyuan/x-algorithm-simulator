@@ -38,9 +38,9 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
     const isModified = Math.abs(value - defaultValue) >= meta.step / 2;
 
     return (
-      <div key={key} className="space-y-2">
+      <div key={key} className="space-y-2" data-weight={key}>
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-slate-700">
+          <label id={`label-${key}`} className="text-sm font-medium text-slate-700">
             {isZh ? meta.nameZh : meta.name}
           </label>
           <div className="flex items-center gap-2">
@@ -60,6 +60,7 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
           </div>
         </div>
         <Slider
+          aria-labelledby={`label-${key}`}
           value={[value]}
           onValueChange={([v]) => handleWeightChange(key as keyof WeightConfig, v)}
           min={meta.min}
@@ -208,18 +209,18 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
             <div className="flex items-start justify-between gap-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
               <div>
                 <label className="text-sm font-medium text-slate-700">
-                  {isZh ? '启用 VMRanker DPP' : 'Enable VMRanker DPP'}
+                  {isZh ? 'VMRanker 服务可用' : 'VMRanker service available'}
                 </label>
                 <p className="mt-1 text-xs text-slate-500">
                   {isZh
-                    ? '公开默认值为开启；本地使用同一 DPP 选择算法和确定性测试向量。'
-                    : 'Enabled by the published defaults; local execution uses the same DPP selection with deterministic fixture embeddings.'}
+                    ? '正常路径应用多样性、关注外系数和 DPP。关闭后模拟 RPC 失败，仅保留本地加权评分与冷启动。'
+                    : 'The service applies diversity, OON, and DPP. Disable it to simulate RPC failure with local fusion and cold-start only.'}
                 </p>
               </div>
               <Switch
                 checked={weights.enableVMRanker}
                 onCheckedChange={(checked) => handleWeightChange('enableVMRanker', checked)}
-                aria-label={isZh ? '启用 VMRanker DPP' : 'Enable VMRanker DPP'}
+                aria-label={isZh ? 'VMRanker 服务可用' : 'VMRanker service available'}
               />
             </div>
 

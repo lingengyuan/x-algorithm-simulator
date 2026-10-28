@@ -111,7 +111,6 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
     tweet.content.length * 0.05 + (tweet.hasMedia !== 'none' ? 2 : 0) + rng()
   );
   const clickDwellTime = Math.max(0.25, dwellTime * clickScore * (0.7 + rng() * 0.6));
-  const activeSecs5mResidualNorm = clamp((dwellTime + clickDwellTime) / 60 + (rng() - 0.5) * 0.1);
 
   return {
     favoriteScore,
@@ -132,6 +131,7 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
     quotedVqvScore,
     followAuthorScore,
     postUnexploredScore,
+    reactWithVideoScore: tweet.hasMedia === 'video' ? clamp(replyScore * 0.1) : 0,
     notInterestedScore,
     blockAuthorScore,
     muteAuthorScore,
@@ -139,7 +139,6 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
     notDwelledScore,
     dwellTime,
     clickDwellTime,
-    activeSecs5mResidualNorm,
   };
 }
 
@@ -157,7 +156,7 @@ function apply(value: number | undefined, weight: number): number {
   return (value ?? 0) * weight;
 }
 
-/** Mirrors RankingScorer::compute_weighted_parts and offset_score. */
+/** Mirrors Home Mixer value_model::weighted_score and xai-value-model fusion. */
 export function computeWeightedScore(
   candidate: TweetCandidate,
   weights: WeightConfig,
@@ -182,22 +181,6 @@ export function computeWeightedScore(
     (candidate.quotedVideoDurationMs ?? 0) > weights.minVideoDurationMs;
   const postUnexploredActive = !weights.postUnexploredInNetworkOnly || candidate.inNetwork;
 
-  let dwellTimeTerm = apply(scores.dwellTime, weights.dwellTimeWeight);
-  if (weights.enableMultiplicativePostUnexplored && postUnexploredActive) {
-    dwellTimeTerm *= 1 + scores.postUnexploredScore * weights.multiplicativePostUnexploredAlpha;
-  }
-
-  let clickDwellTime = scores.clickDwellTime;
-  if (weights.enableClickDwellLowFavRatePenalty) {
-    const baseline = Math.max(weights.clickDwellLowFavRatePenaltyBaseline, Number.EPSILON);
-    const multiplier = clamp(
-      Math.pow(scores.favoriteScore / baseline, weights.clickDwellLowFavRatePenaltyAlpha),
-      weights.clickDwellLowFavRatePenaltyFloor,
-      weights.clickDwellLowFavRatePenaltyCap
-    );
-    clickDwellTime *= multiplier;
-  }
-
   const terms = [
     apply(scores.favoriteScore, weights.favoriteWeight),
     apply(scores.replyScore, replyWeight),
@@ -215,18 +198,16 @@ export function computeWeightedScore(
     apply(scores.quoteScore, weights.quoteWeight),
     apply(scores.quotedClickScore, weights.quotedClickWeight),
     apply(scores.quotedVqvScore, quotedVqvEligible ? weights.quotedVqvWeight : 0),
-    dwellTimeTerm,
-    apply(clickDwellTime, weights.clickDwellTimeWeight),
-    apply(scores.activeSecs5mResidualNorm, weights.activeSecs5mResidualNormWeight),
+    apply(scores.dwellTime, weights.dwellTimeWeight),
+    apply(scores.clickDwellTime, weights.clickDwellTimeWeight),
+    apply(scores.reactWithVideoScore, weights.reactWithVideoWeight ?? 0),
     apply(scores.followAuthorScore, weights.followAuthorWeight),
     apply(scores.notInterestedScore, weights.notInterestedWeight),
     apply(scores.blockAuthorScore, weights.blockAuthorWeight),
     apply(scores.muteAuthorScore, weights.muteAuthorWeight),
     apply(scores.reportScore, weights.reportWeight),
     apply(scores.notDwelledScore, weights.notDwelledWeight),
-    weights.enableMultiplicativePostUnexplored || !postUnexploredActive
-      ? 0
-      : apply(scores.postUnexploredScore, weights.postUnexploredWeight),
+    apply(scores.postUnexploredScore, postUnexploredActive ? weights.postUnexploredWeight : 0),
   ];
 
   let positive = 0;
@@ -255,7 +236,7 @@ export function computeWeightedScore(
     weights.quotedClickWeight +
     weights.quotedVqvWeight +
     weights.followAuthorWeight +
-    (weights.enableMultiplicativePostUnexplored ? 0 : weights.postUnexploredWeight);
+    weights.postUnexploredWeight + (weights.reactWithVideoWeight ?? 0);
   const configuredNegativeWeightSum = -(
     weights.notInterestedWeight +
     weights.blockAuthorWeight +
@@ -313,7 +294,7 @@ export function getHeatLevel(score: number): {
 
 type DisplayScoreKey = Exclude<
   keyof PhoenixScores,
-  'dwellTime' | 'clickDwellTime' | 'activeSecs5mResidualNorm'
+  'dwellTime' | 'clickDwellTime' | 'homeVideoContinuationSecs' | 'homeProfileVisitSecs' | 'activeSecs5mResidualNorm'
 >;
 
 export const SCORE_LABELS: Record<DisplayScoreKey, {
@@ -339,6 +320,7 @@ export const SCORE_LABELS: Record<DisplayScoreKey, {
   quotedVqvScore: { name: 'Quoted VQV', nameZh: '引用视频观看', type: 'positive' },
   followAuthorScore: { name: 'Follow', nameZh: '关注', type: 'positive' },
   postUnexploredScore: { name: 'Post Unexplored', nameZh: '未充分探索', type: 'positive' },
+  reactWithVideoScore: { name: 'React with Video', nameZh: '视频回应', type: 'positive' },
   notInterestedScore: { name: 'Not Interested', nameZh: '不感兴趣', type: 'negative' },
   blockAuthorScore: { name: 'Block', nameZh: '屏蔽', type: 'negative' },
   muteAuthorScore: { name: 'Mute', nameZh: '静音', type: 'negative' },
@@ -349,9 +331,6 @@ export const SCORE_LABELS: Record<DisplayScoreKey, {
 export const CONTINUOUS_OUTPUT_LABELS = {
   dwellTime: { name: 'Continuous Dwell', nameZh: '连续停留时长', unit: 's' },
   clickDwellTime: { name: 'Click Dwell', nameZh: '点击后停留时长', unit: 's' },
-  activeSecs5mResidualNorm: {
-    name: 'Active Seconds 5m Residual Norm',
-    nameZh: '五分钟活跃秒数残差归一值',
-    unit: '',
-  },
+  homeVideoContinuationSecs: { name: 'Home Video Continuation', nameZh: '首页视频续看时长', unit: 's' },
+  homeProfileVisitSecs: { name: 'Home Profile Visit', nameZh: '首页主页访问时长', unit: 's' },
 } as const;

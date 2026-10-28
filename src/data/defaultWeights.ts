@@ -24,7 +24,7 @@ export type AdjustableWeightKey =
   | 'postUnexploredWeight'
   | 'dwellTimeWeight'
   | 'clickDwellTimeWeight'
-  | 'activeSecs5mResidualNormWeight'
+  | 'reactWithVideoWeight'
   | 'notInterestedWeight'
   | 'blockAuthorWeight'
   | 'muteAuthorWeight'
@@ -57,7 +57,7 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   favoriteWeight: {
     name: 'Like', nameZh: '点赞',
     description: 'Weight × predicted like probability', descriptionZh: '权重 × 预测点赞概率',
-    min: 0, max: 5, step: 0.05, type: 'positive',
+    min: 0, max: 5, step: 0.01, type: 'positive',
   },
   replyWeight: {
     name: 'Reply', nameZh: '回复',
@@ -82,17 +82,17 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   clickWeight: {
     name: 'Post Click', nameZh: '点击帖子',
     description: 'Weight × predicted post-click probability', descriptionZh: '权重 × 预测帖子点击概率',
-    min: 0, max: 5, step: 0.05, type: 'positive',
+    min: 0, max: 5, step: 0.01, type: 'positive',
   },
   openLinkWeight: {
     name: 'Open Link', nameZh: '打开链接',
     description: 'Weight × predicted external-link probability', descriptionZh: '权重 × 预测外链打开概率',
-    min: 0, max: 5, step: 0.05, type: 'positive',
+    min: 0, max: 5, step: 0.01, type: 'positive',
   },
   profileClickWeight: {
     name: 'Profile Click', nameZh: '点击主页',
     description: 'Weight × predicted profile-click probability', descriptionZh: '权重 × 预测主页点击概率',
-    min: 0, max: 5, step: 0.05, type: 'positive',
+    min: 0, max: 5, step: 0.01, type: 'positive',
   },
   vqvWeight: {
     name: 'Video Quality View', nameZh: '视频质量观看',
@@ -117,7 +117,7 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   dwellWeight: {
     name: 'Dwell', nameZh: '停留',
     description: 'Weight × predicted dwell-event probability', descriptionZh: '权重 × 预测停留事件概率',
-    min: 0, max: 5, step: 0.05, type: 'positive',
+    min: 0, max: 5, step: 0.01, type: 'positive',
   },
   quoteWeight: {
     name: 'Quote', nameZh: '引用',
@@ -152,22 +152,22 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   clickDwellTimeWeight: {
     name: 'Click Dwell', nameZh: '点击后停留',
     description: 'Weight × predicted click-dwell value', descriptionZh: '权重 × 预测点击后停留值',
-    min: 0, max: 0.02, step: 0.001, type: 'positive',
+    min: 0, max: 1, step: 0.001, type: 'positive',
   },
-  activeSecs5mResidualNormWeight: {
-    name: 'Active Seconds Residual', nameZh: '活跃秒数残差',
-    description: 'Weight × normalized five-minute active-seconds residual', descriptionZh: '权重 × 五分钟活跃秒数归一化残差',
-    min: 0, max: 1, step: 0.01, type: 'positive',
+  reactWithVideoWeight: {
+    name: 'React with Video', nameZh: '视频回应',
+    description: 'Weight × predicted video-reaction probability', descriptionZh: '权重 × 预测视频回应概率',
+    min: 0, max: 5, step: 0.01, type: 'positive',
   },
   notInterestedWeight: {
     name: 'Not Interested', nameZh: '不感兴趣',
     description: 'Weight × predicted not-interested probability', descriptionZh: '权重 × 预测不感兴趣概率',
-    min: -80, max: 0, step: 1, type: 'negative',
+    min: -80, max: 0, step: 0.001, type: 'negative',
   },
   blockAuthorWeight: {
     name: 'Block Author', nameZh: '屏蔽作者',
     description: 'Weight × predicted block probability', descriptionZh: '权重 × 预测屏蔽概率',
-    min: -80, max: 0, step: 1, type: 'negative',
+    min: -80, max: 0, step: 0.001, type: 'negative',
   },
   muteAuthorWeight: {
     name: 'Mute Author', nameZh: '静音作者',

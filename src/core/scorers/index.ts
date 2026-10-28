@@ -1,6 +1,6 @@
 import type { FilterContext, ScorerResult, TweetCandidate, WeightConfig } from '@/core/types';
-import { CACHED_POSTS_MIN_COUNT, RANKING_CONSTANTS } from '@/data/upstreamSnapshot';
-import { computeWeightedScore, hashString } from '@/utils/scoring';
+import { CACHED_POSTS_MIN_COUNT, RANKING_CONSTANTS, RANKING_DEFAULTS } from '@/data/upstreamSnapshot';
+import { computeWeightedScore, createSeededRandom, hashString } from '@/utils/scoring';
 
 const EPSILON = 1e-6;
 
@@ -13,18 +13,11 @@ export const SCORERS = [
     descriptionZh: '使用当前 Phoenix 输出头契约；本地数值为确定性测试数据',
   },
   {
-    id: 'ranking',
-    name: 'RankingScorer',
-    nameZh: '排序评分器',
-    description: 'Published weighted score, author cold-start, diversity, and OON rescore path',
-    descriptionZh: '公开的加权评分、作者冷启动、多样性与关注外重评分路径',
-  },
-  {
     id: 'vm_ranker',
-    name: 'VMRanker DPP',
-    nameZh: 'VMRanker DPP 重排',
-    description: 'Published DPP selection over local deterministic embeddings',
-    descriptionZh: '按公开 DPP 选择算法处理本地确定性向量',
+    name: 'VMRanker',
+    nameZh: 'VMRanker 价值评分与重排',
+    description: 'Home Mixer fusion → cold-start → VM diversity/OON → DPP',
+    descriptionZh: 'Home Mixer 加权 → 冷启动 → VM 多样性与关注外系数 → DPP',
   },
 ] as const;
 
@@ -34,12 +27,14 @@ export function runPhoenixScorer(candidates: TweetCandidate[]): ScorerResult {
     scorerName: 'PhoenixScorer (synthetic outputs)',
     summary: {
       outputHeadCount: 26,
+      outputContractHeadCount: 28,
+      homeExcursionScoresEnabled: RANKING_DEFAULTS.homeExcursionScores,
       fixtureOutputUnits: 'probabilities-and-continuous-seconds',
       productionModelInference: false,
     },
     candidateScores: candidates.map((candidate) => ({
       candidateId: candidate.id,
-      scores: { ...candidate.phoenixScores },
+      scores: Object.fromEntries(Object.entries(candidate.phoenixScores).filter(([, value]) => value !== undefined)),
       finalScore: candidate.phoenixScores.favoriteScore,
     })),
   };
@@ -58,11 +53,27 @@ function getEffectiveOonFactor(context: FilterContext, weights: WeightConfig): n
   return isEligibleNewUser ? weights.newUserOonWeightFactor : weights.oonWeightFactor;
 }
 
+// Seeded Gamma/Beta draws make the public Thompson policy repeatable in local fixtures.
+function gammaSample(shape: number, random: () => number): number {
+  if (shape < 1) return gammaSample(shape + 1, random) * Math.max(random(), Number.EPSILON) ** (1 / shape);
+  const d = shape - 1 / 3;
+  const c = 1 / Math.sqrt(9 * d);
+  for (;;) {
+    const normal = Math.sqrt(-2 * Math.log(Math.max(random(), Number.EPSILON))) * Math.cos(2 * Math.PI * random());
+    const base = 1 + c * normal;
+    if (base <= 0) continue;
+    const v = base ** 3;
+    const u = random();
+    if (u < 1 - 0.0331 * normal ** 4 || Math.log(u) < normal ** 2 / 2 + d * (1 - v + Math.log(v))) return d * v;
+  }
+}
+
 function applyAuthorColdStart(
   candidates: TweetCandidate[],
-  weights: WeightConfig
+  weights: WeightConfig,
+  context: FilterContext
 ): TweetCandidate[] {
-  if (!weights.enableAuthorColdStart || candidates.length === 0) {
+  if (!weights.enableAuthorColdStart || context.topicIds.length > 0 || candidates.length === 0) {
     return candidates.map((candidate) => ({
       ...candidate,
       coldStartAdjustedScore: candidate.weightedScore ?? 0,
@@ -94,11 +105,12 @@ function applyAuthorColdStart(
     .filter(({ candidate, index }) =>
       !candidate.inReplyToTweetId &&
       !candidate.originalTweetId &&
-      candidate.servedType !== 'for_you_phoenix_retrieval_moe' &&
       candidate.authorFollowers !== undefined &&
       candidate.authorFollowers <= weights.coldStartFollowerCap &&
-      candidate.viewCount !== undefined &&
-      candidate.viewCount < weights.coldStartImpressionThreshold &&
+      candidate.viewCountOnHome !== undefined &&
+      candidate.viewCountOnHome < weights.coldStartImpressionThreshold &&
+      context.currentTime >= candidate.createdAt &&
+      context.currentTime - candidate.createdAt <= weights.coldStartMaxPostAgeSecs * 1000 &&
       (positionByIndex.get(index) ?? Number.MAX_SAFE_INTEGER) < maxPosition
     )
     .sort((left, right) => right.score - left.score || right.index - left.index);
@@ -110,7 +122,17 @@ function applyAuthorColdStart(
     }));
   }
 
-  const boostedIndex = eligible[0].index;
+  const random = createSeededRandom(hashString(candidates.map((candidate) => candidate.content).join('|')) || 1);
+  const sampled = eligible.map((item) => {
+    const views = item.candidate.viewCountOnHome ?? 0;
+    const favorites = Math.min(Math.max(item.candidate.favoriteCount ?? 0, 0), views);
+    const alpha = gammaSample(RANKING_DEFAULTS.coldStartBetaAlpha + favorites, random);
+    const beta = gammaSample(RANKING_DEFAULTS.coldStartBetaBeta + views - favorites, random);
+    return { ...item, reward: alpha / (alpha + beta) };
+  }).sort((a, b) => b.reward - a.reward || a.index - b.index)
+    .slice(0, RANKING_DEFAULTS.coldStartThompsonTopK)
+    .sort((a, b) => b.score - a.score || b.index - a.index);
+  const boostedIndex = sampled[0].index;
   return candidates.map((candidate, index) => index === boostedIndex
     ? {
         ...candidate,
@@ -182,22 +204,23 @@ export function runRankingScorer(
     return {
       ...candidate,
       rawWeightedScore: breakdown.combined,
-      weightedScore: breakdown.score,
+      weightedScore: context.cachedPostIds.length >= CACHED_POSTS_MIN_COUNT
+        ? candidate.weightedScore ?? breakdown.score : breakdown.score,
     };
   });
-  const coldStartedCandidates = applyAuthorColdStart(weightedCandidates, weights);
-  const diversityCandidates = applyAuthorDiversity(
+  const coldStartedCandidates = applyAuthorColdStart(weightedCandidates, weights, context);
+  const diversityCandidates = weights.enableVMRanker ? applyAuthorDiversity(
     coldStartedCandidates,
     weights,
     context.cachedPostIds.length >= CACHED_POSTS_MIN_COUNT
-  );
+  ) : coldStartedCandidates.map((candidate) => ({ ...candidate, diversityAdjustedScore: candidate.coldStartAdjustedScore }));
   const effectiveOonFactor = getEffectiveOonFactor(context, weights);
   const updatedCandidates = diversityCandidates.map((candidate) => {
-    const oonApplies = candidate.inNetwork === false || (
+    const oonApplies = weights.enableVMRanker && (candidate.inNetwork === false || (
       candidate.inNetwork === true &&
       weights.enableOonRescoreForInNetworkRepliesRetweets &&
       Boolean(candidate.inReplyToTweetId || candidate.originalTweetId)
-    );
+    ));
     const finalScore = (candidate.diversityAdjustedScore ?? 0) * (
       oonApplies ? effectiveOonFactor : 1
     );
@@ -207,14 +230,16 @@ export function runRankingScorer(
 
   return {
     result: {
-      scorerId: 'ranking',
-      scorerName: 'RankingScorer',
+      scorerId: 'vm_ranker',
+      scorerName: weights.enableVMRanker ? 'VMRanker' : 'VMRanker (local fallback)',
       summary: {
-        valueModelMode: 'weighted',
+        valueModelMode: weights.enableVMRanker ? 'cached-home-mixer-weighted' : 'local-weighted-fallback',
+        weightSource: 'home-mixer/params/param.rs',
+        coldStartPolicy: 'seeded-beta-thompson-top-2',
         mpnScoring: false,
         authorColdStartEnabled: weights.enableAuthorColdStart,
         authorColdStartBoosted: updatedCandidates.filter((candidate) => candidate.coldStartBoosted).length,
-        authorDiversityEnabled: weights.enableAuthorDiversity,
+        authorDiversityEnabled: weights.enableVMRanker && weights.enableAuthorDiversity,
         effectiveOonFactor,
       },
       candidateScores: updatedCandidates.map((candidate) => ({
@@ -325,8 +350,19 @@ function greedyDpp(kernel: number[][], topK: number): number[] {
 
 export function runVMRanker(
   candidates: TweetCandidate[],
-  weights: WeightConfig
+  weights: WeightConfig,
+  context?: FilterContext
 ): { result: ScorerResult; updatedCandidates: TweetCandidate[] } {
+  if (context?.topicIds.length && !RANKING_DEFAULTS.topicDppEnabled) {
+    return {
+      updatedCandidates: candidates,
+      result: {
+        scorerId: 'vm_ranker', scorerName: 'VMRanker',
+        summary: { dppEnabled: false, dppSkipReason: 'topic-request-default' },
+        candidateScores: candidates.map((candidate) => ({ candidateId: candidate.id, scores: {}, finalScore: candidate.finalScore ?? 0 })),
+      },
+    };
+  }
   const pool = candidates
     .map((candidate, index) => ({ candidate, index }))
     .filter(({ candidate }) => candidate.finalScore !== undefined)
@@ -384,6 +420,7 @@ export function runVMRanker(
       scorerId: 'vm_ranker',
       scorerName: 'VMRanker DPP',
       summary: {
+        dppEnabled: true,
         theta,
         topK: weights.vmRankerTopK,
         maxSelectedRank: weights.vmRankerMaxSelectedRank,
@@ -411,12 +448,14 @@ export function runAllScorers(
 ): { results: ScorerResult[]; finalCandidates: TweetCandidate[] } {
   const results: ScorerResult[] = [runPhoenixScorer(candidates)];
   const ranking = runRankingScorer(candidates, weights, context);
-  results.push(ranking.result);
-
   const vm = weights.enableVMRanker
-    ? runVMRanker(ranking.updatedCandidates, weights)
+    ? runVMRanker(ranking.updatedCandidates, weights, context)
     : undefined;
-  if (vm) results.push(vm.result);
+  results.push({
+    ...ranking.result,
+    summary: { ...ranking.result.summary, ...vm?.result.summary },
+    candidateScores: vm?.result.candidateScores ?? ranking.result.candidateScores,
+  });
 
   const finalCandidates = [...(vm?.updatedCandidates ?? ranking.updatedCandidates)].sort(
     (left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0)

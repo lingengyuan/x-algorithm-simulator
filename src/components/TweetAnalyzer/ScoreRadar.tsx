@@ -30,15 +30,15 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
 
   const radarData = positiveKeys.map((key) => ({
     subject: isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name,
-    A: Math.round(scores[key] * 100),
-    B: compareScores ? Math.round(compareScores[key] * 100) : undefined,
+    A: Math.round((scores[key] ?? 0) * 100),
+    B: compareScores ? Math.round((compareScores[key] ?? 0) * 100) : undefined,
     fullMark: 100,
   }));
 
   // Separate positive and negative scores
   const positiveScores = positiveKeys.map((key) => ({
     label: isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name,
-    value: scores[key],
+    value: scores[key] ?? 0,
     type: 'positive' as const,
   }));
 
@@ -48,7 +48,7 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
 
   const negativeScores = negativeKeys.map((key) => ({
     label: isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name,
-    value: scores[key],
+    value: scores[key] ?? 0,
     type: 'negative' as const,
   }));
   const continuousKeys = Object.keys(CONTINUOUS_OUTPUT_LABELS) as Array<
@@ -166,11 +166,11 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
                   {isZh ? label.nameZh : label.name}
                 </div>
                 <div className="mt-1 font-mono text-lg font-semibold text-slate-900">
-                  {scores[key].toFixed(3)}{label.unit}
+                  {scores[key] === undefined ? (isZh ? '未启用 / 未返回' : 'Disabled / not returned') : `${scores[key].toFixed(3)}${label.unit}`}
                 </div>
                 {compareScores && (
                   <div className="mt-1 font-mono text-xs text-sky-700">
-                    B: {compareScores[key].toFixed(3)}{label.unit}
+                    B: {compareScores[key] === undefined ? '—' : `${compareScores[key].toFixed(3)}${label.unit}`}
                   </div>
                 )}
               </div>

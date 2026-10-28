@@ -1,0 +1,180 @@
+{
+  "upstream": "5ed796374ea48ee26058aab66ab10c266bea2bef",
+  "browser": "ego-browser",
+  "startedAt": "2026-10-28T03:45:18.018Z",
+  "checks": [
+    {
+      "name": "analyzer-en",
+      "status": "passed",
+      "detail": "Video fixture outputs and disabled excursion fields render without NaN."
+    },
+    {
+      "name": "compare-en",
+      "status": "passed",
+      "detail": "Both inputs render a comparison table with missing gated fields."
+    },
+    {
+      "name": "weights-en",
+      "status": "passed",
+      "detail": "Defaults, keyboard adjustment, and reset use current Home Mixer weights."
+    },
+    {
+      "name": "history-en",
+      "status": "passed",
+      "detail": "Generated analysis remains available after route navigation."
+    },
+    {
+      "name": "for-you-en",
+      "status": "passed",
+      "detail": "Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass."
+    },
+    {
+      "name": "fallback-en",
+      "status": "passed",
+      "detail": "RPC failure uses local fusion/cold-start without VM multipliers or DPP."
+    },
+    {
+      "name": "topic-en",
+      "status": "passed",
+      "detail": "Topic requests skip DPP and cold-start while applying topic scoring."
+    },
+    {
+      "name": "analyzer-zh",
+      "status": "passed",
+      "detail": "Video fixture outputs and disabled excursion fields render without NaN."
+    },
+    {
+      "name": "compare-zh",
+      "status": "passed",
+      "detail": "Both inputs render a comparison table with missing gated fields."
+    },
+    {
+      "name": "weights-zh",
+      "status": "passed",
+      "detail": "Defaults, keyboard adjustment, and reset use current Home Mixer weights."
+    },
+    {
+      "name": "history-zh",
+      "status": "passed",
+      "detail": "Generated analysis remains available after route navigation."
+    },
+    {
+      "name": "for-you-zh",
+      "status": "passed",
+      "detail": "Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass."
+    },
+    {
+      "name": "fallback-zh",
+      "status": "passed",
+      "detail": "RPC failure uses local fusion/cold-start without VM multipliers or DPP."
+    },
+    {
+      "name": "topic-zh",
+      "status": "passed",
+      "detail": "Topic requests skip DPP and cold-start while applying topic scoring."
+    },
+    {
+      "name": "ranked-following",
+      "status": "passed",
+      "detail": "Only followed-account retrieval contributes candidates."
+    },
+    {
+      "name": "cached",
+      "status": "passed",
+      "detail": "Cached inventory skips Phoenix inference and remote sources."
+    },
+    {
+      "name": "exclude-videos",
+      "status": "passed",
+      "detail": "Direct, quoted, and displayed ancestor videos do not reach the final feed."
+    },
+    {
+      "name": "source-budget",
+      "status": "passed",
+      "detail": {
+        "input": 3495,
+        "output": 2800,
+        "kept": {
+          "for_you_in_network": 957,
+          "for_you_popular_posts": 401,
+          "for_you_simclusters": 641,
+          "for_you_phoenix_retrieval": 801
+        },
+        "removed": {
+          "for_you_in_network": 238,
+          "for_you_popular_posts": 99,
+          "for_you_simclusters": 159,
+          "for_you_phoenix_retrieval": 199
+        }
+      }
+    },
+    {
+      "name": "mobile",
+      "status": "passed",
+      "detail": "The 390px layout fits the viewport and navigation has accessible names."
+    }
+  ],
+  "screenshots": [
+    "analyzer-en.png",
+    "weights-adjusted-en.png",
+    "weights-default-en.png",
+    "history-en.png",
+    "for-you-en.png",
+    "analyzer-zh.png",
+    "weights-adjusted-zh.png",
+    "weights-default-zh.png",
+    "history-zh.png",
+    "for-you-zh.png",
+    "source-budget.png",
+    "mobile.png"
+  ],
+  "traces": [
+    {
+      "file": "for-you-en.json.gz",
+      "sha256": "da9de01e28c81c13e18f19b5cffe9d4c4bf36f6641a5b2f121ff51fb90c9c018",
+      "bytes": 1206628
+    },
+    {
+      "file": "fallback-en.json.gz",
+      "sha256": "70544c8ab1694fbca0aec15b454b5beb1649a4b6cb3531d7e8e7f36454860bcc",
+      "bytes": 1206510
+    },
+    {
+      "file": "topic-en.json.gz",
+      "sha256": "2d27e738b72e936a81dbe647c1dba78fe2fecaf4b2e86086a94885ca22b3d123",
+      "bytes": 928115
+    },
+    {
+      "file": "for-you-zh.json.gz",
+      "sha256": "ea2cdc2f321041c1ee3237a967d2317331744892dfa1f557059c8ca885ad4afa",
+      "bytes": 1206640
+    },
+    {
+      "file": "fallback-zh.json.gz",
+      "sha256": "8600a8db14c268e4b2dc520b9bba3c623b2029271594e3601d128ebe0668c2a1",
+      "bytes": 1206500
+    },
+    {
+      "file": "topic-zh.json.gz",
+      "sha256": "75c17abca88094d483aa4b37a726e8712d71ae18d80c59840a9e2e731cef4bf2",
+      "bytes": 928119
+    },
+    {
+      "file": "ranked-following.json.gz",
+      "sha256": "3acf765a23280bd804291aabe934fa4050ce6b646f35941313dfd42ae44e497e",
+      "bytes": 819955
+    },
+    {
+      "file": "cached.json.gz",
+      "sha256": "7e94cb5550c289e666504a0984d3c76eedb7a1da0eb55648e0c6c2e248b4fc50",
+      "bytes": 6447430
+    },
+    {
+      "file": "without-videos.json.gz",
+      "sha256": "fafb31be4e2e72ea119978bef58fc8f9d586d42836a65e85d96fa7996a897408",
+      "bytes": 1039713
+    }
+  ],
+  "status": "passed",
+  "completedAt": "2026-10-28T03:54:54.677Z"
+}

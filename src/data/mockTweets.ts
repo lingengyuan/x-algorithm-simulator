@@ -172,6 +172,7 @@ export function generateMockTweet(
     repostCount: Math.floor(random(index + 167) * 3_000),
     quoteCount: Math.floor(random(index + 173) * 900),
     viewCount,
+    viewCountOnHome: Math.floor(random(index + 197) * 500),
     bookmarkCount: Math.floor(random(index + 175) * 700),
     isMutualFollowAuthor: FOLLOWED_AUTHOR_IDS.has(author.id) && index % 9 === 0,
     authorFollowsViewer: index % 9 === 0,
@@ -256,16 +257,19 @@ function enrichRelationships(tweets: TweetCandidate[]): TweetCandidate[] {
 }
 
 export function generateMockTweets(count: number, inNetworkRatio = 0.6): TweetCandidate[] {
-  return enrichRelationships(Array.from({ length: count }, (_, index) =>
+  const candidates = enrichRelationships(Array.from({ length: count }, (_, index) =>
     generateMockTweet(index, random(index + 149) * 120, random(index + 131) < inNetworkRatio)
   ));
+  [...candidates].sort((a, b) => (b.favoriteCount ?? 0) - (a.favoriteCount ?? 0))
+    .slice(0, 500).forEach((candidate, index) => { candidate.popularPostRank = index; });
+  return candidates;
 }
 
 export const RANKING_SCENARIOS: RankingScenario[] = [
   {
     id: 'following_feed',
-    name: 'In-network heavy',
-    nameZh: '关注内为主',
+    name: 'Ranked Following',
+    nameZh: '关注内排序',
     description: 'Mostly posts from followed accounts',
     descriptionZh: '以关注账号内容为主',
     candidateCount: 60,
@@ -289,9 +293,46 @@ export const RANKING_SCENARIOS: RankingScenario[] = [
     candidateCount: 90,
     inNetworkRatio: 0.25,
   },
+  {
+    id: 'source_budget', name: 'Source budget (3,500 posts)', nameZh: '来源预算（3,500 帖子）',
+    description: 'Disjoint local source fixtures exceed the 2,800-post scoring budget',
+    descriptionZh: '互不重叠的本地来源超过 2,800 条评分预算',
+    candidateCount: 3500, inNetworkRatio: 0.4,
+  },
+  {
+    id: 'cached', name: 'Cached posts', nameZh: '缓存帖子',
+    description: 'Reuse at least 500 cached posts without remote retrieval or Phoenix inference',
+    descriptionZh: '复用至少 500 条缓存帖子，跳过远程召回和 Phoenix 推理',
+    candidateCount: 520, inNetworkRatio: 0.5,
+  },
+  {
+    id: 'without_videos', name: 'Exclude videos', nameZh: '排除视频',
+    description: 'Exclude direct, quoted, and ancestor videos',
+    descriptionZh: '排除正文、引用和祖先帖子中的视频',
+    candidateCount: 90, inNetworkRatio: 0.5,
+  },
 ];
 
 export function generateScenarioTweets(scenario: RankingScenario): TweetCandidate[] {
+  if (scenario.id === 'source_budget') {
+    return Array.from({ length: scenario.candidateCount }, (_, index) => {
+      const source = index < 1200 ? 'thunder' : index < 1700 ? 'popular_posts' : index < 2500 ? 'simclusters' : 'phoenix';
+      const candidate = generateMockTweet(index, 1, source === 'thunder');
+      return {
+        ...candidate,
+        authorId: source === 'thunder' ? '102' : '108',
+        fixtureSources: [source] as TweetCandidate['fixtureSources'],
+        popularPostRank: source === 'popular_posts' ? index - 1200 : undefined,
+        content: `Source budget fixture ${index}`,
+        quotedTweetId: undefined, quotedAuthorId: undefined,
+        videoDurationMs: undefined, quotedVideoDurationMs: undefined,
+        hasVideo: false, nsfwAuthor: false, authorBlocksViewer: false,
+        visibilityFeatures: { authorState: 'active' },
+        safetyLabels: ['GROK_SFA', 'PTOS_REVIEWED'],
+        relatedPosts: {},
+      };
+    });
+  }
   return generateMockTweets(scenario.candidateCount, scenario.inNetworkRatio);
 }
 
@@ -307,11 +348,11 @@ export function getDefaultFilterContext(
     mutedKeywords: ['crypto', 'giveaway', 'spoiler'],
     followedAuthorIds: [...FOLLOWED_AUTHOR_IDS],
     subscribedAuthorIds: ['101', '103', '14160928'],
-    seenTweetIds: candidates.slice(0, 2).map((candidate) => candidate.id),
+    seenTweetIds: scenario?.id === 'source_budget' ? [] : candidates.slice(0, 2).map((candidate) => candidate.id),
     servedTweetIds: candidates.slice(2, 4).map((candidate) => candidate.id),
     bloomSeenTweetIds: candidates.slice(4, 5).map((candidate) => candidate.id),
-    cachedPostIds: [],
-    inNetworkOnly: false,
+    cachedPostIds: scenario?.id === 'cached' ? candidates.map((candidate) => candidate.id) : [],
+    inNetworkOnly: scenario?.id === 'following_feed',
     isBottomRequest: scenario?.id === 'discovery',
     hasPostEngagementSignals: true,
     currentTime: Date.now(),
@@ -320,7 +361,7 @@ export function getDefaultFilterContext(
     topicIds: scenario?.id === 'discovery' ? [TOPICS.ai] : [],
     excludedTopicIds: scenario?.id === 'for_you' ? [TOPICS.crypto] : [],
     isBulkTopicRequest: false,
-    excludeVideos: false,
+    excludeVideos: scenario?.id === 'without_videos',
     userAccountAgeSeconds: scenario?.id === 'for_you' ? 5 * 86_400 : 180 * 86_400,
     followedCount: scenario?.id === 'for_you' ? 18 : 240,
     viewerFollowerCount: 3_200,

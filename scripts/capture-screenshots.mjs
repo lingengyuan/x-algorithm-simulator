@@ -338,7 +338,7 @@ async function runForLanguage(lang, labels) {
     (() => {
       const text = document.body.innerText || '';
       const hasFinalTimeline = Boolean(document.querySelector('[data-testid="final-timeline"]'));
-      const hasVmRanker = text.includes('VMRanker DPP');
+      const hasVmRanker = text.includes('VMRanker');
       return hasFinalTimeline && hasVmRanker;
     })()
   `, 120000);

@@ -19,7 +19,7 @@ import { SlidersHorizontal, RotateCcw, Save, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function WeightLab() {
-  const { t } = useTranslation();
+  const { t, isZh } = useTranslation();
 
   const normalizeWeights = (value: Partial<WeightConfig>): WeightConfig => ({
     ...DEFAULT_WEIGHTS,
@@ -157,6 +157,9 @@ export function WeightLab() {
             {t('weightLab.title')}
           </h1>
           <p className="text-slate-600 text-sm mt-1">{t('weightLab.subtitle')}</p>
+          <p className="mt-2 max-w-xl text-xs text-slate-500">
+            {isZh ? '编辑 Home Mixer 加权参数。VMRanker 复用该加权分，再应用多样性、关注外系数和 DPP。' : 'Edit Home Mixer fusion weights. VMRanker reuses the weighted score, then applies diversity, OON, and DPP.'}
+          </p>
         </div>
 
         {/* Preset Controls */}

@@ -19,6 +19,7 @@ export interface PhoenixScores {
   quotedVqvScore: number;       // Video quality view on quoted content
   followAuthorScore: number;    // Follow author probability
   postUnexploredScore: number;  // Probability that the post is under-explored
+  reactWithVideoScore?: number;
 
   // Negative behaviors
   notInterestedScore: number;   // Not interested probability
@@ -30,23 +31,28 @@ export interface PhoenixScores {
   // Continuous values
   dwellTime: number;            // Predicted continuous dwell value in seconds
   clickDwellTime: number;       // Predicted continuous click-dwell value in seconds
-  activeSecs5mResidualNorm: number;
+  homeVideoContinuationSecs?: number;
+  homeProfileVisitSecs?: number;
+  activeSecs5mResidualNorm?: number; // Legacy saved analyses only.
 }
 
 export type VisibilityAction = 'allow' | 'drop' | 'interstitial';
 
 export type CandidateSourceType =
   | 'thunder'
+  | 'popular_posts'
   | 'tweet_mixer'
   | 'simclusters'
   | 'phoenix'
   | 'phoenix_topics'
   | 'phoenix_moe'
+  | 'sid'
   | 'cached_posts';
 
 export type ServedType =
   | 'ranked_following'
   | 'for_you_in_network'
+  | 'for_you_popular_posts'
   | 'for_you_tweet_mixer'
   | 'for_you_simclusters'
   | 'for_you_phoenix_retrieval'
@@ -136,6 +142,9 @@ export interface TweetCandidate {
   inNetwork?: boolean;
   servedType?: ServedType;
   sourceType?: CandidateSourceType;
+  retrievalSources?: CandidateSourceType[];
+  fixtureSources?: CandidateSourceType[];
+  popularPostRank?: number;
   conversationId?: string;
   ancestors?: string[];
   tombstoneAncestorIds?: string[];
@@ -164,6 +173,8 @@ export interface TweetCandidate {
   repostCount?: number;
   quoteCount?: number;
   viewCount?: number;
+  viewCountOnHome?: number;
+  ancestorHasVideo?: boolean;
   bookmarkCount?: number;
   mutualFollowJaccard?: number;
   isMutualFollowAuthor?: boolean;
@@ -223,6 +234,7 @@ export interface WeightConfig {
   quotedClickWeight: number;
   followAuthorWeight: number;
   postUnexploredWeight: number;
+  reactWithVideoWeight?: number;
 
   // Negative weights
   notInterestedWeight: number;
@@ -233,20 +245,20 @@ export interface WeightConfig {
   notDwelledWeight: number;
   dwellTimeWeight: number;
   clickDwellTimeWeight: number;
-  activeSecs5mResidualNormWeight: number;
+  activeSecs5mResidualNormWeight?: number;
 
   // Weighted scorer controls
   minVideoDurationMs: number;
   enableQuotedVqvDurationCheck: boolean;
   negativeScoresOffset: number;
-  enableMultiplicativePostUnexplored: boolean;
-  multiplicativePostUnexploredAlpha: number;
+  enableMultiplicativePostUnexplored?: boolean;
+  multiplicativePostUnexploredAlpha?: number;
   postUnexploredInNetworkOnly: boolean;
-  enableClickDwellLowFavRatePenalty: boolean;
-  clickDwellLowFavRatePenaltyBaseline: number;
-  clickDwellLowFavRatePenaltyAlpha: number;
-  clickDwellLowFavRatePenaltyFloor: number;
-  clickDwellLowFavRatePenaltyCap: number;
+  enableClickDwellLowFavRatePenalty?: boolean;
+  clickDwellLowFavRatePenaltyBaseline?: number;
+  clickDwellLowFavRatePenaltyAlpha?: number;
+  clickDwellLowFavRatePenaltyFloor?: number;
+  clickDwellLowFavRatePenaltyCap?: number;
 
   // Diversity parameters
   enableAuthorDiversity: boolean;

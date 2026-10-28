@@ -64,6 +64,7 @@ export function Header() {
               <NavLink
                 key={item.path}
                 to={item.path}
+                aria-label={item.label}
                 className={({ isActive }) =>
                   cn(
                     'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-all',
