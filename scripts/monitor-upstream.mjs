@@ -14,10 +14,11 @@ export async function checkUpstream({ github, context, baseCommit, verification 
   const result = { repository, base, head: head.sha, verification };
   if (base === head.sha) return { ...result, status: 'up_to_date' };
 
-  const marker = `<!-- x-upstream-monitor:${verification ? 'verification:' : ''}${head.sha} -->`;
+  const marker = `<!-- x-upstream-monitor:${verification ? `verification:${context.runId}:` : ''}${head.sha} -->`;
   const issues = await github.paginate(github.rest.issues.listForRepo, {
     ...context.repo, state: 'all', per_page: 100,
   });
+  console.info('Notification lookup', JSON.stringify({ marker, issues: issues.map((issue) => ({ number: issue.number, pullRequest: Boolean(issue.pull_request), markerMatches: issue.body?.includes(marker) ?? false })) }));
   const existing = issues.find((issue) => !issue.pull_request && issue.body?.includes(marker));
   if (existing) {
     return { ...result, status: 'already_notified', issue: existing.html_url, issueNumber: existing.number };
