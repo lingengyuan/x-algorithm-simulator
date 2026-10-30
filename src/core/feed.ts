@@ -1,5 +1,6 @@
 import type {
   AdFixture,
+  BrandSafetyVerdict,
   FeedBlendResult,
   FeedItem,
   FilterContext,
@@ -12,20 +13,24 @@ const MIN_POSTS_FOR_ADS = 5;
 const DEFAULT_REQUESTED_SPACING = 3;
 const PTOS_CUTOFF_TWEET_ID = 2_054_275_414_225_846_272n;
 
-const MEDIUM_RISK_LABELS = new Set([
+const HIGH_RISK_LABELS = new Set([
   'NSFW_HIGH_PRECISION',
   'NSFW_HIGH_RECALL',
+  'GORE_AND_VIOLENCE_HIGH_PRECISION',
+  'PDNA',
+  'EGREGIOUS_NSFW',
+  'SOFT_NSFW',
+]);
+
+const MEDIUM_RISK_LABELS = new Set([
   'NSFA_HIGH_PRECISION',
   'NSFA_KEYWORDS_HIGH_PRECISION',
-  'GORE_AND_VIOLENCE_HIGH_PRECISION',
   'NSFW_REPORTED_HEURISTICS',
   'GORE_AND_VIOLENCE_REPORTED_HEURISTICS',
   'NSFW_CARD_IMAGE',
   'DO_NOT_AMPLIFY',
   'MALICIOUS_URL',
   'NSFA_COMMUNITY_NOTE',
-  'PDNA',
-  'EGREGIOUS_NSFW',
   'GROK_NSFA',
   'NSFW_TEXT',
 ]);
@@ -42,13 +47,12 @@ export function computeBrandSafetyVerdict(
   return hydrateBrandSafety(candidate).verdict ?? 'medium_risk';
 }
 
-type BrandSafetyVerdict = NonNullable<TweetCandidate['brandSafetyVerdict']>;
-
 const VERDICT_SEVERITY: Record<BrandSafetyVerdict, number> = {
   unspecified: 0,
   safe: 1,
   low_risk: 2,
   medium_risk: 3,
+  high_risk: 4,
 };
 
 function worstVerdict(left: BrandSafetyVerdict, right: BrandSafetyVerdict): BrandSafetyVerdict {
@@ -59,7 +63,9 @@ function verdictForLabels(
   id: string,
   safetyLabels: readonly string[] = []
 ): BrandSafetyVerdict {
+  // The pinned defaults select the legacy verdict path, not the V2 label table.
   const labels = new Set(safetyLabels.map((label) => label.toUpperCase()));
+  if ([...HIGH_RISK_LABELS].some((label) => labels.has(label))) return 'high_risk';
   if ([...MEDIUM_RISK_LABELS].some((label) => labels.has(label))) return 'medium_risk';
 
   const scoredByGrok = labels.has('GROK_SFA') || labels.has('GROK_NSFA_LIMITED');
@@ -107,7 +113,7 @@ export function hydrateBrandSafety(candidate: TweetCandidate): {
     combinedLabels.push(...relatedLabels);
   }
 
-  if (candidate.nsfwAuthorAds) verdict = worstVerdict(verdict, 'medium_risk');
+  if (candidate.nsfwAuthorAds) verdict = worstVerdict(verdict, 'high_risk');
   return {
     verdict,
     safetyLabels: [...new Set(combinedLabels.map((label) => label.toUpperCase()))].sort(),
@@ -173,7 +179,12 @@ function createAdItem(ad: AdFixture): FeedItem {
 }
 
 function hasAvoid(candidate: TweetCandidate): boolean {
-  return candidate.brandSafetyVerdict === 'medium_risk';
+  return candidate.brandSafetyVerdict === 'medium_risk' ||
+    candidate.brandSafetyVerdict === 'high_risk';
+}
+
+function isHighRisk(candidate: TweetCandidate): boolean {
+  return candidate.brandSafetyVerdict === 'high_risk';
 }
 
 function requestedSpacing(ads: readonly AdFixture[]): number {
@@ -226,8 +237,8 @@ function keywordRejected(
   });
 }
 
-/** Mirrors the pinned PartitionOrganicAdsBlender over explicit local ad fixtures. */
-function partitionOrganic(
+/** Mirrors MultiRiskAdsBlender over explicit local ad fixtures. */
+function multiRisk(
   scoredPosts: TweetCandidate[],
   ads: AdFixture[]
 ): FeedItem[] {
@@ -235,48 +246,63 @@ function partitionOrganic(
   const postCount = scoredPosts.length;
   if (ads.length === 0 || postCount < MIN_POSTS_FOR_ADS) return postItems;
 
-  const safeCount = scoredPosts.filter((post) => !hasAvoid(post)).length;
-  const expectedFromSpacing = Math.floor(
-    Math.max(0, postCount - 1) / requestedSpacing(ads)
-  );
-  const actualAds = Math.min(ads.length, expectedFromSpacing, Math.floor(safeCount / 2));
-  if (actualAds === 0) return postItems;
-
   const safe = scoredPosts.filter((post) => !hasAvoid(post));
-  const unsafe = scoredPosts.filter(hasAvoid);
-  const groupSize = Math.floor(safe.length / actualAds);
+  const medium = scoredPosts.filter((post) => post.brandSafetyVerdict === 'medium_risk');
+  const high = scoredPosts.filter(isHighRisk);
   const remainingSafe = safe.map((post) => post as TweetCandidate | undefined);
+  const remainingMedium = medium.map((post) => post as TweetCandidate | undefined);
   const triples: Array<{ ad: AdFixture; above: TweetCandidate; below: TweetCandidate }> = [];
+  const spacingCap = Math.floor(Math.max(0, postCount - 1) / requestedSpacing(ads));
+  const maxSafeSlots = Math.floor(safe.length / 2);
+  const safeBudget = Math.min(ads.length, spacingCap, maxSafeSlots);
+  const safeGroupSize = safeBudget > 0 ? Math.floor(safe.length / safeBudget) : 0;
+  const maxMediumSlots = Math.floor(medium.length / 2);
+  let safeGroupIndex = 0;
+  let mediumSlot = 0;
 
-  let group = 0;
   for (const ad of ads) {
-    if (group >= actualAds) break;
-    const start = group * groupSize;
+    if (triples.length >= spacingCap) break;
+
+    if (ad.brandSafetyRisk === 'high' && mediumSlot < maxMediumSlots) {
+      const start = mediumSlot * 2;
+      const above = remainingMedium[start];
+      const below = remainingMedium[start + 1];
+      if (above && below && !handleRejected(ad, above, below) &&
+          !keywordRejected(ad, above, below)) {
+        remainingMedium[start] = undefined;
+        remainingMedium[start + 1] = undefined;
+        triples.push({ ad, above, below });
+        mediumSlot += 1;
+        continue;
+      }
+    }
+
+    if (safeGroupIndex >= safeBudget || safeGroupSize === 0) continue;
+    const start = safeGroupIndex * safeGroupSize;
     const above = remainingSafe[start];
     const below = remainingSafe[start + 1];
     if (!above || !below) break;
-    if (
-      lowRiskAdRejected(ad, above, below) ||
+    if (lowRiskAdRejected(ad, above, below) ||
       handleRejected(ad, above, below) ||
-      keywordRejected(ad, above, below)
-    ) {
+      keywordRejected(ad, above, below)) {
       continue;
     }
     remainingSafe[start] = undefined;
     remainingSafe[start + 1] = undefined;
     triples.push({ ad, above, below });
-    group += 1;
+    safeGroupIndex += 1;
   }
 
   if (!triples.length) {
-    return [...remainingSafe.filter((post): post is TweetCandidate => Boolean(post)), ...unsafe]
+    return [...safe, ...medium, ...high]
       .sort((left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0))
       .map(createPostItem);
   }
 
   const filler = [
     ...remainingSafe.filter((post): post is TweetCandidate => Boolean(post)),
-    ...unsafe,
+    ...remainingMedium.filter((post): post is TweetCandidate => Boolean(post)),
+    ...high,
   ].sort((left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0));
   const fillerPerGap = Math.floor(filler.length / triples.length);
   const remainder = filler.length % triples.length;
@@ -384,7 +410,7 @@ export function buildForYouFeed(
         post.id !== context.pushToHomeTweetId && post.originalTweetId !== context.pushToHomeTweetId
       )
     : scoredPostCandidates;
-  const organicAndAds = partitionOrganic(
+  const organicAndAds = multiRisk(
     dedupedPosts,
     BLENDING_DEFAULTS.enableAds ? context.adFixtures : []
   );
@@ -395,7 +421,7 @@ export function buildForYouFeed(
 
   return {
     blenderId: BLENDING_DEFAULTS.adsBlender,
-    blenderName: 'BlenderSelector / PartitionOrganicAdsBlender',
+    blenderName: 'BlenderSelector / MultiRiskAdsBlender',
     postCount: count(feedItems, 'post'),
     adCount: count(feedItems, 'ad'),
     whoToFollowCount: count(feedItems, 'who_to_follow'),

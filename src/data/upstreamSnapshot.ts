@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '5ed796374ea48ee26058aab66ab10c266bea2bef',
-  shortCommit: '5ed7963',
-  releasedAt: '2026-10-28',
-  paramsSyncedAt: '2026-10-27T16:00:37Z',
+  commit: '7fef3ba19d82d1f76dec65f31b981ca817a2ea06',
+  shortCommit: '7fef3ba',
+  releasedAt: '2026-10-30',
+  paramsSyncedAt: '2026-10-28T16:00:35Z',
 } as const;
 
 export const SOURCE_DEFAULTS = {
@@ -54,6 +54,7 @@ export const HYDRATOR_DEFAULTS = {
 export const FILTER_DEFAULTS = {
   maxPostAgeHours: 48,
   enableServedFilterAllRequests: true,
+  servedHistory: { durationMinutes: 10, maxItems: 100 },
   fairShareRanking: { enabled: true, budget: 2800 },
   zeroFavCodivert: false,
   favHoldout: false,
@@ -83,12 +84,27 @@ export const BLENDING_DEFAULTS = {
   promptsPosition: 0,
   feedSurveyPosition: 12,
   enableAds: true,
-  adsBlender: 'partition_organic_low_risk',
+  adsBlender: 'multi_risk',
   enableWhoToFollow: true,
   enablePrompts: true,
   enableJetfuelFrames: false,
   enableFeedSurvey: false,
   enableAdAdjacentServedFilter: false,
+} as const;
+
+export const ADS_DEFAULTS = {
+  enablePageLogging: true,
+  brandSafetyVerdictV2: false,
+} as const;
+
+export const VIDEO_CAROUSEL_DEFAULTS = {
+  enabled: false,
+  fatigueMinutes: 60,
+  position: 6,
+  immersiveVqvWeight: 0,
+  openTimesImmersiveDwellWeight: 0,
+  weightedScoreWeight: 0,
+  extraCandidates: 30,
 } as const;
 
 export const UPSTREAM_DEFAULT_WEIGHTS: WeightConfig = {
@@ -112,7 +128,7 @@ export const UPSTREAM_DEFAULT_WEIGHTS: WeightConfig = {
   quotedVqvWeight: 0,
   followAuthorWeight: 4,
   postUnexploredWeight: 0.015,
-  reactWithVideoWeight: 0,
+  postVideoWeight: 0,
 
   notInterestedWeight: -52.272,
   blockAuthorWeight: -31.2,
@@ -162,7 +178,7 @@ export const RANKING_DEFAULTS = {
   pageDecodeRerank: false,
   pageRlExploration: false,
   homeExcursionScores: false,
-  videoCarousel: false,
+  videoCarousel: VIDEO_CAROUSEL_DEFAULTS.enabled,
   coldStartThompsonSampling: true,
   coldStartBetaAlpha: 0.75,
   coldStartBetaBeta: 49.25,

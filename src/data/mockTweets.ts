@@ -177,7 +177,7 @@ export function generateMockTweet(
     isMutualFollowAuthor: FOLLOWED_AUTHOR_IDS.has(author.id) && index % 9 === 0,
     authorFollowsViewer: index % 9 === 0,
     nsfwAuthor: risky,
-    brandSafetyVerdict: risky ? 'medium_risk' : lowRisk ? 'low_risk' : 'safe',
+    brandSafetyVerdict: risky ? 'high_risk' : lowRisk ? 'low_risk' : 'safe',
     safetyLabels,
     visibilityFeatures: risky ? { tweetNsfwAdmin: true } : { authorState: 'active' },
     semanticIds: filteredTopicIds,
@@ -327,6 +327,7 @@ export function generateScenarioTweets(scenario: RankingScenario): TweetCandidat
         quotedTweetId: undefined, quotedAuthorId: undefined,
         videoDurationMs: undefined, quotedVideoDurationMs: undefined,
         hasVideo: false, nsfwAuthor: false, authorBlocksViewer: false,
+        nsfwAuthorAds: index % 10 === 0,
         visibilityFeatures: { authorState: 'active' },
         safetyLabels: ['GROK_SFA', 'PTOS_REVIEWED'],
         relatedPosts: {},
@@ -341,6 +342,21 @@ export function getDefaultFilterContext(
   scenario?: RankingScenario
 ): FilterContext {
   const isForYou = scenario?.id !== 'following_feed';
+  const currentTime = Date.now();
+  const servedTweetIds = candidates.slice(2, 4).map((candidate) => candidate.id);
+  const servedItems = scenario?.id === 'source_budget'
+    ? [
+        ...servedTweetIds.map((tweetId) => ({ tweetId })),
+        { tweetId: 'fixture-history-prefix' },
+        ...Array.from({ length: 51 }, (_, index) => {
+          const suffix = String(index + 1).padStart(3, '0');
+          return {
+            tweetId: `fixture-history-${suffix}-tweet`,
+            sourceTweetId: `fixture-history-${suffix}-source`,
+          };
+        }),
+      ]
+    : servedTweetIds.map((tweetId) => ({ tweetId }));
   return {
     currentUserId: CURRENT_USER_ID,
     blockedUsers: ['109'],
@@ -349,13 +365,25 @@ export function getDefaultFilterContext(
     followedAuthorIds: [...FOLLOWED_AUTHOR_IDS],
     subscribedAuthorIds: ['101', '103', '14160928'],
     seenTweetIds: scenario?.id === 'source_budget' ? [] : candidates.slice(0, 2).map((candidate) => candidate.id),
-    servedTweetIds: candidates.slice(2, 4).map((candidate) => candidate.id),
+    servedHistory: [
+      {
+        entityType: 'post',
+        items: servedItems,
+        servedAt: currentTime,
+      },
+      {
+        entityType: 'video_carousel_module',
+        items: candidates.slice(7, 9).map((candidate) => ({ tweetId: candidate.id })),
+        servedAt: currentTime,
+      },
+    ],
+    servedTweetIds,
     bloomSeenTweetIds: candidates.slice(4, 5).map((candidate) => candidate.id),
     cachedPostIds: scenario?.id === 'cached' ? candidates.map((candidate) => candidate.id) : [],
     inNetworkOnly: scenario?.id === 'following_feed',
     isBottomRequest: scenario?.id === 'discovery',
     hasPostEngagementSignals: true,
-    currentTime: Date.now(),
+    currentTime,
     maxTweetAgeHours: FILTER_DEFAULTS.maxPostAgeHours,
     impressedTweetIds: candidates.slice(5, 7).map((candidate) => candidate.id),
     topicIds: scenario?.id === 'discovery' ? [TOPICS.ai] : [],

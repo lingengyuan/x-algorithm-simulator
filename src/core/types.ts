@@ -19,7 +19,7 @@ export interface PhoenixScores {
   quotedVqvScore: number;       // Video quality view on quoted content
   followAuthorScore: number;    // Follow author probability
   postUnexploredScore: number;  // Probability that the post is under-explored
-  reactWithVideoScore?: number;
+  postVideoScore?: number;       // Post-video probability
 
   // Negative behaviors
   notInterestedScore: number;   // Not interested probability
@@ -105,12 +105,29 @@ export type ViewerAge =
   | { status: 'not_stated' }
   | { status: 'unknown' };
 
+export type BrandSafetyVerdict =
+  | 'unspecified'
+  | 'safe'
+  | 'low_risk'
+  | 'medium_risk'
+  | 'high_risk';
+
 export interface AdFixture {
   id: string;
   insertPosition: number;
   brandSafetyRisk: 'unknown' | 'low' | 'ias' | 'high';
   handles: string[];
   keywords: string[];
+}
+
+export interface ServedHistoryEntry {
+  entityType: 'post' | 'video_carousel_module';
+  // Preserve pair order so tweet/source IDs flatten in the upstream sequence.
+  items: Array<{
+    tweetId: string;
+    sourceTweetId?: string;
+  }>;
+  servedAt: number;
 }
 
 // Tweet input for analysis
@@ -180,7 +197,7 @@ export interface TweetCandidate {
   isMutualFollowAuthor?: boolean;
   authorFollowsViewer?: boolean;
   nsfwAuthor?: boolean;
-  brandSafetyVerdict?: 'unspecified' | 'safe' | 'low_risk' | 'medium_risk';
+  brandSafetyVerdict?: BrandSafetyVerdict;
   safetyLabels?: string[];
   visibilityFeatures?: VisibilityFeatures;
   semanticIds?: string[];
@@ -234,7 +251,7 @@ export interface WeightConfig {
   quotedClickWeight: number;
   followAuthorWeight: number;
   postUnexploredWeight: number;
-  reactWithVideoWeight?: number;
+  postVideoWeight: number;
 
   // Negative weights
   notInterestedWeight: number;
@@ -298,6 +315,7 @@ export interface FilterContext {
   followedAuthorIds: string[];
   subscribedAuthorIds: string[];
   seenTweetIds: string[];
+  servedHistory: ServedHistoryEntry[];
   servedTweetIds: string[];
   bloomSeenTweetIds: string[];
   cachedPostIds: string[];

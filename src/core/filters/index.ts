@@ -8,6 +8,7 @@ import {
 import { extractTimestampFromSnowflake } from '@/utils/snowflake';
 import { containsKeywordSequence, tokenizePostText } from '@/utils/textTokens';
 import { CACHED_POSTS_MIN_COUNT, FILTER_DEFAULTS } from '@/data/upstreamSnapshot';
+import { hydrateServedTweetIds } from '@/core/servedHistory';
 
 export const PRE_SCORING_FILTERS: FilterConfig[] = [
   ['drop_duplicates', 'DropDuplicatesFilter', '重复帖子过滤器'],
@@ -347,7 +348,7 @@ export function runFilter(
     .filter((tokens) => tokens.length > 0);
   const seenIds = new Set([...context.seenTweetIds, ...context.bloomSeenTweetIds]);
   const impressedIds = new Set(context.impressedTweetIds);
-  const servedIds = new Set(context.servedTweetIds);
+  const servedIds = new Set(hydrateServedTweetIds(context));
 
   switch (filterId) {
     case 'drop_duplicates':

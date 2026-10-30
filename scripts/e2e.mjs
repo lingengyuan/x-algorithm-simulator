@@ -5,15 +5,16 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
+import { verifyBudgetTrace } from './e2e-budget-assertions.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const output = resolve(root, 'artifacts/e2e');
 const downloads = await mkdtemp(resolve(tmpdir(), 'x-simulator-e2e-'));
 await mkdir(output, { recursive: true });
 const options = new URL(import.meta.url).searchParams;
-const task = await taskSpace(options.has('space') ? Number(options.get('space')) : 'X simulator E2E');
+const task = await taskSpace(options.has('space') ? Number(options.get('space')) : `X simulator E2E ${options.get('run') || Date.now()}`);
 const page = task.page('p1');
-const report = { runId: options.get('run'), status: 'running', upstream: '5ed796374ea48ee26058aab66ab10c266bea2bef', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
+const report = { runId: options.get('run'), status: 'running', upstream: '7fef3ba19d82d1f76dec65f31b981ca817a2ea06', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
 let language = 'en';
 const label = (en, zh) => language === 'en' ? en : zh;
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -76,6 +77,48 @@ async function selectScenario(name) {
   await page.waitForFunction(() => document.querySelector('[data-testid="pipeline-progress"]')?.dataset.step === 'candidate_pool');
 }
 
+async function checkLegacyWeightPresets() {
+  const suffix = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const names = { legacy: `E2E legacy ${suffix}`, both: `E2E both ${suffix}`, saved: `E2E saved ${suffix}` };
+  await page.evaluate((names) => {
+    const key = 'x-simulator-weights';
+    const presets = JSON.parse(localStorage.getItem(key) || '{}');
+    presets[names.legacy] = { reactWithVideoWeight: 1.25 };
+    presets[names.both] = { reactWithVideoWeight: 1.25, postVideoWeight: 2.5 };
+    localStorage.setItem(key, JSON.stringify(presets));
+  }, names);
+  try {
+    await goto('/weights');
+    const slider = '[data-weight="postVideoWeight"] [role="slider"]';
+    const load = async (name, expected) => {
+      await page.click('[role="combobox"]');
+      await page.click(`loc=role:listboxoption[name="${name}"]`);
+      await page.waitForFunction(({ selector, value }) => Number(document.querySelector(selector)?.getAttribute('aria-valuenow')) === value, { selector: slider, value: expected });
+    };
+    await load(names.legacy, 1.25);
+    await load(names.both, 2.5);
+    await load(names.legacy, 1.25);
+    await page.press(slider, 'ArrowRight');
+    assert.equal(Number(await page.evaluate((selector) => document.querySelector(selector).getAttribute('aria-valuenow'), slider)), 1.26);
+    await page.click(button('Save Preset'));
+    await page.fill('input[placeholder]', names.saved);
+    await page.click(button('Save'));
+    const saved = await page.evaluate((name) => JSON.parse(localStorage.getItem('x-simulator-weights'))[name], names.saved);
+    assert.equal(saved.postVideoWeight, 1.26);
+    assert.equal('reactWithVideoWeight' in saved, false);
+    await shot('legacy-weight-preset');
+    check('legacy-weight-preset', 'Legacy value loads, the new key takes precedence, and saving removes the legacy key.');
+  } finally {
+    await page.evaluate((names) => {
+      const key = 'x-simulator-weights';
+      const presets = JSON.parse(localStorage.getItem(key) || '{}');
+      for (const name of Object.values(names)) delete presets[name];
+      if (Object.keys(presets).length) localStorage.setItem(key, JSON.stringify(presets));
+      else localStorage.removeItem(key);
+    }, names);
+  }
+}
+
 async function completePipeline() {
   // Use the app's playback controls for the complete flow.
   await page.press('[role="slider"]', 'End');
@@ -87,14 +130,23 @@ async function completePipeline() {
 }
 
 async function exportTrace(name) {
-  const pending = page.waitForEvent('download', { timeout: 30000 });
+  const started = Date.now();
+  const pending = page.waitForEvent('download', { timeout: 180000 }).then((download) => ({ download, eventMs: Date.now() - started }));
   await page.click('[data-testid="export-trace"]');
-  const download = await pending;
+  const clickMs = Date.now() - started;
+  const { download, eventMs } = await pending;
   const path = resolve(downloads, `${name}.json`);
+  const saveStarted = Date.now();
   await download.saveAs(path);
-  const text = await readFile(path, 'utf8');
-  const trace = JSON.parse(text);
+  const saveMs = Date.now() - saveStarted;
+  const raw = await readFile(path);
+  const trace = JSON.parse(raw.toString('utf8'));
   assert.equal(trace.upstream.commit, report.upstream);
+  assert.equal(trace.upstream.paramsSyncedAt, '2026-10-28T16:00:35Z');
+  assert.equal(trace.config.weights.postVideoWeight, 0);
+  assert.equal('reactWithVideoWeight' in trace.config.weights, false);
+  assert(trace.rawCandidates.some((candidate) => Number.isFinite(candidate.phoenixScores.postVideoScore)));
+  assert(trace.rawCandidates.every((candidate) => !('reactWithVideoScore' in candidate.phoenixScores)));
   assert.equal(trace.result.steps.some((step) => step.id === 'ranking'), false);
   assert.equal(trace.result.steps.some((step) => step.id === 'brazil_2026_election'), false);
   assert.equal(new Set(trace.result.finalCandidates.map((candidate) => candidate.id)).size, trace.result.finalCandidates.length);
@@ -105,7 +157,9 @@ async function exportTrace(name) {
     ['allCandidates', 'passedCandidates', 'filteredCandidates'].includes(key) ? undefined : value);
   const artifact = gzipSync(compact);
   await writeFile(resolve(output, `${name}.json.gz`), artifact);
-  report.traces.push({ file: `${name}.json.gz`, sha256: createHash('sha256').update(artifact).digest('hex'), bytes: artifact.length });
+  report.traces.push({ file: `${name}.json.gz`, sha256: createHash('sha256').update(artifact).digest('hex'), bytes: artifact.length,
+    rawBytes: raw.length, rawSha256: createHash('sha256').update(raw).digest('hex'),
+    timingsMs: { click: clickMs, downloadEvent: eventMs, saveAs: saveMs } });
   return trace;
 }
 
@@ -134,6 +188,7 @@ try {
   await goto('/');
   const isChinese = await page.evaluate(() => document.body.innerText.includes('切换到中文') ? false : Boolean(document.querySelector('button[aria-label="Switch to English"]')));
   if (isChinese) await page.click(button('Switch to English'));
+  await checkLegacyWeightPresets();
 
   for (const lang of ['en', 'zh']) {
     language = lang;
@@ -175,12 +230,35 @@ try {
     await shot(`weights-default-${lang}`);
     check(`weights-${lang}`, 'Defaults, keyboard adjustment, and reset use current Home Mixer weights.');
 
+    const postVideo = '[data-weight="postVideoWeight"] [role="slider"]';
+    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), postVideo)), 0);
+    await page.press(postVideo, 'End');
+    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), postVideo)), 5);
+    await page.waitForSelector('[data-testid="live-rank-row"]');
+    assert(await page.evaluate(() => [...document.querySelectorAll('.live-rank-delta')].some((node) => {
+      const value = node.textContent.trim();
+      return /^[+-]\d+(?:\.\d+)?$/.test(value) && Number(value) !== 0;
+    })), 'Post Video adjustment must change a visible score');
+    await shot(`post-video-weight-${lang}`);
+    await page.click(button(label('Reset to Default', '恢复默认')));
+    await healthy();
+    check(`post-video-weight-${lang}`, 'Changing Post Video weight from 0 to 5 changes a visible live-ranking score.');
+
     await goto('/history');
     assert((await page.evaluate(() => document.body.innerText)).includes(label('E2E:', '端到端测试：')));
     await shot(`history-${lang}`);
     check(`history-${lang}`, 'Generated analysis remains available after route navigation.');
 
     await goto('/simulator');
+    const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
+    assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
+    const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
+    assert.equal(configValues[label('Upstream commit', '上游提交')], '7fef3ba');
+    assert.equal(configValues[label('Ads blender', '广告混排')], 'multi_risk');
+    assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
+    assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));
+    assert.equal(configValues[label('Post-video weight', '发布视频权重')], '0');
+    check(`upstream-config-${lang}`, 'Header and configuration show the target commit and published defaults.');
     await page.click('[data-testid="playback-toggle"]');
     await page.waitForFunction(() => document.querySelector('[data-testid="pipeline-progress"]').dataset.step !== 'candidate_pool');
     await page.click('[data-testid="playback-toggle"]');
@@ -193,6 +271,25 @@ try {
     assert(trace.result.finalFeedItems.some((item) => item.type === 'who_to_follow'));
     assert(trace.result.steps.find((step) => step.id === 'vm_ranker').details.summary.dppEnabled);
     assert(trace.result.finalCandidates.some((candidate) => candidate.retrievalSources.length > 1));
+    const historyIds = (entry) => entry.items.flatMap((item) => [item.tweetId, item.sourceTweetId].filter(Boolean));
+    const normalHistory = trace.context.servedHistory.filter((entry) => entry.entityType === 'post').flatMap(historyIds);
+    const carouselHistory = trace.context.servedHistory.filter((entry) => entry.entityType === 'video_carousel_module').flatMap(historyIds);
+    assert(normalHistory.length > 0 && carouselHistory.length > 0);
+    assert.deepEqual(trace.context.servedTweetIds, normalHistory.slice(0, 100));
+    assert(carouselHistory.every((id) => !trace.context.servedTweetIds.includes(id)));
+    assert(trace.result.steps.some((step) => step.id === 'previously_served_posts'));
+    const immersive = trace.result.steps.find((step) => step.id === 'query_hydrator_immersive_scoring_sequence_query_');
+    assert(immersive && immersive.description.includes('disabled'));
+    assert.equal(trace.result.steps.some((step) => step.id.includes('immersive_video_scorer')), false);
+    const feed = trace.result.finalFeedItems;
+    assert(feed.filter((item) => item.type === 'post').length >= 5);
+    for (const [index, item] of feed.entries()) {
+      if (item.type !== 'ad') continue;
+      for (const neighbor of [feed[index - 1], feed[index + 1]]) {
+        if (neighbor?.type === 'post') assert.notEqual(neighbor.tweet.brandSafetyVerdict, 'high_risk');
+      }
+    }
+    check(`served-and-blending-${lang}`, 'Served post IDs are hydrated, carousel history is excluded, and ads avoid adjacent high-risk posts.');
     await shot(`for-you-${lang}`);
     check(`for-you-${lang}`, 'Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass.');
     for (const [width, viewport] of [[768, 'tablet'], [390, 'phone']]) {
@@ -261,6 +358,8 @@ try {
   }
   await shot('source-budget');
   check('source-budget', budget);
+  const budgetTrace = await exportTrace('source-budget');
+  verifyBudgetTrace(budgetTrace, check);
 
   await page.cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await goto('/');
@@ -280,7 +379,20 @@ try {
 
 
   const { runDomRecoveryChecks } = await import(`./e2e-dom-recovery.mjs?run=${Date.now()}`);
-  for (const result of await runDomRecoveryChecks(page)) check(result.name, result.detail);
+  const domChecks = await runDomRecoveryChecks(page);
+  const expectedDomChecks = [
+    ...['en', 'zh'].flatMap((lang) => [
+      `translation-policy-${lang}`,
+      `translated-scenario-navigation-${lang}`,
+      `translated-preset-reset-${lang}`,
+      `protected-playback-${lang}`,
+      `translated-author-navigation-${lang}`,
+    ]),
+    'corrupted-document-reload',
+  ];
+  assert.deepEqual(domChecks.map((result) => result.name), expectedDomChecks);
+  assert(domChecks.every((result) => result.status === 'passed'));
+  for (const result of domChecks) check(result.name, result.detail);
 
   report.status = 'passed';
   report.completedAt = new Date().toISOString();

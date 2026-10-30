@@ -18,7 +18,9 @@ import {
   HYDRATOR_DEFAULTS,
   SOURCE_DEFAULTS,
   UPSTREAM_SNAPSHOT,
+  VIDEO_CAROUSEL_DEFAULTS,
 } from '@/data/upstreamSnapshot';
+import { hydrateServedTweetIds } from '@/core/servedHistory';
 
 export interface PipelineConfig {
   enabledFilters: string[];
@@ -412,7 +414,7 @@ function postSelectionHydratorEnabled(
       return HYDRATOR_DEFAULTS.aiTrendFeedbackContext;
     case 'VideoMediaHydrator':
     case 'VideoEmbeddingHydrator':
-      return false; // Video carousel is disabled in this snapshot.
+      return VIDEO_CAROUSEL_DEFAULTS.enabled;
     case 'AncestorVideoHydrator':
       return context.excludeVideos;
     default:
@@ -594,8 +596,8 @@ function executePipeline(
       'TopKScoreSelector',
       'TopK 选择器',
       'selector',
-      `Select the top ${config.topK} scored posts`,
-      `选择评分最高的 ${config.topK} 个帖子`
+      `Select the top ${config.topK} scored posts; video carousel is ${VIDEO_CAROUSEL_DEFAULTS.enabled ? 'enabled' : 'disabled'}`,
+      `选择评分最高的 ${config.topK} 个帖子；视频轮播${VIDEO_CAROUSEL_DEFAULTS.enabled ? '已启用' : '默认关闭'}`
     ),
     ranking.updatedCandidates.length,
     candidates.length
@@ -693,8 +695,8 @@ function executePipeline(
   add(step(
     template(
       'for_you_blender',
-      'BlenderSelector / PartitionOrganicAdsBlender',
-      '最终混排 / PartitionOrganic 广告混排',
+      'BlenderSelector / MultiRiskAdsBlender',
+      '最终混排 / MultiRisk 广告混排',
       'blender'
     ),
     forYouSourceCount,
@@ -736,7 +738,13 @@ function executePipeline(
     finalFeedItems: feedItems,
     allCandidates: [...candidates, ...filteredCandidates],
   };
-  frames[frames.length - 1].trace = { upstream: UPSTREAM_SNAPSHOT, rawCandidates, context, config, result };
+  frames[frames.length - 1].trace = {
+    upstream: UPSTREAM_SNAPSHOT,
+    rawCandidates,
+    context: { ...context, servedTweetIds: hydrateServedTweetIds(context) },
+    config,
+    result,
+  };
   return { frames, result };
 }
 

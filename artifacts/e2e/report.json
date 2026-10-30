@@ -1,10 +1,15 @@
 {
-  "runId": "1793165350847",
+  "runId": "1793332317070",
   "status": "passed",
-  "upstream": "5ed796374ea48ee26058aab66ab10c266bea2bef",
+  "upstream": "7fef3ba19d82d1f76dec65f31b981ca817a2ea06",
   "browser": "ego-browser",
-  "startedAt": "2026-10-28T05:29:10.978Z",
+  "startedAt": "2026-10-30T03:51:57.271Z",
   "checks": [
+    {
+      "name": "legacy-weight-preset",
+      "status": "passed",
+      "detail": "Legacy value loads, the new key takes precedence, and saving removes the legacy key."
+    },
     {
       "name": "analyzer-en",
       "status": "passed",
@@ -21,9 +26,24 @@
       "detail": "Defaults, keyboard adjustment, and reset use current Home Mixer weights."
     },
     {
+      "name": "post-video-weight-en",
+      "status": "passed",
+      "detail": "Changing Post Video weight from 0 to 5 changes a visible live-ranking score."
+    },
+    {
       "name": "history-en",
       "status": "passed",
       "detail": "Generated analysis remains available after route navigation."
+    },
+    {
+      "name": "upstream-config-en",
+      "status": "passed",
+      "detail": "Header and configuration show the target commit and published defaults."
+    },
+    {
+      "name": "served-and-blending-en",
+      "status": "passed",
+      "detail": "Served post IDs are hydrated, carousel history is excluded, and ads avoid adjacent high-risk posts."
     },
     {
       "name": "for-you-en",
@@ -66,9 +86,24 @@
       "detail": "Defaults, keyboard adjustment, and reset use current Home Mixer weights."
     },
     {
+      "name": "post-video-weight-zh",
+      "status": "passed",
+      "detail": "Changing Post Video weight from 0 to 5 changes a visible live-ranking score."
+    },
+    {
       "name": "history-zh",
       "status": "passed",
       "detail": "Generated analysis remains available after route navigation."
+    },
+    {
+      "name": "upstream-config-zh",
+      "status": "passed",
+      "detail": "Header and configuration show the target commit and published defaults."
+    },
+    {
+      "name": "served-and-blending-zh",
+      "status": "passed",
+      "detail": "Served post IDs are hydrated, carousel history is excluded, and ads avoid adjacent high-risk posts."
     },
     {
       "name": "for-you-zh",
@@ -131,6 +166,34 @@
       }
     },
     {
+      "name": "served-history-order-and-limit",
+      "status": "passed",
+      "detail": "Tweet/source pairs retain their order and are truncated after 100 IDs."
+    },
+    {
+      "name": "legacy-nsfw-author-override",
+      "status": "passed",
+      "detail": {
+        "candidates": 3,
+        "verdict": "high_risk"
+      }
+    },
+    {
+      "name": "default-top-k",
+      "status": "passed",
+      "detail": "The 3,500-post scenario selects 50 posts with the carousel disabled."
+    },
+    {
+      "name": "multi-risk-safe-groups",
+      "status": "passed",
+      "detail": {
+        "safeCount": 32,
+        "safeBudget": 8,
+        "groupSize": 4,
+        "checkedAds": 7
+      }
+    },
+    {
       "name": "mobile",
       "status": "passed",
       "detail": "The 390px layout fits the viewport and navigation has accessible names."
@@ -146,7 +209,7 @@
       "detail": {
         "locale": "en-US",
         "replaced": 0,
-        "skipped": 428
+        "skipped": 438
       }
     },
     {
@@ -178,7 +241,7 @@
       "detail": {
         "locale": "zh-CN",
         "replaced": 0,
-        "skipped": 428
+        "skipped": 438
       }
     },
     {
@@ -211,9 +274,11 @@
     }
   ],
   "screenshots": [
+    "legacy-weight-preset.png",
     "analyzer-en.png",
     "weights-adjusted-en.png",
     "weights-default-en.png",
+    "post-video-weight-en.png",
     "history-en.png",
     "for-you-en.png",
     "for-you-en-tablet.png",
@@ -221,6 +286,7 @@
     "analyzer-zh.png",
     "weights-adjusted-zh.png",
     "weights-default-zh.png",
+    "post-video-weight-zh.png",
     "history-zh.png",
     "for-you-zh.png",
     "for-you-zh-tablet.png",
@@ -232,49 +298,124 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "d7e3f1fbf93ded88931c311906054ae803cd03b23c55a03f8e89e4ed0417b71d",
-      "bytes": 1206627
+      "sha256": "836435b8ae43eaf3621411e5ce5eda7d712b29554cc57d76caff0f644cd8014f",
+      "bytes": 1206667,
+      "rawBytes": 3023513,
+      "rawSha256": "39e68869d9b8a85495be517d2799563dc106caf70dadadb978aca788a3b471d8",
+      "timingsMs": {
+        "click": 720,
+        "downloadEvent": 632,
+        "saveAs": 3
+      }
     },
     {
       "file": "fallback-en.json.gz",
-      "sha256": "cc4b4899560d1d86cbb9498b0d61048ffacfa3772d4d65486531b019209f99ef",
-      "bytes": 1206517
+      "sha256": "71dbacea8e0eeb504f997b40d90d723408f1f8f3904cff794c4264bd4d76c905",
+      "bytes": 1206602,
+      "rawBytes": 3021523,
+      "rawSha256": "4e8ca57ccce3e047111561061612c520cef8a15796f47ac49217324a4a06133b",
+      "timingsMs": {
+        "click": 3516,
+        "downloadEvent": 3286,
+        "saveAs": 4
+      }
     },
     {
       "file": "topic-en.json.gz",
-      "sha256": "68f466989147e1df2beb4b6c620bc1910cea940b0aca07b3ce1c5fba27e30122",
-      "bytes": 928144
+      "sha256": "20cf5770742f776b23ebad674d1cebbeb455d75cf7375a2330d460283073c04c",
+      "bytes": 928228,
+      "rawBytes": 2393770,
+      "rawSha256": "92159fe30700814bdacb1610fd45217fa488d4bd0164179a6060b5612e2d4def",
+      "timingsMs": {
+        "click": 330,
+        "downloadEvent": 274,
+        "saveAs": 4
+      }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "b2201ba3a489ff6df3ac4bd008aa0173e5129589a629a6c8d0467f1635339927",
-      "bytes": 1206630
+      "sha256": "592cdb871fa0f5787a7f87fddff927f4d13f53b7549eecffdf02a215ce1f9a1e",
+      "bytes": 1206700,
+      "rawBytes": 3023513,
+      "rawSha256": "670bd1b33f1eebe2510fc838a3b290a877ec1322e8b2f21f3694392ed14504ea",
+      "timingsMs": {
+        "click": 609,
+        "downloadEvent": 515,
+        "saveAs": 2
+      }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "d3f3b75004b6026f07b8390d0ae388ae61c357b4ce3d74f61b0a3f996d396834",
-      "bytes": 1206556
+      "sha256": "2efea5e08cd897667db45c59e919100ef18cca7ed67ed68b473370f6abbd8001",
+      "bytes": 1206579,
+      "rawBytes": 3021523,
+      "rawSha256": "fe9fb0857dc0a9c887ad8dd30ea0ee393869eb272175cfe065b0d200e50f2fcb",
+      "timingsMs": {
+        "click": 424,
+        "downloadEvent": 370,
+        "saveAs": 3
+      }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "372acb3c17ed8e8df541951e8d569842ad6a7179160e162526cb28195dc09176",
-      "bytes": 928120
+      "sha256": "09c53670ddbecd4848f6b02d215a54c2c6a78121ad071b966980cf15ee7e6d59",
+      "bytes": 928200,
+      "rawBytes": 2393770,
+      "rawSha256": "c65004d11d3c92a852a57198d8a0a9f66acdb079441e63d55ac4083e7ecf303d",
+      "timingsMs": {
+        "click": 870,
+        "downloadEvent": 819,
+        "saveAs": 3
+      }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "1dd1ad535fbc6f0ea7d7302ebaaf49c6b2140cc821c306d9264139a8ca58e66a",
-      "bytes": 819914
+      "sha256": "4b82aa97cd73354ccabd871e93795e5c69c351332980995ad001c77c84a05e46",
+      "bytes": 819984,
+      "rawBytes": 2062588,
+      "rawSha256": "3a6b7e002566df850de52b6a935d1ee0b1dbfdf4fefbd8a9e616f269d7fddac1",
+      "timingsMs": {
+        "click": 519,
+        "downloadEvent": 467,
+        "saveAs": 3
+      }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "bf1247a8de6bc98fbaee02cc3fac776aa15c53b78e0ff6833021b070515512a5",
-      "bytes": 6447440
+      "sha256": "b91694e9d3dff4ee7c03459560ac3d36e01cde16b9b861632a9348fe5c733da9",
+      "bytes": 6447453,
+      "rawBytes": 16126437,
+      "rawSha256": "47b62785351d7b961e9208236d260f11fcb33f57a6aeaf00738c5b6647ca5ad3",
+      "timingsMs": {
+        "click": 1091,
+        "downloadEvent": 1044,
+        "saveAs": 12
+      }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "74867f5ddd7dcd0c26173d04f12299f8cf5542e127a9ab6060075cba5b4b8ce1",
-      "bytes": 1039734
+      "sha256": "95d00f6fabf218347ee63face8773639ee5399bac9ff33b0f69d7bdea43117f3",
+      "bytes": 1039786,
+      "rawBytes": 2598174,
+      "rawSha256": "dd35be5a67da9b24343a9ac6a505f32f12d0d52d5d27e3eccdc2213df72bddd1",
+      "timingsMs": {
+        "click": 1190,
+        "downloadEvent": 1135,
+        "saveAs": 4
+      }
+    },
+    {
+      "file": "source-budget.json.gz",
+      "sha256": "eac323e13cb10a636c4cc5db26a34fc4e8931f5832528c6c76d9563f00bded95",
+      "bytes": 36311965,
+      "rawBytes": 92631842,
+      "rawSha256": "e272cac7ff4771324f5f41671359c9de2349507e8ce9148093ac6b554d6d40e7",
+      "timingsMs": {
+        "click": 1368,
+        "downloadEvent": 1335,
+        "saveAs": 86
+      }
     }
   ],
-  "completedAt": "2026-10-28T05:38:49.735Z"
+  "completedAt": "2026-10-30T04:01:42.140Z"
 }

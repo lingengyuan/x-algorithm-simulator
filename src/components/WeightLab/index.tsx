@@ -20,10 +20,21 @@ import { RotateCcw, Save, Trash2 } from 'lucide-react';
 export function WeightLab() {
   const { t, isZh } = useTranslation();
 
-  const normalizeWeights = (value: Partial<WeightConfig>): WeightConfig => ({
-    ...DEFAULT_WEIGHTS,
-    ...value,
-  });
+  const normalizeWeights = (value: Partial<WeightConfig>): WeightConfig => {
+    const stored = value as Partial<WeightConfig> & { reactWithVideoWeight?: number };
+    const {
+      reactWithVideoWeight: legacyPostVideoWeight,
+      ...currentWeights
+    } = stored;
+
+    return {
+      ...DEFAULT_WEIGHTS,
+      ...currentWeights,
+      postVideoWeight: currentWeights.postVideoWeight ??
+        legacyPostVideoWeight ??
+        DEFAULT_WEIGHTS.postVideoWeight,
+    };
+  };
 
   const [bootstrap] = useState(() => {
     try {

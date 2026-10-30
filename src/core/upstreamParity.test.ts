@@ -80,6 +80,7 @@ function context(candidates: TweetCandidate[] = []): FilterContext {
     mutedKeywords: [],
     followedAuthorIds: [],
     seenTweetIds: [],
+    servedHistory: [],
     servedTweetIds: [],
     bloomSeenTweetIds: [],
     impressedTweetIds: [],
@@ -97,7 +98,7 @@ function sha256(value: unknown): string {
 
 describe('pinned upstream snapshot', () => {
   it('uses the reviewed commit and current primary defaults', () => {
-    expect(UPSTREAM_SNAPSHOT.shortCommit).toBe('c65aa17');
+    expect(UPSTREAM_SNAPSHOT.shortCommit).toBe('7fef3ba');
     expect(DEFAULT_WEIGHTS.enableVMRanker).toBe(true);
     expect(DEFAULT_WEIGHTS.vmRankerTheta).toBe(0.65);
     expect(DEFAULT_WEIGHTS.vmRankerTopK).toBe(50);
@@ -572,7 +573,7 @@ describe('VMRanker and For You blending', () => {
       },
     });
     expect(hydrateBrandSafety(quote).verdict).toBe('low_risk');
-    expect(hydrateBrandSafety({ ...quote, nsfwAuthorAds: true }).verdict).toBe('medium_risk');
+    expect(hydrateBrandSafety({ ...quote, nsfwAuthorAds: true }).verdict).toBe('high_risk');
     expect(hydrateBrandSafety({ ...quote, brandSafetyLookupFailed: true }).verdict)
       .toBe('safe');
     expect(hydrateBrandSafety({

@@ -20,7 +20,12 @@ import { FinalRanking } from './FinalRanking';
 import { RANKING_SCENARIOS, generateScenarioTweets, getDefaultFilterContext } from '@/data/mockTweets';
 import { FILTERS } from '@/core/filters';
 import { DEFAULT_WEIGHTS } from '@/data/defaultWeights';
-import { BLENDING_DEFAULTS, UPSTREAM_SNAPSHOT } from '@/data/upstreamSnapshot';
+import {
+  ADS_DEFAULTS,
+  BLENDING_DEFAULTS,
+  UPSTREAM_SNAPSHOT,
+  VIDEO_CAROUSEL_DEFAULTS,
+} from '@/data/upstreamSnapshot';
 import { runPipelineStepByStep, type PipelineFrame, type PipelineTrace } from '@/core/pipeline';
 import {
   Play,
@@ -191,7 +196,13 @@ export function RankingSimulator() {
 
   const exportTrace = () => {
     if (!traceRef.current) return;
-    const url = URL.createObjectURL(new Blob([JSON.stringify(traceRef.current)], { type: 'application/json' }));
+    // Filter pools repeat full 1,024-dim embeddings; raw inputs and final outputs are replayable.
+    const compact = JSON.stringify(traceRef.current, (key, value) =>
+      ['allCandidates', 'passedCandidates', 'filteredCandidates'].includes(key)
+        ? undefined
+        : value
+    );
+    const url = URL.createObjectURL(new Blob([compact], { type: 'application/json' }));
     const anchor = document.createElement('a');
     anchor.href = url;
     anchor.download = `x-pipeline-${selectedScenario.id}-${traceRef.current.upstream.shortCommit}.json`;
@@ -312,7 +323,13 @@ export function RankingSimulator() {
             <div className="section-heading"><h2>{isZh ? '当前配置' : 'Current configuration'}</h2></div>
             <dl className="configuration-list"><div><dt>{isZh ? '上游提交' : 'Upstream commit'}</dt><dd>{UPSTREAM_SNAPSHOT.shortCommit}</dd></div>
               <div><dt>{isZh ? '点赞权重' : 'Like weight'}</dt><dd>{DEFAULT_WEIGHTS.favoriteWeight}</dd></div><div><dt>{isZh ? '回复权重' : 'Reply weight'}</dt><dd>{DEFAULT_WEIGHTS.replyWeight}</dd></div>
-              <div><dt>{isZh ? '点击后停留权重' : 'Click-dwell weight'}</dt><dd>{DEFAULT_WEIGHTS.clickDwellTimeWeight}</dd></div><div><dt>{isZh ? '单次信息流帖子数' : 'Feed post limit'}</dt><dd>{BLENDING_DEFAULTS.resultSize}</dd></div></dl>
+              <div><dt>{isZh ? '点击后停留权重' : 'Click-dwell weight'}</dt><dd>{DEFAULT_WEIGHTS.clickDwellTimeWeight}</dd></div>
+              <div><dt>{isZh ? '发布视频权重' : 'Post-video weight'}</dt><dd>{DEFAULT_WEIGHTS.postVideoWeight}</dd></div>
+              <div><dt>{isZh ? '广告混排' : 'Ads blender'}</dt><dd>{BLENDING_DEFAULTS.adsBlender}</dd></div>
+              <div><dt>{isZh ? '品牌安全路径' : 'Brand-safety path'}</dt><dd>{ADS_DEFAULTS.brandSafetyVerdictV2 ? 'V2' : 'Legacy'}</dd></div>
+              <div><dt>{isZh ? '页面日志' : 'Page logging'}</dt><dd>{ADS_DEFAULTS.enablePageLogging ? (isZh ? '开启，仅记录配置' : 'Enabled, config only') : (isZh ? '关闭' : 'Disabled')}</dd></div>
+              <div><dt>{isZh ? '视频轮播' : 'Video carousel'}</dt><dd>{VIDEO_CAROUSEL_DEFAULTS.enabled ? (isZh ? '开启' : 'Enabled') : (isZh ? '关闭' : 'Disabled')}</dd></div>
+              <div><dt>{isZh ? '单次信息流帖子数' : 'Feed post limit'}</dt><dd>{BLENDING_DEFAULTS.resultSize}</dd></div></dl>
           </CardContent></Card>}
       </div>
     </div>

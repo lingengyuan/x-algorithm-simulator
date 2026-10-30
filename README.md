@@ -4,7 +4,7 @@ Interactive simulator for the public X recommendation pipeline.
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-Pinned to [`xai-org/x-algorithm@5ed7963`](https://github.com/xai-org/x-algorithm/tree/5ed796374ea48ee26058aab66ab10c266bea2bef) · [English](#english) · [简体中文](#简体中文)
+Pinned to [`xai-org/x-algorithm@7fef3ba`](https://github.com/xai-org/x-algorithm/tree/7fef3ba19d82d1f76dec65f31b981ca817a2ea06) · [English](#english) · [简体中文](#简体中文)
 
 ## Interface Comparison / 界面对比
 
@@ -34,7 +34,7 @@ E2E screenshots and report: [`artifacts/e2e`](artifacts/e2e)
 
 ### Project Description
 
-Visualizes the public primary default path at upstream commit `5ed7963`. It uses deterministic local fixtures and cannot predict production reach or engagement.
+Visualizes the public primary default path at upstream commit `7fef3ba`. It uses deterministic local fixtures and cannot predict production reach or engagement.
 
 ### Features
 
@@ -42,7 +42,9 @@ Visualizes the public primary default path at upstream commit `5ed7963`. It uses
 - Explore 26 default Phoenix outputs and two optional excursion fields, ranking weights, filters, visibility, brand safety, and VMRanker DPP.
 - Compare fixture outputs, tune weights, and keep local history in English or Chinese.
 
-Production retrieval, models, social graph, safety services, and ads are not included. The public repository also omits `xai_post_text`, so local multilingual tokenization is not guaranteed to match production.
+The simulator covers the published source, filter, scoring, ranking, and fixture-only feed blending path. It does not run model training or inference, remote retrieval and hydration services, production ad delivery, or notification filtering. The video carousel is disabled by the pinned defaults. The public repository also omits `xai_post_text`, so local multilingual tokenization is not guaranteed to match production.
+
+The default ad blender is `multi_risk`. Brand-safety verdicts use the legacy published path because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false` at this commit. The `post_video` weight remains `0.0`, so the rename does not change the initial ranking.
 
 ### Quick Start
 
@@ -99,7 +101,7 @@ GitHub can delay scheduled runs. In public repositories, GitHub disables schedul
 
 ### 项目说明
 
-可视化上游提交 `5ed7963` 公开的主默认路径。项目使用确定性本地测试数据，不能预测生产环境的真实曝光或互动。
+可视化上游提交 `7fef3ba` 公开的主默认路径。项目使用确定性本地测试数据，不能预测生产环境的真实曝光或互动。
 
 ### 功能特性
 
@@ -107,7 +109,9 @@ GitHub can delay scheduled runs. In public repositories, GitHub disables schedul
 - 探索 26 个默认 Phoenix 输出及两个可选续看与主页停留字段、排序权重、过滤、可见性、品牌安全和 VMRanker DPP。
 - 对比测试输出、实时调节权重，并保存中英文本地历史记录。
 
-项目不包含生产召回、模型、社交图、安全服务和广告。公开仓库也没有 `xai_post_text`，因此本地多语言分词不保证与生产环境一致。
+项目覆盖公开的召回、过滤、评分、排序和本地广告混排路径。项目不运行模型训练或推理、远端召回与 hydration、生产广告投放和通知过滤。视频轮播在固定版本中默认关闭。公开仓库也没有 `xai_post_text`，因此本地多语言分词不保证与生产环境一致。
+
+默认广告混排为 `multi_risk`。固定版本的 `rust_home_mixer_ads_bs_v2_exp_enabled` 为 `false`，因此品牌安全使用 legacy 路径。`post_video` 权重仍为 `0.0`，字段改名不改变初始排名。
 
 ### 快速开始
 

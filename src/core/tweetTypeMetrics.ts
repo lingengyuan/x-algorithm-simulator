@@ -1,4 +1,5 @@
 import type { FilterContext, TweetCandidate } from '@/core/types';
+import { hydrateServedTweetIds } from '@/core/servedHistory';
 import { extractTimestampFromSnowflake } from '@/utils/snowflake';
 
 export const TWEET_TYPE_BITS = {
@@ -88,7 +89,7 @@ export function createTweetTypeMetrics(
   }
   setAgeBits(bits, candidate.id, context.currentTime);
 
-  const servedSize = context.servedTweetIds.length;
+  const servedSize = hydrateServedTweetIds(context).length;
   if (servedSize === 0) bits.add(TWEET_TYPE_BITS.emptyRequest);
   if (servedSize < 3) bits.add(TWEET_TYPE_BITS.nearEmpty);
   if (servedSize < 20) bits.add(TWEET_TYPE_BITS.servedSizeLessThan20);

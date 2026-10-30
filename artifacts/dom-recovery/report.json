@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://127.0.0.1:4173",
-  "startedAt": "2026-10-28T05:38:20.958Z",
+  "startedAt": "2026-10-30T04:01:11.127Z",
   "browser": "ego-browser",
   "mechanism": "Translator-style text-node replacement in the actual application",
   "checks": [
@@ -10,7 +10,7 @@
       "detail": {
         "locale": "en-US",
         "replaced": 0,
-        "skipped": 428
+        "skipped": 438
       }
     },
     {
@@ -42,7 +42,7 @@
       "detail": {
         "locale": "zh-CN",
         "replaced": 0,
-        "skipped": 428
+        "skipped": 438
       }
     },
     {
@@ -82,5 +82,5 @@
     "recovered.png"
   ],
   "status": "passed",
-  "completedAt": "2026-10-28T05:38:49.734Z"
+  "completedAt": "2026-10-30T04:01:42.140Z"
 }

@@ -24,7 +24,7 @@ export type AdjustableWeightKey =
   | 'postUnexploredWeight'
   | 'dwellTimeWeight'
   | 'clickDwellTimeWeight'
-  | 'reactWithVideoWeight'
+  | 'postVideoWeight'
   | 'notInterestedWeight'
   | 'blockAuthorWeight'
   | 'muteAuthorWeight'
@@ -154,9 +154,9 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
     description: 'Weight × predicted click-dwell value', descriptionZh: '权重 × 预测点击后停留值',
     min: 0, max: 1, step: 0.001, type: 'positive',
   },
-  reactWithVideoWeight: {
-    name: 'React with Video', nameZh: '视频回应',
-    description: 'Weight × predicted video-reaction probability', descriptionZh: '权重 × 预测视频回应概率',
+  postVideoWeight: {
+    name: 'Post Video', nameZh: '发布视频',
+    description: 'Weight × predicted post-video probability', descriptionZh: '权重 × 预测发布视频概率',
     min: 0, max: 5, step: 0.01, type: 'positive',
   },
   notInterestedWeight: {
