@@ -15,7 +15,7 @@ const task = await taskSpace(options.has('space') ? Number(options.get('space'))
 const page = task.page('p1');
 const report = {
   runId, status: 'running', browser: 'ego-browser',
-  upstream: '7fef3ba19d82d1f76dec65f31b981ca817a2ea06',
+  upstream: '9106e9f33ee9cc6a92929fc798ae6c566e2841cb',
   startedAt: new Date().toISOString(), checks: [], timingsMs: {},
 };
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -66,7 +66,7 @@ try {
   const trace = JSON.parse(raw.toString('utf8'));
   report.trace = { rawBytes: raw.length, rawSha256: createHash('sha256').update(raw).digest('hex') };
   assert.equal(trace.upstream.commit, report.upstream);
-  assert.equal(trace.upstream.paramsSyncedAt, '2026-10-28T16:00:35Z');
+  assert.equal(trace.upstream.paramsSyncedAt, '2026-10-30T22:59:56Z');
   assert.equal(trace.rawCandidates.length, 3500);
   assert(trace.rawCandidates.every((candidate) => candidate.id && candidate.phoenixScores));
   assert(trace.context && Array.isArray(trace.context.servedHistory) && Array.isArray(trace.context.adFixtures));
@@ -92,7 +92,7 @@ try {
   report.completedAt = new Date().toISOString();
   await writeFile(reportPath, JSON.stringify(report, null, 2));
   if (options.has('keep-preview')) await page.goto('http://127.0.0.1:5173/simulator');
-  await task.finish({ keep: options.has('keep-preview') ? ['p1'] : [] });
+  if (!options.has('keep-space')) await task.finish({ keep: options.has('keep-preview') ? ['p1'] : [] });
   console.log(`Source-budget check passed: ${reportPath}`);
 } catch (error) {
   report.status = 'failed';

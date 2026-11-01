@@ -98,7 +98,7 @@ function sha256(value: unknown): string {
 
 describe('pinned upstream snapshot', () => {
   it('uses the reviewed commit and current primary defaults', () => {
-    expect(UPSTREAM_SNAPSHOT.shortCommit).toBe('7fef3ba');
+    expect(UPSTREAM_SNAPSHOT.shortCommit).toBe('9106e9f');
     expect(DEFAULT_WEIGHTS.enableVMRanker).toBe(true);
     expect(DEFAULT_WEIGHTS.vmRankerTheta).toBe(0.65);
     expect(DEFAULT_WEIGHTS.vmRankerTopK).toBe(50);

@@ -26,6 +26,7 @@ try {
   const space = process.argv.find((arg) => arg.startsWith('--space='));
   if (space) entry.searchParams.set('space', space.slice(8));
   if (process.argv.includes('--keep-preview')) entry.searchParams.set('keep-preview', 'true');
+  if (process.argv.includes('--keep-space')) entry.searchParams.set('keep-space', 'true');
   browser = spawn('ego-browser', ['nodejs', '-e', `await import(${JSON.stringify(entry.href)})`], { cwd: root, stdio: 'inherit' });
   process.exitCode = await new Promise((accept, reject) => {
     browser.once('error', reject);

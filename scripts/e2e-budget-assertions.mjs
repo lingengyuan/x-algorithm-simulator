@@ -28,18 +28,33 @@ export function verifyBudgetTrace(budgetTrace, check) {
   const positions = ads.slice(0, 4).map((ad) => ad.insertPosition).sort((a, b) => a - b);
   const gaps = positions.slice(1).map((position, index) => position - positions[index]).filter((gap) => gap > 0);
   const spacing = gaps.length && Math.min(...gaps) >= 3 ? Math.min(...gaps) : 3;
-  const safeBudget = Math.min(ads.length, Math.floor((budgetTrace.result.finalCandidates.length - 1) / spacing), Math.floor(safePosts.length / 2));
-  const groupSize = Math.floor(safePosts.length / safeBudget);
-  assert(groupSize > 2, 'Source-budget fixture must produce safe groups larger than two');
   assert(ads.every((ad) => ad.brandSafetyRisk === 'unknown' && !ad.handles.length && !ad.keywords.length));
   const organic = budgetTrace.result.finalFeedItems.filter((item) => item.type === 'post' || item.type === 'ad');
   const placed = organic.flatMap((item, index) => item.type === 'ad' ? [{ item, above: organic[index - 1], below: organic[index + 1] }] : []);
-  assert(placed.length >= 2, 'Source-budget fixture must place at least two ads');
+  // Upstream page_capacity/spread_slots for 50 posts, eight ads and spacing three.
+  assert.equal(spacing, 3);
+  assert.equal(ads.length, 8);
+  assert(safePosts.length >= 16);
+  assert.equal(organic.length, 35);
+  assert.equal(placed.length, 8);
+  const adPositions = organic.flatMap((item, index) => item.type === 'ad' ? [index] : []);
+  assert.deepEqual(adPositions, [1, 5, 9, 13, 17, 22, 27, 32]);
+  const postIds = organic.filter((item) => item.type === 'post').map((item) => item.tweet.id);
+  assert.equal(new Set(postIds).size, postIds.length);
+  const eligible = budgetTrace.result.finalCandidates.map((post, index) => ({ post, index }))
+    .filter(({ post }) => !['medium_risk', 'high_risk'].includes(post.brandSafetyVerdict));
+  const first = eligible.filter(({ index }) => index !== 1).sort((a, b) => a.index - b.index)[0];
+  const second = eligible.filter(({ index }) => index !== 0 && index !== first.index)
+    .sort((a, b) => Math.abs(a.index - 1) - Math.abs(b.index - 1) || a.index - b.index)[0];
+  assert.equal(placed[0].above.tweet.id, first.post.id);
+  assert.equal(placed[0].below.tweet.id, second.post.id);
   for (const [index, triple] of placed.entries()) {
     assert.equal(triple.item.id, `module-ad-${ads[index].id}`);
-    assert.equal(triple.above?.tweet?.id, safePosts[index * groupSize]?.id);
-    assert.equal(triple.below?.tweet?.id, safePosts[index * groupSize + 1]?.id);
+    for (const neighbour of [triple.above, triple.below]) {
+      assert.equal(neighbour?.type, 'post');
+      assert(!['medium_risk', 'high_risk'].includes(neighbour.tweet.brandSafetyVerdict));
+    }
   }
-  check('multi-risk-safe-groups', { safeCount: safePosts.length, safeBudget, groupSize, checkedAds: placed.length });
+  check('slot-spread-page-and-neighbours', { pageSize: organic.length, adPositions, checkedAds: placed.length });
 
 }

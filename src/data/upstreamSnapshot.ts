@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '7fef3ba19d82d1f76dec65f31b981ca817a2ea06',
-  shortCommit: '7fef3ba',
-  releasedAt: '2026-10-30',
-  paramsSyncedAt: '2026-10-28T16:00:35Z',
+  commit: '9106e9f33ee9cc6a92929fc798ae6c566e2841cb',
+  shortCommit: '9106e9f',
+  releasedAt: '2026-10-31',
+  paramsSyncedAt: '2026-10-30T22:59:56Z',
 } as const;
 
 export const SOURCE_DEFAULTS = {
@@ -84,7 +84,7 @@ export const BLENDING_DEFAULTS = {
   promptsPosition: 0,
   feedSurveyPosition: 12,
   enableAds: true,
-  adsBlender: 'multi_risk',
+  adsBlender: 'slot_spread',
   enableWhoToFollow: true,
   enablePrompts: true,
   enableJetfuelFrames: false,
@@ -99,6 +99,8 @@ export const ADS_DEFAULTS = {
 
 export const VIDEO_CAROUSEL_DEFAULTS = {
   enabled: false,
+  highRiskFilter: true,
+  embeddingVersion: 'v8_search_1',
   fatigueMinutes: 60,
   position: 6,
   immersiveVqvWeight: 0,

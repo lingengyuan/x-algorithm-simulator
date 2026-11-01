@@ -14,7 +14,7 @@ await mkdir(output, { recursive: true });
 const options = new URL(import.meta.url).searchParams;
 const task = await taskSpace(options.has('space') ? Number(options.get('space')) : `X simulator E2E ${options.get('run') || Date.now()}`);
 const page = task.page('p1');
-const report = { runId: options.get('run'), status: 'running', upstream: '7fef3ba19d82d1f76dec65f31b981ca817a2ea06', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
+const report = { runId: options.get('run'), status: 'running', upstream: '9106e9f33ee9cc6a92929fc798ae6c566e2841cb', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
 let language = 'en';
 const label = (en, zh) => language === 'en' ? en : zh;
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -142,7 +142,7 @@ async function exportTrace(name) {
   const raw = await readFile(path);
   const trace = JSON.parse(raw.toString('utf8'));
   assert.equal(trace.upstream.commit, report.upstream);
-  assert.equal(trace.upstream.paramsSyncedAt, '2026-10-28T16:00:35Z');
+  assert.equal(trace.upstream.paramsSyncedAt, '2026-10-30T22:59:56Z');
   assert.equal(trace.config.weights.postVideoWeight, 0);
   assert.equal('reactWithVideoWeight' in trace.config.weights, false);
   assert(trace.rawCandidates.some((candidate) => Number.isFinite(candidate.phoenixScores.postVideoScore)));
@@ -253,8 +253,8 @@ try {
     const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
     assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
     const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
-    assert.equal(configValues[label('Upstream commit', '上游提交')], '7fef3ba');
-    assert.equal(configValues[label('Ads blender', '广告混排')], 'multi_risk');
+    assert.equal(configValues[label('Upstream commit', '上游提交')], '9106e9f');
+    assert.equal(configValues[label('Ads blender', '广告混排')], 'slot_spread');
     assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
     assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));
     assert.equal(configValues[label('Post-video weight', '发布视频权重')], '0');

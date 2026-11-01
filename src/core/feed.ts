@@ -237,8 +237,8 @@ function keywordRejected(
   });
 }
 
-/** Mirrors MultiRiskAdsBlender over explicit local ad fixtures. */
-function multiRisk(
+/** Slot positions and neighbour swaps follow SlotSpreadAdsBlender. */
+function slotSpread(
   scoredPosts: TweetCandidate[],
   ads: AdFixture[]
 ): FeedItem[] {
@@ -246,77 +246,93 @@ function multiRisk(
   const postCount = scoredPosts.length;
   if (ads.length === 0 || postCount < MIN_POSTS_FOR_ADS) return postItems;
 
-  const safe = scoredPosts.filter((post) => !hasAvoid(post));
-  const medium = scoredPosts.filter((post) => post.brandSafetyVerdict === 'medium_risk');
-  const high = scoredPosts.filter(isHighRisk);
-  const remainingSafe = safe.map((post) => post as TweetCandidate | undefined);
-  const remainingMedium = medium.map((post) => post as TweetCandidate | undefined);
-  const triples: Array<{ ad: AdFixture; above: TweetCandidate; below: TweetCandidate }> = [];
-  const spacingCap = Math.floor(Math.max(0, postCount - 1) / requestedSpacing(ads));
-  const maxSafeSlots = Math.floor(safe.length / 2);
-  const safeBudget = Math.min(ads.length, spacingCap, maxSafeSlots);
-  const safeGroupSize = safeBudget > 0 ? Math.floor(safe.length / safeBudget) : 0;
-  const maxMediumSlots = Math.floor(medium.length / 2);
-  let safeGroupIndex = 0;
-  let mediumSlot = 0;
+  const sensitive = (ad: AdFixture) => ad.brandSafetyRisk === 'low' || ad.brandSafetyRisk === 'ias';
+  const safe = scoredPosts.filter((post) => !hasAvoid(post) && post.brandSafetyVerdict !== 'low_risk').length;
+  const low = scoredPosts.filter((post) => post.brandSafetyVerdict === 'low_risk').length;
+  const medium = scoredPosts.filter((post) => post.brandSafetyVerdict === 'medium_risk').length;
+  const spacing = requestedSpacing(ads);
+  const pageSlots = Math.min(
+    Math.floor((postCount - 2) / spacing) + 1,
+    Math.floor((BLENDING_DEFAULTS.resultSize - 2 + spacing) / (spacing + 1))
+  );
+  const safeSlots = Math.min(Math.floor((safe + low) / 2),
+    Math.floor(safe / 2) + ads.filter((ad) => !sensitive(ad)).length) +
+    Math.min(ads.filter((ad) => ad.brandSafetyRisk === 'high').length, Math.floor(medium / 2));
+  const slotCount = Math.min(pageSlots, ads.length, safeSlots);
+  if (slotCount === 0) return postItems;
 
-  for (const ad of ads) {
-    if (triples.length >= spacingCap) break;
+  const shown = Math.min(postCount, BLENDING_DEFAULTS.resultSize - slotCount);
+  const surplus = Math.max(0, shown - ((slotCount - 1) * spacing + 2));
+  const perGap = Math.floor(surplus / slotCount);
+  const remainder = surplus % slotCount;
+  const slots: number[] = [];
+  let slotPosition = 0;
+  for (let index = 0; index < slotCount; index += 1) {
+    slots.push(slotPosition);
+    slotPosition += spacing + perGap + Number(index >= slotCount - remainder);
+  }
 
-    if (ad.brandSafetyRisk === 'high' && mediumSlot < maxMediumSlots) {
-      const start = mediumSlot * 2;
-      const above = remainingMedium[start];
-      const below = remainingMedium[start + 1];
-      if (above && below && !handleRejected(ad, above, below) &&
-          !keywordRejected(ad, above, below)) {
-        remainingMedium[start] = undefined;
-        remainingMedium[start + 1] = undefined;
-        triples.push({ ad, above, below });
-        mediumSlot += 1;
-        continue;
+  const order = scoredPosts.map((_, index) => index);
+  const used = scoredPosts.map(() => false);
+  const sensitiveAfter = Array<number>(ads.length + 1).fill(0);
+  for (let index = ads.length - 1; index >= 0; index -= 1) {
+    sensitiveAfter[index] = sensitiveAfter[index + 1] + Number(sensitive(ads[index]));
+  }
+  let safeFree = safe;
+  let lowFree = low;
+  const adBefore = new Map<number, AdFixture>();
+
+  for (const [adIndex, ad] of ads.entries()) {
+    if (adBefore.size >= slotCount) break;
+    if (ad.brandSafetyRisk !== 'high' && safeFree + lowFree < 2) continue;
+    if (sensitive(ad) && safeFree < 2) continue;
+
+    const above = slots[adBefore.size];
+    const below = above + 1;
+    const slotsLeft = slotCount - adBefore.size - 1;
+    const preferLow = !sensitive(ad) && lowFree > 0 &&
+      Math.floor(safeFree / 2) < Math.min(slotsLeft, sensitiveAfter[adIndex + 1]);
+    const pick = (target: number, exclude: number[]): number | undefined => {
+      for (const lowOnly of preferLow ? [true, false] : [false]) {
+        const usable = (position: number) => {
+          if (used[position] || exclude.includes(position)) return false;
+          const post = scoredPosts[order[position]];
+          if (lowOnly && post.brandSafetyVerdict !== 'low_risk') return false;
+          return !isHighRisk(post) &&
+            (post.brandSafetyVerdict !== 'medium_risk' || ad.brandSafetyRisk === 'high') &&
+            !lowRiskAdRejected(ad, post, post) && !handleRejected(ad, post, post) &&
+            !keywordRejected(ad, post, post);
+        };
+        // Equal distances prefer the preceding post, as in the upstream nearest search.
+        for (let distance = 0; distance < postCount; distance += 1) {
+          const lower = target - distance;
+          if (lower >= 0 && usable(lower)) return lower;
+          const upper = target + distance;
+          if (distance > 0 && upper < postCount && usable(upper)) return upper;
+        }
       }
+    };
+    const first = pick(above, [below]);
+    if (first === undefined) continue;
+    const second = pick(below, [above, first]);
+    if (second === undefined) continue;
+    [order[above], order[first]] = [order[first], order[above]];
+    [order[below], order[second]] = [order[second], order[below]];
+    for (const position of [above, below]) {
+      used[position] = true;
+      const verdict = scoredPosts[order[position]].brandSafetyVerdict;
+      if (verdict === 'low_risk') lowFree -= 1;
+      else if (!hasAvoid(scoredPosts[order[position]])) safeFree -= 1;
     }
-
-    if (safeGroupIndex >= safeBudget || safeGroupSize === 0) continue;
-    const start = safeGroupIndex * safeGroupSize;
-    const above = remainingSafe[start];
-    const below = remainingSafe[start + 1];
-    if (!above || !below) break;
-    if (lowRiskAdRejected(ad, above, below) ||
-      handleRejected(ad, above, below) ||
-      keywordRejected(ad, above, below)) {
-      continue;
-    }
-    remainingSafe[start] = undefined;
-    remainingSafe[start + 1] = undefined;
-    triples.push({ ad, above, below });
-    safeGroupIndex += 1;
+    adBefore.set(below, ad);
   }
-
-  if (!triples.length) {
-    return [...safe, ...medium, ...high]
-      .sort((left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0))
-      .map(createPostItem);
-  }
-
-  const filler = [
-    ...remainingSafe.filter((post): post is TweetCandidate => Boolean(post)),
-    ...remainingMedium.filter((post): post is TweetCandidate => Boolean(post)),
-    ...high,
-  ].sort((left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0));
-  const fillerPerGap = Math.floor(filler.length / triples.length);
-  const remainder = filler.length % triples.length;
-  let fillerIndex = 0;
+  if (adBefore.size === 0) return postItems;
   const items: FeedItem[] = [];
-
-  triples.forEach((triple, index) => {
-    items.push(createPostItem(triple.above), createAdItem(triple.ad), createPostItem(triple.below));
-    const count = fillerPerGap + (index >= triples.length - remainder ? 1 : 0);
-    for (let offset = 0; offset < count && fillerIndex < filler.length; offset += 1) {
-      items.push(createPostItem(filler[fillerIndex]));
-      fillerIndex += 1;
-    }
-  });
+  for (const [position, postIndex] of order.entries()) {
+    const ad = adBefore.get(position);
+    if (ad) items.push(createAdItem(ad));
+    items.push(createPostItem(scoredPosts[postIndex]));
+  }
 
   const truncated = items.slice(0, BLENDING_DEFAULTS.resultSize);
   if (truncated.at(-1)?.type === 'ad') truncated.pop();
@@ -410,7 +426,7 @@ export function buildForYouFeed(
         post.id !== context.pushToHomeTweetId && post.originalTweetId !== context.pushToHomeTweetId
       )
     : scoredPostCandidates;
-  const organicAndAds = multiRisk(
+  const organicAndAds = slotSpread(
     dedupedPosts,
     BLENDING_DEFAULTS.enableAds ? context.adFixtures : []
   );
@@ -421,7 +437,7 @@ export function buildForYouFeed(
 
   return {
     blenderId: BLENDING_DEFAULTS.adsBlender,
-    blenderName: 'BlenderSelector / MultiRiskAdsBlender',
+    blenderName: 'BlenderSelector / SlotSpreadAdsBlender',
     postCount: count(feedItems, 'post'),
     adCount: count(feedItems, 'ad'),
     whoToFollowCount: count(feedItems, 'who_to_follow'),
