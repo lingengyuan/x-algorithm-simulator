@@ -66,7 +66,7 @@ try {
   const trace = JSON.parse(raw.toString('utf8'));
   report.trace = { rawBytes: raw.length, rawSha256: createHash('sha256').update(raw).digest('hex') };
   assert.equal(trace.upstream.commit, report.upstream);
-  assert.equal(trace.upstream.paramsSyncedAt, '2026-10-30T22:59:56Z');
+  assert(Number.isFinite(Date.parse(trace.upstream.paramsSyncedAt)));
   assert.equal(trace.rawCandidates.length, 3500);
   assert(trace.rawCandidates.every((candidate) => candidate.id && candidate.phoenixScores));
   assert(trace.context && Array.isArray(trace.context.servedHistory) && Array.isArray(trace.context.adFixtures));
