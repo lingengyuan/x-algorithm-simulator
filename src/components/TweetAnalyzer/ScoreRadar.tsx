@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScoreBar } from '@/components/shared/ScoreBar';
 import { CONTINUOUS_OUTPUT_LABELS, SCORE_LABELS } from '@/utils/scoring';
 
-interface ScoreRadarProps { scores: PhoenixScores; compareScores?: PhoenixScores; }
-export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
+interface ScoreRadarProps { scores: PhoenixScores; }
+export function ScoreRadar({ scores }: ScoreRadarProps) {
   const { t, isZh } = useTranslation();
   const keys = Object.keys(SCORE_LABELS) as (keyof typeof SCORE_LABELS)[];
   const continuous = Object.keys(CONTINUOUS_OUTPUT_LABELS) as (keyof typeof CONTINUOUS_OUTPUT_LABELS)[];
@@ -15,7 +15,6 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
         <CardHeader><CardTitle>{t(type === 'positive' ? 'analyzer.positiveSignals' : 'analyzer.negativeSignals')}</CardTitle><p className="field-note">{isZh ? '预测概率 · 0–100%' : 'Predicted probability · 0–100%'}</p></CardHeader>
         <CardContent className={type === 'positive' ? 'probability-list' : undefined}>{keys.filter((key) => SCORE_LABELS[key].type === type).map((key) => <div key={key}>
           <ScoreBar label={isZh ? SCORE_LABELS[key].nameZh : SCORE_LABELS[key].name} value={scores[key] ?? 0} type={type} />
-          {compareScores && <ScoreBar label="B" value={compareScores[key] ?? 0} type={type} />}
         </div>)}</CardContent>
       </Card>)}
     </div>
@@ -25,7 +24,6 @@ export function ScoreRadar({ scores, compareScores }: ScoreRadarProps) {
         const label = CONTINUOUS_OUTPUT_LABELS[key];
         return <div key={key}><div className="continuous-label">{isZh ? label.nameZh : label.name}</div>
           <div className="continuous-value">{scores[key] === undefined ? '—' : `${scores[key].toFixed(3)} ${isZh ? '秒' : label.unit}`}</div>
-          {compareScores && <div className="field-note">B: {compareScores[key] === undefined ? '—' : `${compareScores[key].toFixed(3)} ${label.unit}`}</div>}
         </div>;
       })}</div><p className="field-note">— {isZh ? '未启用 / 未返回' : 'Disabled / not returned'}</p></CardContent>
     </Card>

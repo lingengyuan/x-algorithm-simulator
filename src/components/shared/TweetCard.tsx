@@ -8,7 +8,6 @@ interface TweetCardProps {
   tweet: TweetCandidate;
   showScores?: boolean;
   showFiltered?: boolean;
-  compact?: boolean;
   highlighted?: boolean;
   rank?: number;
   onClick?: () => void;

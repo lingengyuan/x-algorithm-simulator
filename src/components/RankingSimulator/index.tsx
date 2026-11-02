@@ -317,7 +317,7 @@ export function RankingSimulator() {
         <SideEffectPipeline steps={steps} currentStepIndex={currentStepIndex} onStepClick={handleStepClick} />
       </section>
       <div className="simulator-pane" id="pane-timeline" data-active={activePane === 'timeline'}>
-        {isComplete ? <FinalRanking candidates={currentCandidates} feedItems={currentFeedItems} topK={BLENDING_DEFAULTS.resultSize} /> : <Card>
+        {isComplete ? <FinalRanking feedItems={currentFeedItems!} /> : <Card>
           <CardHeader><CardTitle>{isZh ? '最终信息流' : 'Final timeline'}</CardTitle></CardHeader>
           <CardContent><p className="timeline-empty">{isZh ? '完成评分和混排后，查看帖子顺序及插入的模块。' : 'Finish scoring and blending to inspect post order and inserted modules.'}</p>
             <div className="section-heading"><h2>{isZh ? '当前配置' : 'Current configuration'}</h2></div>

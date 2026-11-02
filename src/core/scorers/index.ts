@@ -4,23 +4,6 @@ import { computeWeightedScore, createSeededRandom, hashString } from '@/utils/sc
 
 const EPSILON = 1e-6;
 
-export const SCORERS = [
-  {
-    id: 'phoenix',
-    name: 'PhoenixScorer (synthetic outputs)',
-    nameZh: 'Phoenix 评分器（模拟输出）',
-    description: 'Consumes the current Phoenix output-head contract; local values are deterministic fixtures',
-    descriptionZh: '使用当前 Phoenix 输出头契约；本地数值为确定性测试数据',
-  },
-  {
-    id: 'vm_ranker',
-    name: 'VMRanker',
-    nameZh: 'VMRanker 价值评分与重排',
-    description: 'Home Mixer fusion → cold-start → VM diversity/OON → DPP',
-    descriptionZh: 'Home Mixer 加权 → 冷启动 → VM 多样性与关注外系数 → DPP',
-  },
-] as const;
-
 export function runPhoenixScorer(candidates: TweetCandidate[]): ScorerResult {
   return {
     scorerId: 'phoenix',
@@ -461,8 +444,4 @@ export function runAllScorers(
     (left, right) => (right.finalScore ?? 0) - (left.finalScore ?? 0)
   );
   return { results, finalCandidates };
-}
-
-export function getScorerById(id: string) {
-  return SCORERS.find((scorer) => scorer.id === id);
 }

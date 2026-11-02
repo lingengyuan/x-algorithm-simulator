@@ -13,8 +13,6 @@ interface LiveRankingProps {
 
 interface RankedCandidate extends TweetCandidate {
   newScore: number;
-  previousScore?: number;
-  previousRank?: number;
   rankChange?: number;
   scoreChange?: number;
 }
@@ -39,16 +37,13 @@ export function LiveRanking({ candidates, weights, previousWeights }: LiveRankin
         id: candidate.id,
         score: candidate.newScore,
       }));
-      const previousSorted = [...previousScores].sort((a, b) => b.score - a.score);
 
       return sorted.map((c, newRank) => {
-        const previousIndex = previousSorted.findIndex((p) => p.id === c.id);
+        const previousIndex = previousScores.findIndex((p) => p.id === c.id);
         const previousScore = previousScores.find((p) => p.id === c.id)?.score;
 
         return {
           ...c,
-          previousScore,
-          previousRank: previousIndex,
           rankChange: previousIndex !== -1 ? previousIndex - newRank : 0,
           scoreChange: previousScore !== undefined ? c.newScore - previousScore : 0,
         };

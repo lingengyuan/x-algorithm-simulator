@@ -8,10 +8,13 @@ import { gzipSync } from 'node:zlib';
 import { verifyBudgetTrace } from './e2e-budget-assertions.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const output = resolve(root, 'artifacts/e2e');
+const options = new URL(import.meta.url).searchParams;
+const budgetOnly = options.has('source-budget');
+const output = budgetOnly
+  ? resolve(root, 'artifacts/source-budget-check', options.get('run') || String(Date.now()))
+  : resolve(root, 'artifacts/e2e');
 const downloads = await mkdtemp(resolve(tmpdir(), 'x-simulator-e2e-'));
 await mkdir(output, { recursive: true });
-const options = new URL(import.meta.url).searchParams;
 const task = await taskSpace(options.has('space') ? Number(options.get('space')) : `X simulator E2E ${options.get('run') || Date.now()}`);
 const page = task.page('p1');
 const report = { runId: options.get('run'), status: 'running', upstream: '9106e9f33ee9cc6a92929fc798ae6c566e2841cb', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
@@ -125,7 +128,6 @@ async function completePipeline() {
   await page.click('[data-testid="playback-toggle"]');
   await page.waitForFunction(() => document.querySelector('[data-testid="pipeline-progress"]')?.dataset.step === 'final_ranking', undefined, { timeout: 90000 });
   await page.waitForSelector('[data-testid="final-timeline"]');
-  assert.equal(await page.evaluate(() => document.querySelector('[data-testid="pipeline-progress"]').dataset.step), 'final_ranking');
   await healthy();
 }
 
@@ -152,10 +154,7 @@ async function exportTrace(name) {
   assert.equal(new Set(trace.result.finalCandidates.map((candidate) => candidate.id)).size, trace.result.finalCandidates.length);
   assert(trace.result.finalFeedItems.length > 0);
   assert(trace.result.finalCandidates.every((candidate) => Number.isFinite(candidate.finalScore)));
-  // Inputs permit replay. Keep stage counts and final outputs without repeated intermediate pools.
-  const compact = JSON.stringify(trace, (key, value) =>
-    ['allCandidates', 'passedCandidates', 'filteredCandidates'].includes(key) ? undefined : value);
-  const artifact = gzipSync(compact);
+  const artifact = gzipSync(raw);
   await writeFile(resolve(output, `${name}.json.gz`), artifact);
   report.traces.push({ file: `${name}.json.gz`, sha256: createHash('sha256').update(artifact).digest('hex'), bytes: artifact.length,
     rawBytes: raw.length, rawSha256: createHash('sha256').update(raw).digest('hex'),
@@ -170,13 +169,12 @@ function verifyTraceScores(trace, fallback = false) {
   assert.equal(w.clickDwellTimeWeight, 0.4);
   assert.equal(w.coldStartImpressionThreshold, 200);
   for (const candidate of trace.result.finalCandidates) {
-    const multiplier = fallback ? 1 : (candidate.diversityAdjustedScore / candidate.coldStartAdjustedScore);
     if (fallback) {
       assert.equal(candidate.finalScore, candidate.coldStartAdjustedScore);
     } else if (candidate.finalScore !== 0) {
       const oon = candidate.inNetwork === false || (candidate.inNetwork && (candidate.inReplyToTweetId || candidate.originalTweetId));
       const factor = oon ? (trace.context.topicIds.length ? 0.5 : 0.75) : 1;
-      assert(Math.abs(candidate.finalScore - candidate.coldStartAdjustedScore * multiplier * factor) < 1e-9);
+      assert(Math.abs(candidate.finalScore - candidate.diversityAdjustedScore * factor) < 1e-9);
     }
   }
 }
@@ -185,166 +183,172 @@ try {
   await writeFile(resolve(output, 'report.json'), JSON.stringify(report, null, 2));
   console.log(`TaskSpace ${task.spaceId}`);
   await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
-  await goto('/');
-  const isChinese = await page.evaluate(() => document.body.innerText.includes('切换到中文') ? false : Boolean(document.querySelector('button[aria-label="Switch to English"]')));
-  if (isChinese) await page.click(button('Switch to English'));
-  await checkLegacyWeightPresets();
-
-  for (const lang of ['en', 'zh']) {
-    language = lang;
-    if (lang === 'zh') await page.click(button('切换到中文'));
+  if (!budgetOnly) {
     await goto('/');
-    await page.fill('textarea', label('E2E: How do recommendation sources affect the feed?', '端到端测试：推荐来源如何影响首页内容？'));
-    await page.click(button(label('Video', '视频')));
-    await page.click('[data-testid="analyzer-submit"]');
-    await page.waitForSelector('[data-testid="continuous-phoenix-outputs"]');
-    const continuous = await page.evaluate(() => document.querySelector('[data-testid="continuous-phoenix-outputs"]').innerText);
-    assert(continuous.includes(label('Home Video Continuation', '首页视频续看时长')));
-    assert(continuous.includes(label('Disabled / not returned', '未启用 / 未返回')));
-    assert.equal(continuous.includes('Residual'), false);
-    await healthy();
-    await shot(`analyzer-${lang}`);
-    check(`analyzer-${lang}`, 'Video fixture outputs and disabled excursion fields render without NaN.');
+    const isChinese = await page.evaluate(() => document.body.innerText.includes('切换到中文') ? false : Boolean(document.querySelector('button[aria-label="Switch to English"]')));
+    if (isChinese) await page.click(button('Switch to English'));
+    await checkLegacyWeightPresets();
 
-    await page.click(button(label('Compare Mode', '对比模式')));
-    await page.waitForFunction(() => document.querySelectorAll('textarea').length === 2);
-    await page.fill('textarea >> nth=0', label('First comparison input', '第一条对比内容'));
-    await page.waitForFunction(() => document.querySelectorAll('textarea')[0].value.length > 0);
-    await page.fill('textarea >> nth=1', label('Second comparison input with a question?', '第二条对比内容，有什么不同？'));
-    await page.click(button(label('Generate Fixture Outputs', '生成测试输出')));
-    await page.waitForSelector('table');
-    await healthy();
-    check(`compare-${lang}`, 'Both inputs render a comparison table with missing gated fields.');
+    for (const lang of ['en', 'zh']) {
+      language = lang;
+      if (lang === 'zh') await page.click(button('切换到中文'));
+      await goto('/');
+      await page.fill('textarea', label('E2E: How do recommendation sources affect the feed?', '端到端测试：推荐来源如何影响首页内容？'));
+      await page.click(button(label('Video', '视频')));
+      await page.click('[data-testid="analyzer-submit"]');
+      await page.waitForSelector('[data-testid="continuous-phoenix-outputs"]');
+      const continuous = await page.evaluate(() => document.querySelector('[data-testid="continuous-phoenix-outputs"]').innerText);
+      assert(continuous.includes(label('Home Video Continuation', '首页视频续看时长')));
+      assert(continuous.includes(label('Disabled / not returned', '未启用 / 未返回')));
+      assert.equal(continuous.includes('Residual'), false);
+      await healthy();
+      await shot(`analyzer-${lang}`);
+      check(`analyzer-${lang}`, 'Video fixture outputs and disabled excursion fields render without NaN.');
 
-    await goto('/weights');
-    const favorite = '[data-weight="favoriteWeight"] [role="slider"]';
-    const clickDwell = '[data-weight="clickDwellTimeWeight"] [role="slider"]';
-    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.66);
-    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), clickDwell)), 0.4);
-    await page.press(favorite, 'ArrowRight');
-    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.67);
-    await shot(`weights-adjusted-${lang}`);
-    await page.click(button(label('Reset to Default', '恢复默认')));
-    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.66);
-    await healthy();
-    await shot(`weights-default-${lang}`);
-    check(`weights-${lang}`, 'Defaults, keyboard adjustment, and reset use current Home Mixer weights.');
+      await page.click(button(label('Compare Mode', '对比模式')));
+      await page.waitForFunction(() => document.querySelectorAll('textarea').length === 2);
+      await page.fill('textarea >> nth=0', label('First comparison input', '第一条对比内容'));
+      await page.waitForFunction(() => document.querySelectorAll('textarea')[0].value.length > 0);
+      await page.fill('textarea >> nth=1', label('Second comparison input with a question?', '第二条对比内容，有什么不同？'));
+      await page.click(button(label('Generate Fixture Outputs', '生成测试输出')));
+      await page.waitForSelector('table');
+      await healthy();
+      check(`compare-${lang}`, 'Both inputs render a comparison table with missing gated fields.');
 
-    const postVideo = '[data-weight="postVideoWeight"] [role="slider"]';
-    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), postVideo)), 0);
-    await page.press(postVideo, 'End');
-    assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), postVideo)), 5);
-    await page.waitForSelector('[data-testid="live-rank-row"]');
-    assert(await page.evaluate(() => [...document.querySelectorAll('.live-rank-delta')].some((node) => {
-      const value = node.textContent.trim();
-      return /^[+-]\d+(?:\.\d+)?$/.test(value) && Number(value) !== 0;
-    })), 'Post Video adjustment must change a visible score');
-    await shot(`post-video-weight-${lang}`);
-    await page.click(button(label('Reset to Default', '恢复默认')));
-    await healthy();
-    check(`post-video-weight-${lang}`, 'Changing Post Video weight from 0 to 5 changes a visible live-ranking score.');
+      await goto('/weights');
+      const favorite = '[data-weight="favoriteWeight"] [role="slider"]';
+      const clickDwell = '[data-weight="clickDwellTimeWeight"] [role="slider"]';
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.66);
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), clickDwell)), 0.4);
+      await page.press(favorite, 'ArrowRight');
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.67);
+      await shot(`weights-adjusted-${lang}`);
+      await page.click(button(label('Reset to Default', '恢复默认')));
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.66);
+      await healthy();
+      await shot(`weights-default-${lang}`);
+      check(`weights-${lang}`, 'Defaults, keyboard adjustment, and reset use current Home Mixer weights.');
 
-    await goto('/history');
-    assert((await page.evaluate(() => document.body.innerText)).includes(label('E2E:', '端到端测试：')));
-    await shot(`history-${lang}`);
-    check(`history-${lang}`, 'Generated analysis remains available after route navigation.');
+      const postVideo = '[data-weight="postVideoWeight"] [role="slider"]';
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), postVideo)), 0);
+      await page.press(postVideo, 'End');
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), postVideo)), 5);
+      await page.waitForSelector('[data-testid="live-rank-row"]');
+      assert(await page.evaluate(() => [...document.querySelectorAll('.live-rank-delta')].some((node) => {
+        const value = node.textContent.trim();
+        return /^[+-]\d+(?:\.\d+)?$/.test(value) && Number(value) !== 0;
+      })), 'Post Video adjustment must change a visible score');
+      await shot(`post-video-weight-${lang}`);
+      await page.click(button(label('Reset to Default', '恢复默认')));
+      await healthy();
+      check(`post-video-weight-${lang}`, 'Changing Post Video weight from 0 to 5 changes a visible live-ranking score.');
 
+      await goto('/history');
+      assert((await page.evaluate(() => document.body.innerText)).includes(label('E2E:', '端到端测试：')));
+      await shot(`history-${lang}`);
+      check(`history-${lang}`, 'Generated analysis remains available after route navigation.');
+
+      await goto('/simulator');
+      const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
+      assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
+      const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
+      assert.equal(configValues[label('Upstream commit', '上游提交')], '9106e9f');
+      assert.equal(configValues[label('Ads blender', '广告混排')], 'slot_spread');
+      assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
+      assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));
+      assert.equal(configValues[label('Post-video weight', '发布视频权重')], '0');
+      check(`upstream-config-${lang}`, 'Header and configuration show the target commit and published defaults.');
+      await page.click('[data-testid="playback-toggle"]');
+      await page.waitForFunction(() => document.querySelector('[data-testid="pipeline-progress"]').dataset.step !== 'candidate_pool');
+      await page.click('[data-testid="playback-toggle"]');
+      await page.click(button(label('Previous step', '上一步')));
+      await completePipeline();
+      const trace = await exportTrace(`for-you-${lang}`);
+      if (lang === 'en') verifyTraceScores(trace);
+      assert(trace.result.steps.find((step) => step.id === 'source_popular_posts').outputCount > 0);
+      assert(trace.result.finalFeedItems.some((item) => item.type === 'ad'));
+      assert(trace.result.finalFeedItems.some((item) => item.type === 'who_to_follow'));
+      assert(trace.result.steps.find((step) => step.id === 'vm_ranker').details.summary.dppEnabled);
+      assert(trace.result.finalCandidates.some((candidate) => candidate.retrievalSources.length > 1));
+      const historyIds = (entry) => entry.items.flatMap((item) => [item.tweetId, item.sourceTweetId].filter(Boolean));
+      const normalHistory = trace.context.servedHistory.filter((entry) => entry.entityType === 'post').flatMap(historyIds);
+      const carouselHistory = trace.context.servedHistory.filter((entry) => entry.entityType === 'video_carousel_module').flatMap(historyIds);
+      assert(normalHistory.length > 0 && carouselHistory.length > 0);
+      assert.deepEqual(trace.context.servedTweetIds, normalHistory.slice(0, 100));
+      assert(carouselHistory.every((id) => !trace.context.servedTweetIds.includes(id)));
+      assert(trace.result.steps.some((step) => step.id === 'previously_served_posts'));
+      const immersive = trace.result.steps.find((step) => step.id === 'query_hydrator_immersive_scoring_sequence_query_');
+      assert(immersive && immersive.description.includes('disabled'));
+      assert.equal(trace.result.steps.some((step) => step.id.includes('immersive_video_scorer')), false);
+      const feed = trace.result.finalFeedItems;
+      assert(feed.filter((item) => item.type === 'post').length >= 5);
+      for (const [index, item] of feed.entries()) {
+        if (item.type !== 'ad') continue;
+        for (const neighbor of [feed[index - 1], feed[index + 1]]) {
+          if (neighbor?.type === 'post') assert.notEqual(neighbor.tweet.brandSafetyVerdict, 'high_risk');
+        }
+      }
+      check(`served-and-blending-${lang}`, 'Served post IDs are hydrated, carousel history is excluded, and ads avoid adjacent high-risk posts.');
+      await shot(`for-you-${lang}`);
+      check(`for-you-${lang}`, 'Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass.');
+      for (const [width, viewport] of [[768, 'tablet'], [390, 'phone']]) {
+        await page.cdp('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 });
+        for (const pane of [label('Candidate Pool', '候选池'), label('Pipeline decisions', '流程与决策'), label('Final timeline', '最终信息流')]) {
+          await page.click(`loc=role:tab[name="${pane}"]`);
+          await healthy();
+        }
+        await shot(`for-you-${lang}-${viewport}`);
+        check(`layout-${lang}-${viewport}`, 'Candidate, stage, and score labels remain separate in all three workspace panes.');
+      }
+      await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
+
+
+      // Algorithm scenarios do not depend on the display language.
+      if (lang === 'en') continue;
+      await page.click(`[role="switch"][aria-label="${label('VMRanker service available', 'VMRanker 服务可用')}"]`);
+      await completePipeline();
+      const fallback = await exportTrace(`fallback-${lang}`);
+      verifyTraceScores(fallback, true);
+      assert.equal(fallback.result.steps.find((step) => step.id === 'vm_ranker').details.summary.dppEnabled, false);
+      check(`fallback-${lang}`, 'RPC failure uses local fusion/cold-start without VM multipliers or DPP.');
+      await page.click(`[role="switch"][aria-label="${label('VMRanker service available', 'VMRanker 服务可用')}"]`);
+
+      await selectScenario(label('Topic request', '话题请求'));
+      await completePipeline();
+      const topic = await exportTrace(`topic-${lang}`);
+      verifyTraceScores(topic);
+      assert.equal(topic.result.steps.find((step) => step.id === 'vm_ranker').details.summary.dppEnabled, false);
+      assert(topic.result.finalCandidates.every((candidate) => !candidate.coldStartBoosted));
+      check(`topic-${lang}`, 'Topic requests skip DPP and cold-start while applying topic scoring.');
+    }
+
+    await selectScenario('关注内排序');
+    await completePipeline();
+    const following = await exportTrace('ranked-following');
+    assert(following.result.finalCandidates.every((candidate) => candidate.inNetwork));
+    assert.equal(following.result.steps.find((step) => step.id === 'source_popular_posts').outputCount, 0);
+    check('ranked-following', 'Only followed-account retrieval contributes candidates.');
+
+    await selectScenario('缓存帖子');
+    await completePipeline();
+    const cached = await exportTrace('cached');
+    assert(cached.context.cachedPostIds.length >= 500);
+    assert.equal(cached.result.steps.some((step) => step.id === 'phoenix'), false);
+    assert.equal(cached.result.steps.find((step) => step.id === 'source_popular_posts').outputCount, 0);
+    check('cached', 'Cached inventory skips Phoenix inference and remote sources.');
+
+    await selectScenario('排除视频');
+    await completePipeline();
+    const noVideos = await exportTrace('without-videos');
+    assert(noVideos.result.finalCandidates.every((candidate) => candidate.videoDurationMs === undefined && candidate.quotedVideoDurationMs === undefined && !candidate.ancestorHasVideo));
+    check('exclude-videos', 'Direct, quoted, and displayed ancestor videos do not reach the final feed.');
+
+  } else {
     await goto('/simulator');
-    const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
-    assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
-    const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
-    assert.equal(configValues[label('Upstream commit', '上游提交')], '9106e9f');
-    assert.equal(configValues[label('Ads blender', '广告混排')], 'slot_spread');
-    assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
-    assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));
-    assert.equal(configValues[label('Post-video weight', '发布视频权重')], '0');
-    check(`upstream-config-${lang}`, 'Header and configuration show the target commit and published defaults.');
-    await page.click('[data-testid="playback-toggle"]');
-    await page.waitForFunction(() => document.querySelector('[data-testid="pipeline-progress"]').dataset.step !== 'candidate_pool');
-    await page.click('[data-testid="playback-toggle"]');
-    await page.click(button(label('Previous step', '上一步')));
-    await completePipeline();
-    const trace = await exportTrace(`for-you-${lang}`);
-    if (lang === 'en') verifyTraceScores(trace);
-    assert(trace.result.steps.find((step) => step.id === 'source_popular_posts').outputCount > 0);
-    assert(trace.result.finalFeedItems.some((item) => item.type === 'ad'));
-    assert(trace.result.finalFeedItems.some((item) => item.type === 'who_to_follow'));
-    assert(trace.result.steps.find((step) => step.id === 'vm_ranker').details.summary.dppEnabled);
-    assert(trace.result.finalCandidates.some((candidate) => candidate.retrievalSources.length > 1));
-    const historyIds = (entry) => entry.items.flatMap((item) => [item.tweetId, item.sourceTweetId].filter(Boolean));
-    const normalHistory = trace.context.servedHistory.filter((entry) => entry.entityType === 'post').flatMap(historyIds);
-    const carouselHistory = trace.context.servedHistory.filter((entry) => entry.entityType === 'video_carousel_module').flatMap(historyIds);
-    assert(normalHistory.length > 0 && carouselHistory.length > 0);
-    assert.deepEqual(trace.context.servedTweetIds, normalHistory.slice(0, 100));
-    assert(carouselHistory.every((id) => !trace.context.servedTweetIds.includes(id)));
-    assert(trace.result.steps.some((step) => step.id === 'previously_served_posts'));
-    const immersive = trace.result.steps.find((step) => step.id === 'query_hydrator_immersive_scoring_sequence_query_');
-    assert(immersive && immersive.description.includes('disabled'));
-    assert.equal(trace.result.steps.some((step) => step.id.includes('immersive_video_scorer')), false);
-    const feed = trace.result.finalFeedItems;
-    assert(feed.filter((item) => item.type === 'post').length >= 5);
-    for (const [index, item] of feed.entries()) {
-      if (item.type !== 'ad') continue;
-      for (const neighbor of [feed[index - 1], feed[index + 1]]) {
-        if (neighbor?.type === 'post') assert.notEqual(neighbor.tweet.brandSafetyVerdict, 'high_risk');
-      }
-    }
-    check(`served-and-blending-${lang}`, 'Served post IDs are hydrated, carousel history is excluded, and ads avoid adjacent high-risk posts.');
-    await shot(`for-you-${lang}`);
-    check(`for-you-${lang}`, 'Playback, back, popular retrieval, merged provenance, VM scoring, DPP, and blending pass.');
-    for (const [width, viewport] of [[768, 'tablet'], [390, 'phone']]) {
-      await page.cdp('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 });
-      for (const pane of [label('Candidate Pool', '候选池'), label('Pipeline decisions', '流程与决策'), label('Final timeline', '最终信息流')]) {
-        await page.click(`loc=role:tab[name="${pane}"]`);
-        await healthy();
-      }
-      await shot(`for-you-${lang}-${viewport}`);
-      check(`layout-${lang}-${viewport}`, 'Candidate, stage, and score labels remain separate in all three workspace panes.');
-    }
-    await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
-
-
-    // Algorithm scenarios do not depend on the display language.
-    if (lang === 'en') continue;
-    await page.click(`[role="switch"][aria-label="${label('VMRanker service available', 'VMRanker 服务可用')}"]`);
-    await completePipeline();
-    const fallback = await exportTrace(`fallback-${lang}`);
-    verifyTraceScores(fallback, true);
-    assert.equal(fallback.result.steps.find((step) => step.id === 'vm_ranker').details.summary.dppEnabled, false);
-    check(`fallback-${lang}`, 'RPC failure uses local fusion/cold-start without VM multipliers or DPP.');
-    await page.click(`[role="switch"][aria-label="${label('VMRanker service available', 'VMRanker 服务可用')}"]`);
-
-    await selectScenario(label('Topic request', '话题请求'));
-    await completePipeline();
-    const topic = await exportTrace(`topic-${lang}`);
-    verifyTraceScores(topic);
-    assert.equal(topic.result.steps.find((step) => step.id === 'vm_ranker').details.summary.dppEnabled, false);
-    assert(topic.result.finalCandidates.every((candidate) => !candidate.coldStartBoosted));
-    check(`topic-${lang}`, 'Topic requests skip DPP and cold-start while applying topic scoring.');
+    language = await page.evaluate(() => document.documentElement.lang === 'zh-CN' ? 'zh' : 'en');
   }
 
-  await selectScenario('关注内排序');
-  await completePipeline();
-  const following = await exportTrace('ranked-following');
-  assert(following.result.finalCandidates.every((candidate) => candidate.inNetwork));
-  assert.equal(following.result.steps.find((step) => step.id === 'source_popular_posts').outputCount, 0);
-  check('ranked-following', 'Only followed-account retrieval contributes candidates.');
-
-  await selectScenario('缓存帖子');
-  await completePipeline();
-  const cached = await exportTrace('cached');
-  assert(cached.context.cachedPostIds.length >= 500);
-  assert.equal(cached.result.steps.some((step) => step.id === 'phoenix'), false);
-  assert.equal(cached.result.steps.find((step) => step.id === 'source_popular_posts').outputCount, 0);
-  check('cached', 'Cached inventory skips Phoenix inference and remote sources.');
-
-  await selectScenario('排除视频');
-  await completePipeline();
-  const noVideos = await exportTrace('without-videos');
-  assert(noVideos.result.finalCandidates.every((candidate) => candidate.videoDurationMs === undefined && candidate.quotedVideoDurationMs === undefined && !candidate.ancestorHasVideo));
-  check('exclude-videos', 'Direct, quoted, and displayed ancestor videos do not reach the final feed.');
-
-  await selectScenario('来源预算（3,500 帖子）');
+  await selectScenario(label('Source budget (3,500 posts)', '来源预算（3,500 帖子）'));
   await completePipeline();
   const budget = await page.evaluate(() => {
     const step = document.querySelector('[data-step-id="fair_share_ranking"]');
@@ -362,27 +366,31 @@ try {
   check('source-budget', budget);
   const budgetTrace = await exportTrace('source-budget');
   verifyBudgetTrace(budgetTrace, check);
-
-  await page.cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  await goto('/');
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1), false);
-  assert.equal(await page.evaluate(() => [...document.querySelectorAll('header nav a')].every((a) => a.getAttribute('aria-label'))), true);
-  await shot('mobile');
-  check('mobile', 'The 390px layout fits the viewport and navigation has accessible names.');
-  await goto('/weights');
-  await page.click('loc=role:tab[name="实时排序"]');
-  await page.waitForSelector('[data-testid="live-rank-row"]');
   await healthy();
-  await shot('mobile-weight-ranking');
-  await page.click('loc=role:tab[name="权重参数"]');
-  await page.press('[data-weight="favoriteWeight"] [role="slider"]', 'ArrowRight');
-  await healthy();
-  check('mobile-weight-views', 'Weights and the resulting ranking remain available through a compact two-view workspace.');
+
+  if (!budgetOnly) {
+    await page.cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+    await goto('/');
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1), false);
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll('header nav a')].every((a) => a.getAttribute('aria-label'))), true);
+    await shot('mobile');
+    check('mobile', 'The 390px layout fits the viewport and navigation has accessible names.');
+    await goto('/weights');
+    await page.click('loc=role:tab[name="实时排序"]');
+    await page.waitForSelector('[data-testid="live-rank-row"]');
+    await healthy();
+    await shot('mobile-weight-ranking');
+    await page.click('loc=role:tab[name="权重参数"]');
+    await page.press('[data-weight="favoriteWeight"] [role="slider"]', 'ArrowRight');
+    await healthy();
+    check('mobile-weight-views', 'Weights and the resulting ranking remain available through a compact two-view workspace.');
 
 
-  const { runDomRecoveryChecks } = await import(`./e2e-dom-recovery.mjs?run=${Date.now()}`);
-  const domChecks = await runDomRecoveryChecks(page);
-  for (const result of domChecks) check(result.name, result.detail);
+    const { runDomRecoveryChecks } = await import(`./e2e-dom-recovery.mjs?run=${Date.now()}`);
+    const domChecks = await runDomRecoveryChecks(page);
+    report.checks.push(...domChecks);
+
+  }
 
   report.status = 'passed';
   report.completedAt = new Date().toISOString();
@@ -394,7 +402,7 @@ try {
     await page.cdp('Emulation.clearDeviceMetricsOverride');
     await page.goto('http://127.0.0.1:5173/simulator');
   }
-  await task.finish({ keep: options.has('keep-preview') ? ['p1'] : [] });
+  if (!options.has('keep-space')) await task.finish({ keep: options.has('keep-preview') ? ['p1'] : [] });
   console.log(`E2E passed: ${report.checks.length} checks. Report: ${resolve(output, 'report.json')}`);
 } catch (error) {
   report.status = 'failed';

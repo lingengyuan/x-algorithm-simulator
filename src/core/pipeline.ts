@@ -748,14 +748,6 @@ function executePipeline(
   return { frames, result };
 }
 
-export function runPipeline(
-  rawCandidates: TweetCandidate[],
-  context: FilterContext,
-  config: PipelineConfig
-): PipelineResult {
-  return executePipeline(rawCandidates, context, config).result;
-}
-
 export function* runPipelineStepByStep(
   rawCandidates: TweetCandidate[],
   context: FilterContext,

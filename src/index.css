@@ -66,7 +66,6 @@ svg { flex-shrink: 0; }
 .panel-title { margin: 0; color: var(--text); font-size: 16px; line-height: 1.5; font-weight: 600; }
 .panel-title > svg { color: var(--muted); width: 16px; height: 16px; }
 .panel-body { min-width: 0; padding: 0 18px 18px; }
-.panel-footer { padding: 0 18px 18px; }
 .button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 7px 13px; border: 1px solid transparent; border-radius: 6px; font-size: 13px; font-weight: 500; line-height: 20px; text-decoration: none; white-space: nowrap; transition: background-color 120ms, border-color 120ms; }
 .button-primary { color: #fff; background: #20282c; }
 .button-primary:hover { background: #364247; }

@@ -97,7 +97,3 @@ export function createTweetTypeMetrics(
   if (servedSize < 5) bits.add(TWEET_TYPE_BITS.servedSizeLessThan5);
   return bitsetToBytes(bits);
 }
-
-export function tweetTypeBitIsSet(bytes: readonly number[], bit: number): boolean {
-  return Boolean(bytes[Math.floor(bit / 8)] & (1 << (bit % 8)));
-}

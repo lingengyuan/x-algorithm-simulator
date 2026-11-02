@@ -28,18 +28,6 @@ export function extractTimestampFromSnowflake(snowflakeId: string): number {
   return Number(timestamp);
 }
 
-// Calculate age in hours from Snowflake ID
-export function getAgeInHours(snowflakeId: string): number {
-  const timestamp = extractTimestampFromSnowflake(snowflakeId);
-  const now = Date.now();
-  return (now - timestamp) / (1000 * 60 * 60);
-}
-
-// Calculate age in days from Snowflake ID
-export function getAgeInDays(snowflakeId: string): number {
-  return getAgeInHours(snowflakeId) / 24;
-}
-
 // Generate a Snowflake ID for a specific time ago
 export function generateSnowflakeIdFromAge(hoursAgo: number, lowerBitsSeed?: number): string {
   const timestamp = Date.now() - hoursAgo * 60 * 60 * 1000;

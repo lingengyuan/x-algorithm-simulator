@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
 
 export function verifyBudgetTrace(budgetTrace, check) {
+  assert.equal(budgetTrace.rawCandidates.length, 3500);
+  assert(budgetTrace.rawCandidates.every((candidate) => candidate.id && candidate.phoenixScores));
+  assert(Array.isArray(budgetTrace.context.servedHistory));
+  assert(Array.isArray(budgetTrace.context.adFixtures));
+  assert(Array.isArray(budgetTrace.config.enabledFilters) && budgetTrace.config.weights);
+  assert(budgetTrace.result.steps.length > 0);
+  assert(budgetTrace.result.finalCandidates.length > 0);
+  check('trace-content', { rawCandidates: budgetTrace.rawCandidates.length, steps: budgetTrace.result.steps.length });
   const budgetHistory = budgetTrace.context.servedHistory.find((entry) => entry.entityType === 'post');
   const historyItems = budgetHistory.items;
   const interleavedIds = historyItems.flatMap((item) => [item.tweetId, item.sourceTweetId].filter(Boolean));

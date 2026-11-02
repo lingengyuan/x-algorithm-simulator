@@ -28,7 +28,7 @@ export function CandidatePool({ candidates, filteredCount = 0, selectedId, onSel
     <CardContent>
       <div className="post-list">
         {active.slice(0, 48).map((candidate, index) => <TweetCard
-          key={`${candidate.sourceType}:${candidate.id}:${index}`} tweet={candidate} compact
+          key={`${candidate.sourceType}:${candidate.id}:${index}`} tweet={candidate}
           highlighted={candidate.id === selectedId} showFiltered={showFiltered} onClick={() => onSelect?.(candidate.id)} />)}
         {!active.length && <p className="pipeline-empty">{isZh ? '当前阶段没有候选帖子。' : 'No candidates remain at this stage.'}</p>}
       </div>

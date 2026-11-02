@@ -41,12 +41,6 @@ const LOW_RISK_LABELS = new Set([
   'NSFA_HIGH_RECALL',
 ]);
 
-export function computeBrandSafetyVerdict(
-  candidate: TweetCandidate
-): NonNullable<TweetCandidate['brandSafetyVerdict']> {
-  return hydrateBrandSafety(candidate).verdict ?? 'medium_risk';
-}
-
 const VERDICT_SEVERITY: Record<BrandSafetyVerdict, number> = {
   unspecified: 0,
   safe: 1,
