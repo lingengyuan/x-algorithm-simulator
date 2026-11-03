@@ -187,9 +187,9 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2" data-weight="topicOonWeightFactor">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-700">
+              <label id="label-topic-oon" className="text-sm font-medium text-slate-700">
                 {isZh ? '话题请求关注外权重' : 'Topic OON Factor'}
               </label>
               <span className="text-sm tabular-nums text-slate-700">
@@ -197,12 +197,20 @@ export function WeightSliders({ weights, onChange }: WeightSlidersProps) {
               </span>
             </div>
             <Slider
+              aria-labelledby="label-topic-oon"
+              aria-describedby="topic-oon-help"
+              disabled
               value={[weights.topicOonWeightFactor]}
               onValueChange={([v]) => handleWeightChange('topicOonWeightFactor', v)}
               min={0.1}
               max={1.2}
               step={0.05}
             />
+            <p id="topic-oon-help" className="weight-help">
+              {isZh
+                ? '仅适用于话题请求。当前为普通推荐预览，此参数不参与排序。'
+                : 'Only applies to topic requests. This standard feed preview does not use this parameter.'}
+            </p>
           </div>
 
           <div className="space-y-3">

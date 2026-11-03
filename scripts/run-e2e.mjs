@@ -20,8 +20,9 @@ try {
   });
   const domRecovery = process.argv.includes('--dom-recovery');
   const budgetOnly = process.argv.includes('--source-budget');
-  const entry = pathToFileURL(resolve(root, domRecovery ? 'scripts/e2e-dom-recovery.mjs' : 'scripts/e2e.mjs'));
-  if (domRecovery) entry.searchParams.set('standalone', 'true');
+  const p2Only = process.argv.includes('--p2');
+  const entry = pathToFileURL(resolve(root, p2Only ? 'scripts/e2e-p2.mjs' : domRecovery ? 'scripts/e2e-dom-recovery.mjs' : 'scripts/e2e.mjs'));
+  if (domRecovery || p2Only) entry.searchParams.set('standalone', 'true');
   if (budgetOnly) entry.searchParams.set('source-budget', 'true');
   entry.searchParams.set('run', Date.now().toString());
   const space = process.argv.find((arg) => arg.startsWith('--space='));

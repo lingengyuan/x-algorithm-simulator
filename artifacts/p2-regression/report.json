@@ -1,0 +1,157 @@
+{
+  "status": "passed",
+  "browser": "ego-browser",
+  "baseUrl": "http://127.0.0.1:4173",
+  "startedAt": "2026-11-03T03:49:59.796Z",
+  "checks": [
+    {
+      "name": "deep-links-en",
+      "status": "passed",
+      "detail": [
+        {
+          "path": "/simulator",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/simulator/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/weights",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/weights/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/history",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/history/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        }
+      ]
+    },
+    {
+      "name": "same-preset-reload-en",
+      "status": "passed",
+      "detail": {
+        "saved": 0.66,
+        "edited": 5,
+        "reloaded": 0.66
+      }
+    },
+    {
+      "name": "inactive-topic-factor-en",
+      "status": "passed",
+      "detail": {
+        "disabled": "true",
+        "tabIndex": -1,
+        "describedBy": "topic-oon-help",
+        "help": "Only applies to topic requests. This standard feed preview does not use this parameter.",
+        "keyboardSkipsControl": true
+      }
+    },
+    {
+      "name": "deep-links-zh",
+      "status": "passed",
+      "detail": [
+        {
+          "path": "/simulator",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/simulator/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/weights",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/weights/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/history",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/history/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        }
+      ]
+    },
+    {
+      "name": "same-preset-reload-zh",
+      "status": "passed",
+      "detail": {
+        "saved": 0.66,
+        "edited": 5,
+        "reloaded": 0.66
+      }
+    },
+    {
+      "name": "inactive-topic-factor-zh",
+      "status": "passed",
+      "detail": {
+        "disabled": "true",
+        "tabIndex": -1,
+        "describedBy": "topic-oon-help",
+        "help": "仅适用于话题请求。当前为普通推荐预览，此参数不参与排序。",
+        "keyboardSkipsControl": true
+      }
+    }
+  ],
+  "screenshots": [
+    "deep-link-simulator-en.png",
+    "deep-link-weights-en.png",
+    "deep-link-history-en.png",
+    "same-preset-reload-en.png",
+    "inactive-topic-factor-en.png",
+    "deep-link-simulator-zh.png",
+    "deep-link-weights-zh.png",
+    "deep-link-history-zh.png",
+    "same-preset-reload-zh.png",
+    "inactive-topic-factor-zh.png"
+  ],
+  "completedAt": "2026-11-03T03:50:12.926Z"
+}

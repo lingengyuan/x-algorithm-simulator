@@ -1,10 +1,146 @@
 {
-  "runId": "1793497896457",
+  "runId": "1793677799635",
   "status": "passed",
   "upstream": "9106e9f33ee9cc6a92929fc798ae6c566e2841cb",
   "browser": "ego-browser",
-  "startedAt": "2026-11-01T01:51:36.626Z",
+  "startedAt": "2026-11-03T03:49:59.790Z",
   "checks": [
+    {
+      "name": "deep-links-en",
+      "status": "passed",
+      "detail": [
+        {
+          "path": "/simulator",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/simulator/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/weights",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/weights/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/history",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/history/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        }
+      ]
+    },
+    {
+      "name": "same-preset-reload-en",
+      "status": "passed",
+      "detail": {
+        "saved": 0.66,
+        "edited": 5,
+        "reloaded": 0.66
+      }
+    },
+    {
+      "name": "inactive-topic-factor-en",
+      "status": "passed",
+      "detail": {
+        "disabled": "true",
+        "tabIndex": -1,
+        "describedBy": "topic-oon-help",
+        "help": "Only applies to topic requests. This standard feed preview does not use this parameter.",
+        "keyboardSkipsControl": true
+      }
+    },
+    {
+      "name": "deep-links-zh",
+      "status": "passed",
+      "detail": [
+        {
+          "path": "/simulator",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/simulator/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/weights",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/weights/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        },
+        {
+          "path": "/history",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": false
+        },
+        {
+          "path": "/history/",
+          "assets": [
+            "/assets/index-icKAqDPZ.js"
+          ],
+          "reloaded": true
+        }
+      ]
+    },
+    {
+      "name": "same-preset-reload-zh",
+      "status": "passed",
+      "detail": {
+        "saved": 0.66,
+        "edited": 5,
+        "reloaded": 0.66
+      }
+    },
+    {
+      "name": "inactive-topic-factor-zh",
+      "status": "passed",
+      "detail": {
+        "disabled": "true",
+        "tabIndex": -1,
+        "describedBy": "topic-oon-help",
+        "help": "仅适用于话题请求。当前为普通推荐预览，此参数不参与排序。",
+        "keyboardSkipsControl": true
+      }
+    },
     {
       "name": "legacy-weight-preset",
       "status": "passed",
@@ -59,16 +195,6 @@
       "name": "layout-en-phone",
       "status": "passed",
       "detail": "Candidate, stage, and score labels remain separate in all three workspace panes."
-    },
-    {
-      "name": "fallback-en",
-      "status": "passed",
-      "detail": "RPC failure uses local fusion/cold-start without VM multipliers or DPP."
-    },
-    {
-      "name": "topic-en",
-      "status": "passed",
-      "detail": "Topic requests skip DPP and cold-start while applying topic scoring."
     },
     {
       "name": "analyzer-zh",
@@ -163,6 +289,14 @@
           "for_you_simclusters": 159,
           "for_you_phoenix_retrieval": 199
         }
+      }
+    },
+    {
+      "name": "trace-content",
+      "status": "passed",
+      "detail": {
+        "rawCandidates": 3500,
+        "steps": 93
       }
     },
     {
@@ -306,124 +440,100 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "cc1299b4a34dda8e9e345d1b013387c5b385df0d8b8ccf948444f8701586672e",
-      "bytes": 1206813,
+      "sha256": "e30c0fc35d4b8ee3e879d5f7d1c336e9e3cc6004071a18f14a5cd31a65696edb",
+      "bytes": 1206799,
       "rawBytes": 3023521,
-      "rawSha256": "84612c21df3daa0b7da8baa819f20fc34e2bf30b9a944502d4d05de49f1f73b8",
+      "rawSha256": "6afbe1eba76eb218e0bfa95e2e83934a90cb2437a9e17184a809ab1f10df0c38",
       "timingsMs": {
-        "click": 513,
-        "downloadEvent": 449,
-        "saveAs": 255
-      }
-    },
-    {
-      "file": "fallback-en.json.gz",
-      "sha256": "85a4d3574cc123d85cd7f727ce4981a5aa434bddee83880420f16ded3092c164",
-      "bytes": 1206734,
-      "rawBytes": 3021531,
-      "rawSha256": "72c53857e1cab2d2b2f3ee2ee5a3b830a1035f8744102dd416a1a0ceaf72a46b",
-      "timingsMs": {
-        "click": 389,
-        "downloadEvent": 331,
-        "saveAs": 281
-      }
-    },
-    {
-      "file": "topic-en.json.gz",
-      "sha256": "acc52e0eb6f62edfba53ca81f5e4d7ef9ca93623ffa60050e052f77be3b807d1",
-      "bytes": 928217,
-      "rawBytes": 2393778,
-      "rawSha256": "220463e411e378f06f324effe0f1becc88a0b625b9dfee6cfcc04ad6deea6e6d",
-      "timingsMs": {
-        "click": 505,
-        "downloadEvent": 446,
-        "saveAs": 205
+        "click": 445,
+        "downloadEvent": 378,
+        "saveAs": 1207
       }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "b76d829824d1079714ee599325b855d2bbe9845de7b212fdd0f94f45e2879fb2",
-      "bytes": 1206776,
+      "sha256": "e8af3e18d517409064020b17536759449bd67f6d47164206893b43c11af973c2",
+      "bytes": 1206850,
       "rawBytes": 3023521,
-      "rawSha256": "483616c463f37dc4208c6ca8cb0192f9a4208b025dcf1c9bc68b43a23f07877f",
+      "rawSha256": "507697f36169e94b0a68177b814f309f3b8f3df8e54a5e5e7d0f21613e9c3875",
       "timingsMs": {
-        "click": 652,
-        "downloadEvent": 592,
-        "saveAs": 213
+        "click": 520,
+        "downloadEvent": 504,
+        "saveAs": 1423
       }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "b7630325d48a7dfd2903ac9226a22f46c79a94136c1e1ffefe31db73e7ce91a0",
-      "bytes": 1206728,
+      "sha256": "91bf695b450d7e4ed0dd7283c4d97f685bdf3502be0a972d6f8d60f7718b2fe3",
+      "bytes": 1206688,
       "rawBytes": 3021531,
-      "rawSha256": "cc42a4f1a85fb7683d61166dc4477bc6a9ffe408d87f6758e56a554d8fc3ff76",
+      "rawSha256": "eabff96ce3f4d2bca96e5360acdc6a62acc46d5ad98567a4ad6e72f88d44a88d",
       "timingsMs": {
-        "click": 477,
-        "downloadEvent": 419,
-        "saveAs": 213
+        "click": 603,
+        "downloadEvent": 591,
+        "saveAs": 422
       }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "2b00964eafa5fb92818ee60e60b94d036db2e9bb381163ecc507616491c750b7",
-      "bytes": 928238,
+      "sha256": "b5c8ab11ca28cd751ac637b7b5eab2fb54c447dd453af2b31557875391901005",
+      "bytes": 928239,
       "rawBytes": 2393778,
-      "rawSha256": "571757fbccd1bdebcf5a74c521672dd6f50e3655f18b0ca997d42dd9aea87dd3",
+      "rawSha256": "1784f56d7f38e5a0e1a7eaf329fc5179be294201c6066b6fa80d001b384a3d18",
       "timingsMs": {
-        "click": 518,
-        "downloadEvent": 459,
-        "saveAs": 288
+        "click": 700,
+        "downloadEvent": 687,
+        "saveAs": 417
       }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "e0840c420ebfff454e4c4e28ea4748055ec4db1561815e550af23e7f67d1dd5d",
-      "bytes": 819966,
+      "sha256": "c0cbd4513d3215e0f88bc0ebe4547f3a4a0bc3a53c66249a171117c2c386833d",
+      "bytes": 820005,
       "rawBytes": 2062596,
-      "rawSha256": "5f822ba127aaff01451b42b5fc7d9ebc0df9eea85af9091cebb53ee6f7d3f362",
+      "rawSha256": "f9504510489d80ac28bd6a5c304ccfce0323e90baade3cad83462e22ba5731e6",
       "timingsMs": {
-        "click": 1385,
-        "downloadEvent": 1378,
-        "saveAs": 1306
+        "click": 277,
+        "downloadEvent": 268,
+        "saveAs": 241
       }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "69be7ac37ee48f4851454dd321eeb70e8c132b5b00aa0168527b53a3034b5e87",
-      "bytes": 6417024,
+      "sha256": "ed7780117ef58e597b68fa1db0a416a72450959715616c4bcda95374887ca93e",
+      "bytes": 6416966,
       "rawBytes": 16051073,
-      "rawSha256": "44246e1baa9983abe44b5aaa327d91c65bbd61568d91bd397e5c0198f05aaea0",
+      "rawSha256": "dfd57be3de4daf39c0ab0535da61e778a589812cfb847b22dd89401f881423b2",
       "timingsMs": {
-        "click": 1104,
-        "downloadEvent": 1106,
-        "saveAs": 482
+        "click": 1058,
+        "downloadEvent": 1066,
+        "saveAs": 451
       }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "feff9d292e63d5c059c568f3b031d5e7719aa6946450ba9830779a686d26de51",
-      "bytes": 1039753,
+      "sha256": "b9b830f3f221e4c0558089cd4ec92744dc882d24e6bc5f6d2071695f8348a5c8",
+      "bytes": 1039728,
       "rawBytes": 2598182,
-      "rawSha256": "e01374891b760013c2999a6faca2111b0274990ba183c843f04640c96256f226",
+      "rawSha256": "b28121ca44d52997625715b2dbaf84ca8ebd40242eacba5ea8de952cf4d007b3",
       "timingsMs": {
-        "click": 559,
-        "downloadEvent": 500,
-        "saveAs": 236
+        "click": 716,
+        "downloadEvent": 699,
+        "saveAs": 447
       }
     },
     {
       "file": "source-budget.json.gz",
-      "sha256": "4915999a352bd51028566422563005dd3e22c5c219efadff6d2a18e717702ddb",
-      "bytes": 36281595,
+      "sha256": "679855283e1c5ff3423cc8eb4f04dfe3e7c85058925a3ad370318d2e485b628a",
+      "bytes": 36284994,
       "rawBytes": 92555911,
-      "rawSha256": "4cddf7011f7a6ae5a8506b75e037bed19303964a997d592903f69922af1ad741",
+      "rawSha256": "287a18807601d77e9575c2484d17b7aa0f2486a06061ebaf76fce0506ef48fda",
       "timingsMs": {
-        "click": 2113,
-        "downloadEvent": 2122,
-        "saveAs": 660
+        "click": 1324,
+        "downloadEvent": 1345,
+        "saveAs": 625
       }
     }
   ],
-  "completedAt": "2026-11-01T02:00:53.948Z"
+  "completedAt": "2026-11-03T03:58:06.361Z"
 }

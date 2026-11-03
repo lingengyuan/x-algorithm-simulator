@@ -184,6 +184,8 @@ try {
   console.log(`TaskSpace ${task.spaceId}`);
   await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
   if (!budgetOnly) {
+    const { runP2Checks } = await import(`./e2e-p2.mjs?run=${Date.now()}`);
+    report.checks.push(...await runP2Checks(page));
     await goto('/');
     const isChinese = await page.evaluate(() => document.body.innerText.includes('切换到中文') ? false : Boolean(document.querySelector('button[aria-label="Switch to English"]')));
     if (isChinese) await page.click(button('Switch to English'));

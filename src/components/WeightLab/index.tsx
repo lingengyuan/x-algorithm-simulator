@@ -96,6 +96,7 @@ export function WeightLab() {
     }, 500);
 
     setWeights(newWeights);
+    setSelectedPreset('');
   }, [weights]);
 
   // Reset to defaults
