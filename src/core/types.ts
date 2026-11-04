@@ -38,6 +38,12 @@ export interface PhoenixScores {
 
 export type VisibilityAction = 'allow' | 'drop' | 'interstitial';
 
+export interface HeadContribution {
+  head: string;
+  contribution: number;
+  share: number;
+}
+
 export type CandidateSourceType =
   | 'thunder'
   | 'popular_posts'
@@ -215,6 +221,7 @@ export interface TweetCandidate {
 
   // Computed scores
   rawWeightedScore?: number;
+  topHeads?: HeadContribution[];
   weightedScore?: number;
   coldStartAdjustedScore?: number;
   diversityAdjustedScore?: number;

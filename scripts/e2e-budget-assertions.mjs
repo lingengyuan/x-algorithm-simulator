@@ -39,30 +39,26 @@ export function verifyBudgetTrace(budgetTrace, check) {
   assert(ads.every((ad) => ad.brandSafetyRisk === 'unknown' && !ad.handles.length && !ad.keywords.length));
   const organic = budgetTrace.result.finalFeedItems.filter((item) => item.type === 'post' || item.type === 'ad');
   const placed = organic.flatMap((item, index) => item.type === 'ad' ? [{ item, above: organic[index - 1], below: organic[index + 1] }] : []);
-  // Upstream page_capacity/spread_slots for 50 posts, eight ads and spacing three.
+  // MultiRisk assembles eight triples before truncating to the 35-item page.
   assert.equal(spacing, 3);
   assert.equal(ads.length, 8);
   assert(safePosts.length >= 16);
   assert.equal(organic.length, 35);
-  assert.equal(placed.length, 8);
+  assert.equal(placed.length, 7);
   const adPositions = organic.flatMap((item, index) => item.type === 'ad' ? [index] : []);
-  assert.deepEqual(adPositions, [1, 5, 9, 13, 17, 22, 27, 32]);
+  assert.deepEqual(adPositions, [1, 6, 11, 16, 21, 26, 32]);
   const postIds = organic.filter((item) => item.type === 'post').map((item) => item.tweet.id);
   assert.equal(new Set(postIds).size, postIds.length);
-  const eligible = budgetTrace.result.finalCandidates.map((post, index) => ({ post, index }))
-    .filter(({ post }) => !['medium_risk', 'high_risk'].includes(post.brandSafetyVerdict));
-  const first = eligible.filter(({ index }) => index !== 1).sort((a, b) => a.index - b.index)[0];
-  const second = eligible.filter(({ index }) => index !== 0 && index !== first.index)
-    .sort((a, b) => Math.abs(a.index - 1) - Math.abs(b.index - 1) || a.index - b.index)[0];
-  assert.equal(placed[0].above.tweet.id, first.post.id);
-  assert.equal(placed[0].below.tweet.id, second.post.id);
+  const groupSize = Math.floor(safePosts.length / 8);
   for (const [index, triple] of placed.entries()) {
     assert.equal(triple.item.id, `module-ad-${ads[index].id}`);
+    assert.equal(triple.above.tweet.id, safePosts[index * groupSize].id);
+    assert.equal(triple.below.tweet.id, safePosts[index * groupSize + 1].id);
     for (const neighbour of [triple.above, triple.below]) {
       assert.equal(neighbour?.type, 'post');
       assert(!['medium_risk', 'high_risk'].includes(neighbour.tweet.brandSafetyVerdict));
     }
   }
-  check('slot-spread-page-and-neighbours', { pageSize: organic.length, adPositions, checkedAds: placed.length });
+  check('multi-risk-page-and-neighbours', { pageSize: organic.length, adPositions, checkedAds: placed.length });
 
 }

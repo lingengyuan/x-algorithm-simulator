@@ -1,4 +1,4 @@
-import type { PhoenixScores, TweetCandidate, TweetInput, WeightConfig } from '@/core/types';
+import type { HeadContribution, PhoenixScores, TweetCandidate, TweetInput, WeightConfig } from '@/core/types';
 import { RANKING_CONSTANTS } from '@/data/upstreamSnapshot';
 
 function clamp(value: number, min = 0, max = 1): number {
@@ -150,6 +150,7 @@ export interface WeightedScoreBreakdown {
   vqvEligible: boolean;
   quotedVqvEligible: boolean;
   bidirectionalBoostEligible: boolean;
+  topHeads: HeadContribution[];
 }
 
 function apply(value: number | undefined, weight: number): number {
@@ -181,38 +182,38 @@ export function computeWeightedScore(
     (candidate.quotedVideoDurationMs ?? 0) > weights.minVideoDurationMs;
   const postUnexploredActive = !weights.postUnexploredInNetworkOnly || candidate.inNetwork;
 
-  const terms = [
-    apply(scores.favoriteScore, weights.favoriteWeight),
-    apply(scores.replyScore, replyWeight),
-    apply(scores.retweetScore, weights.retweetWeight),
-    apply(scores.photoExpandScore, weights.photoExpandWeight),
-    apply(scores.videoOpenScore, weights.videoOpenWeight),
-    apply(scores.clickScore, weights.clickWeight),
-    apply(scores.openLinkScore, weights.openLinkWeight),
-    apply(scores.profileClickScore, weights.profileClickWeight),
-    apply(scores.vqvScore, vqvEligible ? weights.vqvWeight : 0),
-    apply(scores.shareScore, weights.shareWeight),
-    apply(scores.shareViaDmScore, weights.shareViaDmWeight),
-    apply(scores.shareViaCopyLinkScore, weights.shareViaCopyLinkWeight),
-    apply(scores.dwellScore, dwellWeight),
-    apply(scores.quoteScore, weights.quoteWeight),
-    apply(scores.quotedClickScore, weights.quotedClickWeight),
-    apply(scores.quotedVqvScore, quotedVqvEligible ? weights.quotedVqvWeight : 0),
-    apply(scores.dwellTime, weights.dwellTimeWeight),
-    apply(scores.clickDwellTime, weights.clickDwellTimeWeight),
-    apply(scores.postVideoScore, weights.postVideoWeight),
-    apply(scores.followAuthorScore, weights.followAuthorWeight),
-    apply(scores.notInterestedScore, weights.notInterestedWeight),
-    apply(scores.blockAuthorScore, weights.blockAuthorWeight),
-    apply(scores.muteAuthorScore, weights.muteAuthorWeight),
-    apply(scores.reportScore, weights.reportWeight),
-    apply(scores.notDwelledScore, weights.notDwelledWeight),
-    apply(scores.postUnexploredScore, postUnexploredActive ? weights.postUnexploredWeight : 0),
+  const terms: Array<[string, number]> = [
+    ['favorite', apply(scores.favoriteScore, weights.favoriteWeight)],
+    ['reply', apply(scores.replyScore, replyWeight)],
+    ['retweet', apply(scores.retweetScore, weights.retweetWeight)],
+    ['photo_expand', apply(scores.photoExpandScore, weights.photoExpandWeight)],
+    ['video_open', apply(scores.videoOpenScore, weights.videoOpenWeight)],
+    ['click', apply(scores.clickScore, weights.clickWeight)],
+    ['open_link', apply(scores.openLinkScore, weights.openLinkWeight)],
+    ['profile_click', apply(scores.profileClickScore, weights.profileClickWeight)],
+    ['vqv', apply(scores.vqvScore, vqvEligible ? weights.vqvWeight : 0)],
+    ['share', apply(scores.shareScore, weights.shareWeight)],
+    ['share_via_dm', apply(scores.shareViaDmScore, weights.shareViaDmWeight)],
+    ['share_via_copy_link', apply(scores.shareViaCopyLinkScore, weights.shareViaCopyLinkWeight)],
+    ['dwell', apply(scores.dwellScore, dwellWeight)],
+    ['quote', apply(scores.quoteScore, weights.quoteWeight)],
+    ['quoted_click', apply(scores.quotedClickScore, weights.quotedClickWeight)],
+    ['quoted_vqv', apply(scores.quotedVqvScore, quotedVqvEligible ? weights.quotedVqvWeight : 0)],
+    ['dwell_time', apply(scores.dwellTime, weights.dwellTimeWeight)],
+    ['click_dwell_time', apply(scores.clickDwellTime, weights.clickDwellTimeWeight)],
+    ['follow_author', apply(scores.followAuthorScore, weights.followAuthorWeight)],
+    ['not_interested', apply(scores.notInterestedScore, weights.notInterestedWeight)],
+    ['block_author', apply(scores.blockAuthorScore, weights.blockAuthorWeight)],
+    ['mute_author', apply(scores.muteAuthorScore, weights.muteAuthorWeight)],
+    ['report', apply(scores.reportScore, weights.reportWeight)],
+    ['not_dwelled', apply(scores.notDwelledScore, weights.notDwelledWeight)],
+    ['post_unexplored', apply(scores.postUnexploredScore, postUnexploredActive ? weights.postUnexploredWeight : 0)],
+    ['post_video', apply(scores.postVideoScore, weights.postVideoWeight)],
   ];
 
   let positive = 0;
   let negative = 0;
-  for (const term of terms) {
+  for (const [, term] of terms) {
     if (term >= 0) positive += term;
     else negative -= term;
   }
@@ -251,7 +252,19 @@ export function computeWeightedScore(
       ? ((combined + configuredNegativeWeightSum) / totalWeightSum) * weights.negativeScoresOffset
       : combined + weights.negativeScoresOffset;
 
+  const totalContribution = positive + negative;
+  const topHeads = terms
+    .sort((left, right) => Math.abs(right[1]) - Math.abs(left[1]))
+    .slice(0, 3)
+    .map(([head, contribution]) => ({
+      head,
+      contribution,
+      share: totalContribution > 0 ? Math.abs(contribution) / totalContribution : 0,
+    }))
+    .filter(({ share }) => share >= 0.1);
+
   return {
+    topHeads,
     positive,
     negative,
     combined,
@@ -334,3 +347,10 @@ export const CONTINUOUS_OUTPUT_LABELS = {
   homeVideoContinuationSecs: { name: 'Home Video Continuation', nameZh: '首页视频续看时长', unit: 's' },
   homeProfileVisitSecs: { name: 'Home Profile Visit', nameZh: '首页主页访问时长', unit: 's' },
 } as const;
+
+export function contributionLabel(head: string): { name: string; nameZh: string } {
+  const key = head.replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+  return SCORE_LABELS[(key + 'Score') as keyof typeof SCORE_LABELS]
+    ?? CONTINUOUS_OUTPUT_LABELS[key as keyof typeof CONTINUOUS_OUTPUT_LABELS]
+    ?? { name: head, nameZh: head };
+}

@@ -17,7 +17,7 @@ const downloads = await mkdtemp(resolve(tmpdir(), 'x-simulator-e2e-'));
 await mkdir(output, { recursive: true });
 const task = await taskSpace(options.has('space') ? Number(options.get('space')) : `X simulator E2E ${options.get('run') || Date.now()}`);
 const page = task.page('p1');
-const report = { runId: options.get('run'), status: 'running', upstream: '9106e9f33ee9cc6a92929fc798ae6c566e2841cb', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
+const report = { runId: options.get('run'), status: 'running', upstream: 'b220448766ab4ee4c83d58a67d51f0cb5bda86c2', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
 let language = 'en';
 const label = (en, zh) => language === 'en' ? en : zh;
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -171,12 +171,49 @@ function verifyTraceScores(trace, fallback = false) {
   for (const candidate of trace.result.finalCandidates) {
     if (fallback) {
       assert.equal(candidate.finalScore, candidate.coldStartAdjustedScore);
+      assert.deepEqual(candidate.topHeads, []);
     } else if (candidate.finalScore !== 0) {
       const oon = candidate.inNetwork === false || (candidate.inNetwork && (candidate.inReplyToTweetId || candidate.originalTweetId));
       const factor = oon ? (trace.context.topicIds.length ? 0.5 : 0.75) : 1;
       assert(Math.abs(candidate.finalScore - candidate.diversityAdjustedScore * factor) < 1e-9);
     }
   }
+}
+
+function verifyContributions(trace) {
+  const w = trace.config.weights;
+  for (const candidate of trace.result.finalCandidates) {
+    const boost = !candidate.inReplyToTweetId && !candidate.originalTweetId && candidate.isMutualFollowAuthor;
+    const terms = Object.entries(candidate.phoenixScores).map(([key, score]) => {
+      const base = key.replace(/Score$/, '');
+      let weight = w[base + 'Weight'] ?? 0;
+      if (base === 'reply' && boost) weight += w.bidirectionalFollowReplyWeightBoost;
+      if (base === 'dwell' && boost) weight += w.bidirectionalFollowDwellWeightBoost;
+      if (base === 'vqv' && (trace.context.viewerFollowerCount >= 10000 || (candidate.videoDurationMs ?? 0) <= w.minVideoDurationMs)) weight = 0;
+      if (base === 'quotedVqv' && w.enableQuotedVqvDurationCheck && (candidate.quotedVideoDurationMs ?? 0) <= w.minVideoDurationMs) weight = 0;
+      if (base === 'postUnexplored' && w.postUnexploredInNetworkOnly && !candidate.inNetwork) weight = 0;
+      return Math.abs(score * weight);
+    });
+    const total = terms.reduce((sum, term) => sum + term, 0);
+    const heads = candidate.topHeads;
+    assert(heads.length <= 3);
+    assert.equal(new Set(heads.map((head) => head.head)).size, heads.length);
+    for (const [index, head] of heads.entries()) {
+      assert(Number.isFinite(head.contribution) && Number.isFinite(head.share));
+      assert(head.share >= 0.1 && head.share <= 1);
+      if (index) assert(Math.abs(head.contribution) <= Math.abs(heads[index - 1].contribution));
+      const key = head.head.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      const score = candidate.phoenixScores[key + 'Score'] ?? candidate.phoenixScores[key];
+      const boost = !candidate.inReplyToTweetId && !candidate.originalTweetId && candidate.isMutualFollowAuthor;
+      const weight = key === 'reply' ? w.replyWeight + (boost ? w.bidirectionalFollowReplyWeightBoost : 0)
+        : key === 'dwell' ? w.dwellWeight + (boost ? w.bidirectionalFollowDwellWeightBoost : 0)
+        : w[key + 'Weight'];
+      assert(Math.abs(head.contribution - score * weight) < 1e-9, `Wrong contribution: ${head.head}`);
+      assert(Math.abs(head.share - Math.abs(head.contribution) / total) < 1e-9);
+    }
+    assert.equal(heads.length, terms.sort((a, b) => b - a).slice(0, 3).filter((term) => term / total >= 0.1).length);
+  }
+  assert(trace.result.finalCandidates.some((candidate) => candidate.topHeads.some((head) => head.contribution < 0)));
 }
 
 try {
@@ -254,8 +291,8 @@ try {
       const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
       assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
       const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
-      assert.equal(configValues[label('Upstream commit', '上游提交')], '9106e9f');
-      assert.equal(configValues[label('Ads blender', '广告混排')], 'slot_spread');
+      assert.equal(configValues[label('Upstream commit', '上游提交')], 'b220448');
+      assert.equal(configValues[label('Ads blender', '广告混排')], 'multi_risk');
       assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
       assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));
       assert.equal(configValues[label('Post-video weight', '发布视频权重')], '0');
@@ -267,6 +304,12 @@ try {
       await completePipeline();
       const trace = await exportTrace(`for-you-${lang}`);
       if (lang === 'en') verifyTraceScores(trace);
+      verifyContributions(trace);
+      await page.click('[data-testid="final-timeline"] [data-testid="score-contributions"] summary >> nth=0');
+      await healthy();
+      assert((await page.evaluate(() => document.querySelector('[data-testid="final-timeline"] details[open]')?.innerText))
+        .includes(label('Main score contributions', '主要评分贡献')));
+      check(`score-contributions-${lang}`, 'The exported top heads and the expandable signed contributions are available.');
       assert(trace.result.steps.find((step) => step.id === 'source_popular_posts').outputCount > 0);
       assert(trace.result.finalFeedItems.some((item) => item.type === 'ad'));
       assert(trace.result.finalFeedItems.some((item) => item.type === 'who_to_follow'));
@@ -368,6 +411,8 @@ try {
   check('source-budget', budget);
   const budgetTrace = await exportTrace('source-budget');
   verifyBudgetTrace(budgetTrace, check);
+  verifyContributions(budgetTrace);
+  check('source-budget-contributions', 'Top heads retain the signed contribution and absolute share at the 10% threshold.');
   await healthy();
 
   if (!budgetOnly) {

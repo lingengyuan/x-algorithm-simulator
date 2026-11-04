@@ -1,9 +1,9 @@
 {
-  "runId": "1793677799635",
+  "runId": "1793756441311",
   "status": "passed",
-  "upstream": "9106e9f33ee9cc6a92929fc798ae6c566e2841cb",
+  "upstream": "b220448766ab4ee4c83d58a67d51f0cb5bda86c2",
   "browser": "ego-browser",
-  "startedAt": "2026-11-03T03:49:59.790Z",
+  "startedAt": "2026-11-04T01:40:41.455Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -12,42 +12,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         }
@@ -80,42 +80,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         }
@@ -177,6 +177,11 @@
       "detail": "Header and configuration show the target commit and published defaults."
     },
     {
+      "name": "score-contributions-en",
+      "status": "passed",
+      "detail": "The exported top heads and the expandable signed contributions are available."
+    },
+    {
       "name": "served-and-blending-en",
       "status": "passed",
       "detail": "Served post IDs are hydrated, carousel history is excluded, and ads avoid adjacent high-risk posts."
@@ -225,6 +230,11 @@
       "name": "upstream-config-zh",
       "status": "passed",
       "detail": "Header and configuration show the target commit and published defaults."
+    },
+    {
+      "name": "score-contributions-zh",
+      "status": "passed",
+      "detail": "The exported top heads and the expandable signed contributions are available."
     },
     {
       "name": "served-and-blending-zh",
@@ -318,22 +328,26 @@
       "detail": "The 3,500-post scenario selects 50 posts with the carousel disabled."
     },
     {
-      "name": "slot-spread-page-and-neighbours",
+      "name": "multi-risk-page-and-neighbours",
       "status": "passed",
       "detail": {
         "pageSize": 35,
         "adPositions": [
           1,
-          5,
-          9,
-          13,
-          17,
-          22,
-          27,
+          6,
+          11,
+          16,
+          21,
+          26,
           32
         ],
-        "checkedAds": 8
+        "checkedAds": 7
       }
+    },
+    {
+      "name": "source-budget-contributions",
+      "status": "passed",
+      "detail": "Top heads retain the signed contribution and absolute share at the 10% threshold."
     },
     {
       "name": "mobile",
@@ -440,100 +454,100 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "e30c0fc35d4b8ee3e879d5f7d1c336e9e3cc6004071a18f14a5cd31a65696edb",
-      "bytes": 1206799,
-      "rawBytes": 3023521,
-      "rawSha256": "6afbe1eba76eb218e0bfa95e2e83934a90cb2437a9e17184a809ab1f10df0c38",
+      "sha256": "39f029f9016c93a596b4663a64fec909c6f7d4ea37b8799ae8ab26bba184b2fb",
+      "bytes": 1208741,
+      "rawBytes": 3030357,
+      "rawSha256": "ce3e4b0263813d23326510d6550b8b821feef79f8aca413737e7e6b05a2356be",
       "timingsMs": {
-        "click": 445,
-        "downloadEvent": 378,
-        "saveAs": 1207
+        "click": 900,
+        "downloadEvent": 827,
+        "saveAs": 263
       }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "e8af3e18d517409064020b17536759449bd67f6d47164206893b43c11af973c2",
-      "bytes": 1206850,
-      "rawBytes": 3023521,
-      "rawSha256": "507697f36169e94b0a68177b814f309f3b8f3df8e54a5e5e7d0f21613e9c3875",
+      "sha256": "41c78ec74699017add324045c85dcabe107d867a75fee29deeed0618345ddf0a",
+      "bytes": 1208718,
+      "rawBytes": 3030357,
+      "rawSha256": "d1b04e3ef112d11de4b769d7f0478d34548e47cf1e02e7fa1b3a1347b79fa51f",
       "timingsMs": {
-        "click": 520,
-        "downloadEvent": 504,
-        "saveAs": 1423
+        "click": 982,
+        "downloadEvent": 975,
+        "saveAs": 287
       }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "91bf695b450d7e4ed0dd7283c4d97f685bdf3502be0a972d6f8d60f7718b2fe3",
-      "bytes": 1206688,
-      "rawBytes": 3021531,
-      "rawSha256": "eabff96ce3f4d2bca96e5360acdc6a62acc46d5ad98567a4ad6e72f88d44a88d",
+      "sha256": "850601278380b86acf8f76666659b872baec1533aeb45a2793fecd6d4fa5cba7",
+      "bytes": 1206628,
+      "rawBytes": 3021915,
+      "rawSha256": "ddd2439a713b7884caa7aed9ec3004cb0d4f912ea9df3db79e938fb30e667aca",
       "timingsMs": {
-        "click": 603,
-        "downloadEvent": 591,
-        "saveAs": 422
+        "click": 229,
+        "downloadEvent": 205,
+        "saveAs": 266
       }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "b5c8ab11ca28cd751ac637b7b5eab2fb54c447dd453af2b31557875391901005",
-      "bytes": 928239,
-      "rawBytes": 2393778,
-      "rawSha256": "1784f56d7f38e5a0e1a7eaf329fc5179be294201c6066b6fa80d001b384a3d18",
+      "sha256": "c674aac3816dab8153317b1807f74d1636258e62fbf20619a043ace8bbb6ea98",
+      "bytes": 928334,
+      "rawBytes": 2394822,
+      "rawSha256": "f213ca66f8289f0fc9b2bff9ee6706748da1a6d2fa6efd883e745cf784d15d67",
       "timingsMs": {
-        "click": 700,
-        "downloadEvent": 687,
-        "saveAs": 417
+        "click": 172,
+        "downloadEvent": 160,
+        "saveAs": 242
       }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "c0cbd4513d3215e0f88bc0ebe4547f3a4a0bc3a53c66249a171117c2c386833d",
-      "bytes": 820005,
-      "rawBytes": 2062596,
-      "rawSha256": "f9504510489d80ac28bd6a5c304ccfce0323e90baade3cad83462e22ba5731e6",
+      "sha256": "d4a332bd52fa0809ee554ce1e5b953126af2e4ac2424c62f3880b728b4af1c9b",
+      "bytes": 821629,
+      "rawBytes": 2067620,
+      "rawSha256": "3dc3ab57828f3eaaf213548968de06487676000fbb540db01924df815cd39e67",
       "timingsMs": {
-        "click": 277,
-        "downloadEvent": 268,
-        "saveAs": 241
+        "click": 793,
+        "downloadEvent": 772,
+        "saveAs": 233
       }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "ed7780117ef58e597b68fa1db0a416a72450959715616c4bcda95374887ca93e",
-      "bytes": 6416966,
-      "rawBytes": 16051073,
-      "rawSha256": "dfd57be3de4daf39c0ab0535da61e778a589812cfb847b22dd89401f881423b2",
+      "sha256": "347c5fc2f34191081bd28811ff02914c9a91048e57dfa102fc25b98f9af02d0e",
+      "bytes": 6455304,
+      "rawBytes": 16152857,
+      "rawSha256": "0c0c27940f41591a5fb3b43aadce4aa292f296df03d57b3ac890d809910665a1",
       "timingsMs": {
-        "click": 1058,
-        "downloadEvent": 1066,
-        "saveAs": 451
+        "click": 1068,
+        "downloadEvent": 1069,
+        "saveAs": 312
       }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "b9b830f3f221e4c0558089cd4ec92744dc882d24e6bc5f6d2071695f8348a5c8",
-      "bytes": 1039728,
-      "rawBytes": 2598182,
-      "rawSha256": "b28121ca44d52997625715b2dbaf84ca8ebd40242eacba5ea8de952cf4d007b3",
+      "sha256": "9ee7048f8b9100d585ab742503031b340e83806d78e1c0469912901e0bf852d2",
+      "bytes": 1040600,
+      "rawBytes": 2600730,
+      "rawSha256": "4151fe6c6e80cd776f86353c76dc47932a8bcd007229a55ef16c81f8a7765b27",
       "timingsMs": {
-        "click": 716,
-        "downloadEvent": 699,
-        "saveAs": 447
+        "click": 187,
+        "downloadEvent": 175,
+        "saveAs": 282
       }
     },
     {
       "file": "source-budget.json.gz",
-      "sha256": "679855283e1c5ff3423cc8eb4f04dfe3e7c85058925a3ad370318d2e485b628a",
-      "bytes": 36284994,
-      "rawBytes": 92555911,
-      "rawSha256": "287a18807601d77e9575c2484d17b7aa0f2486a06061ebaf76fce0506ef48fda",
+      "sha256": "80ce16577b0604614b4f1fd1dc59d796a2e29eb746872baa1bd4b50d945e0f44",
+      "bytes": 36321268,
+      "rawBytes": 92654518,
+      "rawSha256": "d7a0b715e98b76d55694ced566f71842c3e1e3600c9f63d8696dd85d84daf41b",
       "timingsMs": {
-        "click": 1324,
-        "downloadEvent": 1345,
-        "saveAs": 625
+        "click": 1222,
+        "downloadEvent": 1238,
+        "saveAs": 550
       }
     }
   ],
-  "completedAt": "2026-11-03T03:58:06.361Z"
+  "completedAt": "2026-11-04T01:48:54.870Z"
 }

@@ -695,8 +695,8 @@ function executePipeline(
   add(step(
     template(
       'for_you_blender',
-      'BlenderSelector / SlotSpreadAdsBlender',
-      '最终混排 / SlotSpread 广告混排',
+      'BlenderSelector / MultiRiskAdsBlender',
+      '最终混排 / MultiRisk 广告混排',
       'blender'
     ),
     forYouSourceCount,

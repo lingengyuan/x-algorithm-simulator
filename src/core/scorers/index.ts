@@ -187,6 +187,7 @@ export function runRankingScorer(
     return {
       ...candidate,
       rawWeightedScore: breakdown.combined,
+      topHeads: weights.enableVMRanker ? breakdown.topHeads : [],
       weightedScore: context.cachedPostIds.length >= CACHED_POSTS_MIN_COUNT
         ? candidate.weightedScore ?? breakdown.score : breakdown.score,
     };

@@ -2,7 +2,7 @@
   "status": "passed",
   "browser": "ego-browser",
   "baseUrl": "http://127.0.0.1:4173",
-  "startedAt": "2026-11-03T03:49:59.796Z",
+  "startedAt": "2026-11-04T01:40:41.464Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -11,42 +11,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         }
@@ -79,42 +79,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-icKAqDPZ.js"
+            "/assets/index-ubmTfkGy.js"
           ],
           "reloaded": true
         }
@@ -153,5 +153,5 @@
     "same-preset-reload-zh.png",
     "inactive-topic-factor-zh.png"
   ],
-  "completedAt": "2026-11-03T03:50:12.926Z"
+  "completedAt": "2026-11-04T01:40:59.280Z"
 }

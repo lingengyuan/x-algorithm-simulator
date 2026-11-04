@@ -2,6 +2,7 @@ import type { TweetCandidate } from '@/core/types';
 import { Badge } from '@/components/ui/badge';
 import { useTranslation } from '@/hooks/useI18n';
 import { formatRelativeTime } from '@/utils/snowflake';
+import { contributionLabel } from '@/utils/scoring';
 import { Image, Video, ShieldAlert } from 'lucide-react';
 
 interface TweetCardProps {
@@ -46,6 +47,19 @@ export function TweetCard({ tweet, showScores = false, showFiltered = false, hig
       {tweet.diversityAdjustedScore !== undefined && <><dt>{t('simulator.diversityScore')}</dt><dd>{tweet.diversityAdjustedScore.toFixed(3)}</dd></>}
       <dt className="final-score">{t('simulator.finalScore')}</dt><dd className="final-score">{tweet.finalScore.toFixed(3)}</dd>
     </dl>}
+    {showScores && Boolean(tweet.topHeads?.length) && <details className="mt-3 text-xs" data-testid="score-contributions">
+      <summary>{isZh ? '主要评分贡献' : 'Main score contributions'}</summary>
+      <p className="field-note">{isZh ? '加权项贡献及其绝对值占比，不含多样性与关注外系数。' : 'Weighted contributions and absolute shares, before diversity and OON factors.'}</p>
+      <dl className="post-scores">
+        {tweet.topHeads!.map(({ head, contribution, share }) => {
+          const label = contributionLabel(head);
+          return <div key={head} className="contents" data-head={head}>
+            <dt>{isZh ? label.nameZh : label.name}</dt>
+            <dd>{contribution > 0 ? '+' : ''}{contribution.toFixed(3)} · {(share * 100).toFixed(1)}%</dd>
+          </div>;
+        })}
+      </dl>
+    </details>}
     {showFiltered && tweet.filtered && <p className="field-note">{t('simulator.filtered')}: {tweet.filterReason}</p>}
   </article>;
 }
