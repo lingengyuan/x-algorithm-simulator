@@ -2,122 +2,40 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-用于理解 X 公开推荐流程的交互式模拟器。
+Pinned to [`xai-org/x-algorithm@b508926`](https://github.com/xai-org/x-algorithm/tree/b5089266c0fbad66f388051f8f89056e2a8f974d) · [简体中文](README.zh-CN.md)
 
-Pinned to [`xai-org/x-algorithm@b508926`](https://github.com/xai-org/x-algorithm/tree/b5089266c0fbad66f388051f8f89056e2a8f974d) · [English](#english) · [简体中文](#简体中文)
+## Overview
 
-## Interface Comparison / 界面对比
+The simulator visualizes the published primary default path at upstream commit `b508926`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
 
-The current screenshots were regenerated from this version. / 当前截图由本版本重新生成。
+It covers the published source, filter, scoring, ranking, and fixture-only feed blending path. It does not run model training or inference, remote retrieval and hydration services, production ad delivery, or notification filtering.
 
-<table>
-  <tr>
-    <th>Page / 页面</th>
-    <th>Before / 之前</th>
-    <th>Current / 当前</th>
-  </tr>
-  <tr>
-    <td>Output Explorer<br>输出探索</td>
-    <td><img src="docs/screenshots/before-analyzer-en.jpg" alt="Output Explorer before" width="420"></td>
-    <td><img src="artifacts/e2e/analyzer-en.png" alt="Output Explorer current" width="420"></td>
-  </tr>
-  <tr>
-    <td>Ranking Simulator<br>排序模拟</td>
-    <td><img src="docs/screenshots/before-simulator-en.jpg" alt="Ranking Simulator before" width="420"></td>
-    <td><img src="artifacts/e2e/for-you-en.png" alt="Ranking Simulator current" width="420"></td>
-  </tr>
-</table>
+## Screenshots
 
-E2E screenshots and report: [`artifacts/e2e`](artifacts/e2e)
+Screenshots below are generated from this version by the E2E run.
 
-## English
+| Page | Before | Current |
+| --- | --- | --- |
+| Output Explorer | <img src="docs/screenshots/before-analyzer-en.jpg" alt="Output Explorer before" width="420"> | <img src="artifacts/e2e/analyzer-en.png" alt="Output Explorer current" width="420"> |
+| Ranking Simulator | <img src="docs/screenshots/before-simulator-en.jpg" alt="Ranking Simulator before" width="420"> | <img src="artifacts/e2e/for-you-en.png" alt="Ranking Simulator current" width="420"> |
 
-### Project Description
+More screenshots and the E2E report are in [`artifacts/e2e`](artifacts/e2e).
 
-Visualizes the public primary default path at upstream commit `b508926`. It uses deterministic local fixtures and cannot predict production reach or engagement.
-
-### Features
+## Features
 
 - Step through the Scored Posts and For You pipelines.
-- Expand ranked posts to see up to three weighted contributions with absolute shares of at least 10%.
-- Explore 27 default Phoenix outputs and two optional excursion fields, ranking weights, filters, visibility, brand safety, and VMRanker DPP.
-- Compare fixture outputs, tune weights, and keep local history in English or Chinese.
+- Expand a ranked post to see up to three weighted contributions, each with an absolute share of at least 10%.
+- Inspect the 27 default Phoenix output weights, ranking weights, filters, visibility, brand safety, and VMRanker DPP.
+- Compare fixture outputs, tune weights live, and keep local history in English or Chinese.
 
-The simulator covers the published source, filter, scoring, ranking, and fixture-only feed blending path. It does not run model training or inference, remote retrieval and hydration services, production ad delivery, or notification filtering. The video carousel is disabled by the pinned defaults. The public repository also omits `xai_post_text`, so local multilingual tokenization is not guaranteed to match production.
+## Requirements
 
-The default ad blender is `multi_risk`. It groups compatible ad neighbours by risk, distributes the remaining posts between groups, and truncates the page. Brand-safety verdicts use the legacy published path because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false` at this commit. The `post_video` and `grok_analyze` weights remain `0.0`.
-
-### Quick Start
-
-Requires Node.js and npm.
-
-```bash
-git clone https://github.com/lingengyuan/x-algorithm-simulator.git
-cd x-algorithm-simulator
-npm install
-npm run dev
-```
-
-### Skill Catalog
-
-This is a web app, not a Codex skill package. Routes: `/`, `/simulator`, `/weights`, `/history`.
-
-### Project Structure
-
-Core references: [`upstreamSnapshot.ts`](src/data/upstreamSnapshot.ts), [`pipeline.ts`](src/core/pipeline.ts), and [`e2e.mjs`](scripts/e2e.mjs).
-
-### Configuration
+- Node.js `^20.19.0 || >=22.12.0` and npm, as required by Vite 7.
+- ego lite and the `ego-browser` CLI for the end-to-end tests.
 
 No environment variables, credentials, or external services are required.
 
-### Development and Testing
-
-```bash
-npm run check
-```
-
-Runs ESLint, TypeScript, the production build, and ego-browser E2E tests. Requires ego lite and the ego-browser CLI. The E2E runner starts a preview server on port 4173. Results, screenshots, and compressed pipeline traces (`.json.gz`) are saved in `artifacts/e2e/`. Each trace includes the input fixtures, request context, and weights.
-
-### Contributing
-
-Pin upstream changes. Verify behavior through the browser E2E flow.
-
-### Maintenance Guide
-
-Update the snapshot and implementation together. Run `npm run check` at completion. The default path preserves Home Mixer weighted scores in VMRanker. Topic requests skip DPP. Remote retrieval, embeddings, and Thompson draws use repeatable local fixtures.
-
-### Upstream Monitor
-
-[Monitor X upstream](https://github.com/lingengyuan/x-algorithm-simulator/actions/workflows/monitor-upstream.yml) runs on GitHub Actions daily at 09:00 Beijing time. It reads the pinned commit from `src/data/upstreamSnapshot.ts`. A new upstream commit creates one Issue assigned to the repository owner. Closed Issues also prevent duplicate reminders. GitHub sends notifications according to your [notification settings](https://github.com/settings/notifications).
-
-The Issue links to the diff and provides a request you can send to your development assistant. Adaptation starts only when you request it. No extra secrets are required. To check now, select **Run workflow**. Enable **verify_notifications** to create and close a test Issue. The run saves a JSON report as the `upstream-monitor-e2e` artifact.
-
-GitHub can delay scheduled runs. In public repositories, GitHub disables schedules after 60 days without repository activity. Re-enable the workflow on its Actions page.
-
-### License
-
-[MIT](LICENSE)
-
-## 简体中文
-
-### 项目说明
-
-可视化上游提交 `b508926` 公开的主默认路径。项目使用确定性本地测试数据，不能预测生产环境的真实曝光或互动。
-
-### 功能特性
-
-- 逐步查看 Scored Posts 和 For You 流程。
-- 展开排序帖子，查看最多三项主要加权贡献，每项绝对值占比至少 10%。
-- 探索 27 个默认 Phoenix 输出及两个可选续看与主页停留字段、排序权重、过滤、可见性、品牌安全和 VMRanker DPP。
-- 对比测试输出、实时调节权重，并保存中英文本地历史记录。
-
-项目覆盖公开的召回、过滤、评分、排序和本地广告混排路径。项目不运行模型训练或推理、远端召回与 hydration、生产广告投放和通知过滤。视频轮播在固定版本中默认关闭。公开仓库也没有 `xai_post_text`，因此本地多语言分词不保证与生产环境一致。
-
-默认广告混排为 `multi_risk`，按风险等级选取广告邻帖，将剩余帖子分配到组间，再按页容量截断。固定版本的 `rust_home_mixer_ads_bs_v2_exp_enabled` 为 `false`，因此品牌安全使用 legacy 路径。`post_video` 与 `grok_analyze` 权重仍为 `0.0`。
-
-### 快速开始
-
-需要 Node.js 和 npm。
+## Quick Start
 
 ```bash
 git clone https://github.com/lingengyuan/x-algorithm-simulator.git
@@ -126,42 +44,71 @@ npm install
 npm run dev
 ```
 
-### 技能目录
+## Routes
 
-这是 Web 应用，不是 Codex Skill 包。页面入口为 `/`、`/simulator`、`/weights`、`/history`。
+| Path | Page |
+| --- | --- |
+| `/` | Output Explorer: 27 Phoenix output weights on local fixtures |
+| `/simulator` | Ranking Simulator: pipeline walkthrough and final feed |
+| `/weights` | Weight Lab: compare fixtures and tune weights |
+| `/history` | Analysis history stored in the browser |
 
-### 项目结构
+## Project Structure
 
-核心文件：[`upstreamSnapshot.ts`](src/data/upstreamSnapshot.ts)、[`pipeline.ts`](src/core/pipeline.ts) 和 [`e2e.mjs`](scripts/e2e.mjs)。
+| File | Contents |
+| --- | --- |
+| [`src/data/upstreamSnapshot.ts`](src/data/upstreamSnapshot.ts) | Pinned commit and upstream defaults |
+| [`src/core/pipeline.ts`](src/core/pipeline.ts) | Source, filter, scoring, and ranking path |
+| [`scripts/e2e.mjs`](scripts/e2e.mjs) | End-to-end checks and screenshot capture |
 
-### 配置
+## Simulator Scope
 
-项目不需要环境变量、凭据或外部服务。
+The default ad blender is `multi_risk`. It groups compatible ad neighbours by risk, distributes the remaining posts between groups, and truncates the page.
 
-### 开发与测试
+Brand-safety verdicts use the legacy published path, because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false` at this commit.
+
+The `post_video` and `grok_analyze` weights stay at `0.0`, and the video carousel is disabled by the pinned defaults.
+
+The public repository omits `xai_post_text`, so local multilingual tokenization is not guaranteed to match production.
+
+## Development and Testing
 
 ```bash
 npm run check
 ```
 
-该命令运行 ESLint、TypeScript、生产构建和 ego-browser 端到端测试。需要安装 ego lite 与 ego-browser CLI。测试脚本在 4173 端口启动预览服务。报告、截图和压缩流程记录（`.json.gz`）保存在 `artifacts/e2e/`。流程记录包含候选输入、请求上下文和权重。
+This runs ESLint, TypeScript, the production build, and the ego-browser E2E suite. The E2E runner starts a preview server on port `4173`.
 
-### 贡献指南
+Results, screenshots, and compressed pipeline traces (`.json.gz`) go to `artifacts/e2e/`. Each trace records the input fixtures, the request context, and the weights.
 
-固定上游提交。通过浏览器端到端流程验证行为。
+Run the E2E suite alone with `npm run test:e2e`, or the DOM recovery scenario with `npm run test:dom-recovery`.
 
-### 维护指南
+## Contributing
 
-同步更新快照和实现。完成后运行 `npm run check`。默认路径在 VMRanker 中复用 Home Mixer 加权分。话题请求跳过 DPP。远程召回、向量和 Thompson 抽样使用可重复的本地测试数据。
+Pin upstream changes to a specific commit. Verify behavior through the browser E2E flow.
 
-### 上游监控
+## Maintenance
 
-[Monitor X upstream](https://github.com/lingengyuan/x-algorithm-simulator/actions/workflows/monitor-upstream.yml) 每天北京时间 09:00 在 GitHub Actions 上运行。它从 `src/data/upstreamSnapshot.ts` 读取已适配的提交。有新上游提交时，它创建一条 Issue 并指派给仓库所有者。已关闭的 Issue 也参与去重。GitHub 按你的[通知设置](https://github.com/settings/notifications)发送提醒。
+Update the snapshot and the implementation together, then run `npm run check`.
 
-Issue 包含差异链接，以及可以发给开发助手的适配指令。你发出指令后才开始适配。监控不需要额外密钥。点击 **Run workflow** 可立即检查。勾选 **verify_notifications** 可创建并关闭测试 Issue。运行会将 JSON 报告保存为 `upstream-monitor-e2e` 工件。
+Keep these behaviors when changing the pipeline:
 
-GitHub 可能延迟定时运行。公开仓库连续 60 天无活动时，GitHub 会停用定时任务。可以在 Actions 页面重新启用。
+- The default path reuses Home Mixer weighted scores in VMRanker.
+- Topic requests skip DPP.
+- Remote retrieval, embeddings, and Thompson draws use repeatable local fixtures.
 
-### 许可证
+## Upstream Monitor
+
+[Monitor X upstream](https://github.com/lingengyuan/x-algorithm-simulator/actions/workflows/monitor-upstream.yml) runs daily at 09:00 Beijing time on GitHub Actions. It reads the pinned commit from `src/data/upstreamSnapshot.ts`.
+
+When upstream has a new commit, the workflow opens one Issue assigned to the repository owner. Closed Issues also block duplicate reminders. GitHub sends notifications according to your [notification settings](https://github.com/settings/notifications).
+
+The Issue links to the diff and contains a request you can send to your development assistant. Adaptation starts only when you send that request. The monitor needs no extra secrets.
+
+To check immediately, select **Run workflow**. Enable **verify_notifications** to create and close a test Issue. The run saves a JSON report as the `upstream-monitor-e2e` artifact.
+
+GitHub can delay scheduled runs, and it disables schedules in public repositories after 60 days without activity. Re-enable the workflow on its Actions page.
+
+## License
 
 [MIT](LICENSE)
