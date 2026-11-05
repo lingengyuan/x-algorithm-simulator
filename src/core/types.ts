@@ -20,6 +20,7 @@ export interface PhoenixScores {
   followAuthorScore: number;    // Follow author probability
   postUnexploredScore: number;  // Probability that the post is under-explored
   postVideoScore?: number;       // Post-video probability
+  grokAnalyzeScore?: number;     // Grok-analyze click probability
 
   // Negative behaviors
   notInterestedScore: number;   // Not interested probability
@@ -259,6 +260,7 @@ export interface WeightConfig {
   followAuthorWeight: number;
   postUnexploredWeight: number;
   postVideoWeight: number;
+  grokAnalyzeWeight: number;
 
   // Negative weights
   notInterestedWeight: number;

@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'b220448766ab4ee4c83d58a67d51f0cb5bda86c2',
-  shortCommit: 'b220448',
-  releasedAt: '2026-11-03',
-  paramsSyncedAt: '2026-11-02T16:00:39Z',
+  commit: 'b5089266c0fbad66f388051f8f89056e2a8f974d',
+  shortCommit: 'b508926',
+  releasedAt: '2026-11-04',
+  paramsSyncedAt: '2026-11-03T16:00:34Z',
 } as const;
 
 export const SOURCE_DEFAULTS = {
@@ -132,6 +132,7 @@ export const UPSTREAM_DEFAULT_WEIGHTS: WeightConfig = {
   followAuthorWeight: 4,
   postUnexploredWeight: 0.015,
   postVideoWeight: 0,
+  grokAnalyzeWeight: 0,
 
   notInterestedWeight: -52.272,
   blockAuthorWeight: -31.2,

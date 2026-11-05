@@ -9,8 +9,8 @@ export function runPhoenixScorer(candidates: TweetCandidate[]): ScorerResult {
     scorerId: 'phoenix',
     scorerName: 'PhoenixScorer (synthetic outputs)',
     summary: {
-      outputHeadCount: 26,
-      outputContractHeadCount: 28,
+      outputHeadCount: 27,
+      outputContractHeadCount: 29,
       homeExcursionScoresEnabled: RANKING_DEFAULTS.homeExcursionScores,
       fixtureOutputUnits: 'probabilities-and-continuous-seconds',
       productionModelInference: false,

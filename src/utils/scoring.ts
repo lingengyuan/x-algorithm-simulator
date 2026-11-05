@@ -111,6 +111,8 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
     tweet.content.length * 0.05 + (tweet.hasMedia !== 'none' ? 2 : 0) + rng()
   );
   const clickDwellTime = Math.max(0.25, dwellTime * clickScore * (0.7 + rng() * 0.6));
+  // Drawn last so existing seeded fixture scores stay stable.
+  const grokAnalyzeScore = clamp(engagement * 0.18 + (rng() - 0.5) * 0.06);
 
   return {
     favoriteScore,
@@ -132,6 +134,7 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
     followAuthorScore,
     postUnexploredScore,
     postVideoScore: tweet.hasMedia === 'video' ? clamp(replyScore * 0.1) : 0,
+    grokAnalyzeScore,
     notInterestedScore,
     blockAuthorScore,
     muteAuthorScore,
@@ -209,6 +212,7 @@ export function computeWeightedScore(
     ['not_dwelled', apply(scores.notDwelledScore, weights.notDwelledWeight)],
     ['post_unexplored', apply(scores.postUnexploredScore, postUnexploredActive ? weights.postUnexploredWeight : 0)],
     ['post_video', apply(scores.postVideoScore, weights.postVideoWeight)],
+    ['grok_analyze', apply(scores.grokAnalyzeScore, weights.grokAnalyzeWeight)],
   ];
 
   let positive = 0;
@@ -237,7 +241,7 @@ export function computeWeightedScore(
     weights.quotedClickWeight +
     weights.quotedVqvWeight +
     weights.followAuthorWeight +
-    weights.postUnexploredWeight + weights.postVideoWeight;
+    weights.postUnexploredWeight + weights.postVideoWeight + weights.grokAnalyzeWeight;
   const configuredNegativeWeightSum = -(
     weights.notInterestedWeight +
     weights.blockAuthorWeight +
@@ -334,6 +338,7 @@ export const SCORE_LABELS: Record<DisplayScoreKey, {
   followAuthorScore: { name: 'Follow', nameZh: '关注', type: 'positive' },
   postUnexploredScore: { name: 'Post Unexplored', nameZh: '未充分探索', type: 'positive' },
   postVideoScore: { name: 'Post Video', nameZh: '发布视频', type: 'positive' },
+  grokAnalyzeScore: { name: 'Grok Analyze', nameZh: 'Grok 分析', type: 'positive' },
   notInterestedScore: { name: 'Not Interested', nameZh: '不感兴趣', type: 'negative' },
   blockAuthorScore: { name: 'Block', nameZh: '屏蔽', type: 'negative' },
   muteAuthorScore: { name: 'Mute', nameZh: '静音', type: 'negative' },

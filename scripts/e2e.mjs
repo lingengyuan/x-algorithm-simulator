@@ -17,7 +17,7 @@ const downloads = await mkdtemp(resolve(tmpdir(), 'x-simulator-e2e-'));
 await mkdir(output, { recursive: true });
 const task = await taskSpace(options.has('space') ? Number(options.get('space')) : `X simulator E2E ${options.get('run') || Date.now()}`);
 const page = task.page('p1');
-const report = { runId: options.get('run'), status: 'running', upstream: 'b220448766ab4ee4c83d58a67d51f0cb5bda86c2', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
+const report = { runId: options.get('run'), status: 'running', upstream: 'b5089266c0fbad66f388051f8f89056e2a8f974d', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
 let language = 'en';
 const label = (en, zh) => language === 'en' ? en : zh;
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -146,8 +146,15 @@ async function exportTrace(name) {
   assert.equal(trace.upstream.commit, report.upstream);
   assert(Number.isFinite(Date.parse(trace.upstream.paramsSyncedAt)));
   assert.equal(trace.config.weights.postVideoWeight, 0);
+  assert.equal(trace.config.weights.grokAnalyzeWeight, 0);
   assert.equal('reactWithVideoWeight' in trace.config.weights, false);
   assert(trace.rawCandidates.some((candidate) => Number.isFinite(candidate.phoenixScores.postVideoScore)));
+  assert(trace.rawCandidates.some((candidate) => Number.isFinite(candidate.phoenixScores.grokAnalyzeScore)));
+  const phoenixStep = trace.result.steps.find((step) => step.id === 'phoenix');
+  if (phoenixStep) {
+    assert.equal(phoenixStep.details.summary.outputHeadCount, 27);
+    assert.equal(phoenixStep.details.summary.outputContractHeadCount, 29);
+  }
   assert(trace.rawCandidates.every((candidate) => !('reactWithVideoScore' in candidate.phoenixScores)));
   assert.equal(trace.result.steps.some((step) => step.id === 'ranking'), false);
   assert.equal(trace.result.steps.some((step) => step.id === 'brazil_2026_election'), false);
@@ -282,6 +289,19 @@ try {
       await healthy();
       check(`post-video-weight-${lang}`, 'Changing Post Video weight from 0 to 5 changes a visible live-ranking score.');
 
+      const grokAnalyze = '[data-weight="grokAnalyzeWeight"] [role="slider"]';
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), grokAnalyze)), 0);
+      await page.press(grokAnalyze, 'End');
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), grokAnalyze)), 5);
+      await page.waitForSelector('[data-testid="live-rank-row"]');
+      assert(await page.evaluate(() => [...document.querySelectorAll('.live-rank-delta')].some((node) => {
+        const value = node.textContent.trim();
+        return /^[+-]\d+(?:\.\d+)?$/.test(value) && Number(value) !== 0;
+      })), 'Grok Analyze adjustment must change a visible score');
+      await page.click(button(label('Reset to Default', '恢复默认')));
+      await healthy();
+      check(`grok-analyze-weight-${lang}`, 'The new Grok Analyze head is adjustable and changes a visible live-ranking score.');
+
       await goto('/history');
       assert((await page.evaluate(() => document.body.innerText)).includes(label('E2E:', '端到端测试：')));
       await shot(`history-${lang}`);
@@ -291,7 +311,7 @@ try {
       const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
       assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
       const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
-      assert.equal(configValues[label('Upstream commit', '上游提交')], 'b220448');
+      assert.equal(configValues[label('Upstream commit', '上游提交')], 'b508926');
       assert.equal(configValues[label('Ads blender', '广告混排')], 'multi_risk');
       assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
       assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));

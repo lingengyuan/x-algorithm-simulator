@@ -25,6 +25,7 @@ export type AdjustableWeightKey =
   | 'dwellTimeWeight'
   | 'clickDwellTimeWeight'
   | 'postVideoWeight'
+  | 'grokAnalyzeWeight'
   | 'notInterestedWeight'
   | 'blockAuthorWeight'
   | 'muteAuthorWeight'
@@ -157,6 +158,11 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   postVideoWeight: {
     name: 'Post Video', nameZh: '发布视频',
     description: 'Weight × predicted post-video probability', descriptionZh: '权重 × 预测发布视频概率',
+    min: 0, max: 5, step: 0.01, type: 'positive',
+  },
+  grokAnalyzeWeight: {
+    name: 'Grok Analyze', nameZh: 'Grok 分析',
+    description: 'Weight × predicted Grok-analyze click probability', descriptionZh: '权重 × 预测点击 Grok 分析概率',
     min: 0, max: 5, step: 0.01, type: 'positive',
   },
   notInterestedWeight: {
