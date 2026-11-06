@@ -157,6 +157,10 @@ function baseRules(candidate: VisibilityCandidate, context: FilterContext): Visi
     .find(([label]) => !selfView || label === 'FOR_EMERGENCY_USE_ONLY');
   const requestCountry = context.viewerCountryCode?.toLowerCase();
   const ageGatingCountry = context.viewerAccountCountryCode?.toLowerCase() || requestCountry;
+  const geoBlocked = Boolean(
+    (features?.geoAllowCountries?.length && !features.geoAllowCountries.some((item) => item.toLowerCase() === requestCountry)) ||
+    features?.geoDenyCountries?.some((item) => item.toLowerCase() === requestCountry)
+  );
   const withheldIn = (countries: string[] | undefined) => Boolean(
     !selfView && requestCountry && countries?.some((country) => country.toLowerCase() === requestCountry)
   );
@@ -229,6 +233,11 @@ function baseRules(candidate: VisibilityCandidate, context: FilterContext): Visi
         (!selfView || candidate.isRetweet)
       ),
     },
+    // Audience is NonAuthors: the author still sees their own geo-restricted post.
+    {
+      name: 'DropTweetsWithGeoRestrictedMediaRule', action: 'drop', reason: 'geo_restricted_media',
+      matches: () => !selfView && geoBlocked,
+    },
     {
       name: 'NsfwHighPrecisionInterstitialRule', action: 'interstitial', reason: 'contain_nsfw_media',
       matches: () => !selfView && !context.viewerAllowsSensitiveMedia && candidateLabels.has('NSFW_HIGH_PRECISION'),
@@ -262,15 +271,9 @@ function recommendationRules(candidate: VisibilityCandidate, context: FilterCont
       break;
     }
   }
-  const country = context.viewerCountryCode?.toLowerCase() || 'xx';
-  const geoBlocked = Boolean(
-    (features?.geoAllowCountries?.length && !features.geoAllowCountries.some((item) => item.toLowerCase() === country)) ||
-    features?.geoDenyCountries?.some((item) => item.toLowerCase() === country)
-  );
 
   return [
     { name: 'DropTweetsWithDmcaMediaRule', action: 'drop', reason: 'dmca_media', matches: () => Boolean(features?.dmcaMedia) },
-    { name: 'DropTweetsWithGeoRestrictedMediaRule', action: 'drop', reason: 'geo_restricted_media', matches: () => geoBlocked },
     { name: 'DropNsfwUserAuthorRule', action: 'drop', reason: 'nsfw_user_author', matches: () => !selfView && Boolean(features?.authorNsfwUser || candidate.nsfwAuthor) },
     { name: 'DropNsfwAdminAuthorRule', action: 'drop', reason: 'nsfw_admin_author', matches: () => !selfView && Boolean(features?.authorNsfwAdmin) },
     { name: 'TweetNsfwUserDropRule', action: 'drop', reason: 'tweet_nsfw_user', matches: () => Boolean(features?.tweetNsfwUser) },

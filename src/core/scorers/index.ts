@@ -1,5 +1,5 @@
 import type { FilterContext, ScorerResult, TweetCandidate, WeightConfig } from '@/core/types';
-import { CACHED_POSTS_MIN_COUNT, RANKING_CONSTANTS, RANKING_DEFAULTS } from '@/data/upstreamSnapshot';
+import { CACHED_POSTS_MIN_COUNT, PHOENIX_DEFAULTS, RANKING_CONSTANTS, RANKING_DEFAULTS } from '@/data/upstreamSnapshot';
 import { computeWeightedScore, createSeededRandom, hashString } from '@/utils/scoring';
 
 const EPSILON = 1e-6;
@@ -9,9 +9,11 @@ export function runPhoenixScorer(candidates: TweetCandidate[]): ScorerResult {
     scorerId: 'phoenix',
     scorerName: 'PhoenixScorer (synthetic outputs)',
     summary: {
-      outputHeadCount: 27,
-      outputContractHeadCount: 29,
+      outputHeadCount: PHOENIX_DEFAULTS.baseOutputHeadCount +
+        (RANKING_DEFAULTS.homeExcursionScores ? PHOENIX_DEFAULTS.excursionOutputHeadCount : 0),
+      outputContractHeadCount: PHOENIX_DEFAULTS.outputContractHeadCount,
       homeExcursionScoresEnabled: RANKING_DEFAULTS.homeExcursionScores,
+      phoenixAggregationType: PHOENIX_DEFAULTS.aggregationType,
       fixtureOutputUnits: 'probabilities-and-continuous-seconds',
       productionModelInference: false,
     },

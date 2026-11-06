@@ -6,10 +6,18 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'b5089266c0fbad66f388051f8f89056e2a8f974d',
-  shortCommit: 'b508926',
-  releasedAt: '2026-11-04',
-  paramsSyncedAt: '2026-11-03T16:00:34Z',
+  commit: '2e2295b0df598eee5aa05f9c9b458f4490c7fcbe',
+  shortCommit: '2e2295b',
+  releasedAt: '2026-11-06',
+  paramsSyncedAt: '2026-11-05T16:00:35Z',
+} as const;
+
+export const PHOENIX_DEFAULTS = {
+  aggregationType: 'DENSE_WITH_LONG_DWELL_HOME_EXCURSION',
+  // 25 probability heads plus dwell_time and click_dwell_time; excursion adds 2.
+  baseOutputHeadCount: 27,
+  excursionOutputHeadCount: 2,
+  outputContractHeadCount: 29,
 } as const;
 
 export const SOURCE_DEFAULTS = {
@@ -99,6 +107,9 @@ export const ADS_DEFAULTS = {
 
 export const VIDEO_CAROUSEL_DEFAULTS = {
   enabled: false,
+  ctrModel: false,
+  seenFilter: false,
+  videoContinuationWeight: 0,
   highRiskFilter: true,
   mediumRiskFilter: false,
   embeddingVersion: 'v8_search_1',
@@ -111,18 +122,18 @@ export const VIDEO_CAROUSEL_DEFAULTS = {
 } as const;
 
 export const UPSTREAM_DEFAULT_WEIGHTS: WeightConfig = {
-  favoriteWeight: 0.66,
+  favoriteWeight: 0.708,
   replyWeight: 5,
   bidirectionalFollowReplyWeightBoost: 15,
   bidirectionalFollowDwellWeightBoost: 0,
   retweetWeight: 1,
   photoExpandWeight: 0.05,
-  videoOpenWeight: 0.02,
-  clickWeight: 0.3,
+  videoOpenWeight: 0,
+  clickWeight: 0.274,
   openLinkWeight: 0.2,
   profileClickWeight: 0,
   vqvWeight: 0,
-  shareWeight: 2,
+  shareWeight: 2.118,
   shareViaDmWeight: 5,
   shareViaCopyLinkWeight: 20,
   dwellWeight: 0.05,
@@ -134,13 +145,13 @@ export const UPSTREAM_DEFAULT_WEIGHTS: WeightConfig = {
   postVideoWeight: 0,
   grokAnalyzeWeight: 0,
 
-  notInterestedWeight: -52.272,
+  notInterestedWeight: -53.07,
   blockAuthorWeight: -31.2,
   muteAuthorWeight: -58.8,
   reportWeight: -234,
   notDwelledWeight: -0.02,
-  dwellTimeWeight: 0.006,
-  clickDwellTimeWeight: 0.4,
+  dwellTimeWeight: 0.0075,
+  clickDwellTimeWeight: 0.385,
 
   minVideoDurationMs: 10_000,
   enableQuotedVqvDurationCheck: false,
@@ -177,11 +188,17 @@ export const RANKING_CONSTANTS = {
   vmRankerEmbeddingDimension: 1_024,
 } as const;
 
+/** Hard-coded in home-mixer/scorers/value_model.rs, not feature-switch params. */
+export const VALUE_MODEL_FIXED_WEIGHTS = {
+  videoContinuation: 0,
+  profileVisitSecs: 0,
+} as const;
+
 export const RANKING_DEFAULTS = {
   topicDppEnabled: false,
   pageDecodeRerank: false,
   pageRlExploration: false,
-  homeExcursionScores: false,
+  homeExcursionScores: true,
   videoCarousel: VIDEO_CAROUSEL_DEFAULTS.enabled,
   coldStartThompsonSampling: true,
   coldStartBetaAlpha: 0.75,

@@ -61,7 +61,7 @@ export async function runP2Checks(page, baseUrl = 'http://127.0.0.1:4173') {
       await page.goto(baseUrl + '/weights');
       await page.waitForSelector(favorite);
       await page.click(button(zh ? '恢复默认' : 'Reset to Default'));
-      assert.equal(await value(), 0.66);
+      assert.equal(await value(), 0.708);
       const preset = `P2-reload-${lang}-${Date.now()}`;
       try {
         await page.click(button(zh ? '保存预设' : 'Save Preset'));
@@ -73,10 +73,10 @@ export async function runP2Checks(page, baseUrl = 'http://127.0.0.1:4173') {
         await page.waitForSelector('[role="combobox"][data-placeholder]');
         await page.click('[role="combobox"]');
         await page.click(`loc=role:listboxoption[name="${preset}"]`);
-        await page.waitForFunction((selector) => Number(document.querySelector(selector)?.getAttribute('aria-valuenow')) === 0.66, favorite);
+        await page.waitForFunction((selector) => Number(document.querySelector(selector)?.getAttribute('aria-valuenow')) === 0.708, favorite);
         await healthy();
         await shot(`same-preset-reload-${lang}.png`);
-        pass(`same-preset-reload-${lang}`, { saved: 0.66, edited: 5, reloaded: await value() });
+        pass(`same-preset-reload-${lang}`, { saved: 0.708, edited: 5, reloaded: await value() });
         await page.click(button(zh ? '删除预设' : 'Delete preset'));
       } finally {
         await page.evaluate((name) => {

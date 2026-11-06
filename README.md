@@ -2,11 +2,11 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@b508926`](https://github.com/xai-org/x-algorithm/tree/b5089266c0fbad66f388051f8f89056e2a8f974d) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@2e2295b`](https://github.com/xai-org/x-algorithm/tree/2e2295b0df598eee5aa05f9c9b458f4490c7fcbe) · [简体中文](README.zh-CN.md)
 
 ## Overview
 
-The simulator visualizes the published primary default path at upstream commit `b508926`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
+The simulator visualizes the published primary default path at upstream commit `2e2295b`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
 
 It covers the published source, filter, scoring, ranking, and fixture-only feed blending path. It does not run model training or inference, remote retrieval and hydration services, production ad delivery, or notification filtering.
 
@@ -25,7 +25,7 @@ More screenshots and the E2E report are in [`artifacts/e2e`](artifacts/e2e).
 
 - Step through the Scored Posts and For You pipelines.
 - Expand a ranked post to see up to three weighted contributions, each with an absolute share of at least 10%.
-- Inspect the 27 default Phoenix output weights, ranking weights, filters, visibility, brand safety, and VMRanker DPP.
+- Inspect the 29 default Phoenix output weights, ranking weights, filters, visibility, brand safety, and VMRanker DPP.
 - Compare fixture outputs, tune weights live, and keep local history in English or Chinese.
 
 ## Requirements
@@ -48,7 +48,7 @@ npm run dev
 
 | Path | Page |
 | --- | --- |
-| `/` | Output Explorer: 27 Phoenix output weights on local fixtures |
+| `/` | Output Explorer: 29 Phoenix output weights on local fixtures |
 | `/simulator` | Ranking Simulator: pipeline walkthrough and final feed |
 | `/weights` | Weight Lab: compare fixtures and tune weights |
 | `/history` | Analysis history stored in the browser |
@@ -67,7 +67,7 @@ The default ad blender is `multi_risk`. It groups compatible ad neighbours by ri
 
 Brand-safety verdicts use the legacy published path, because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false` at this commit.
 
-The `post_video` and `grok_analyze` weights stay at `0.0`, and the video carousel is disabled by the pinned defaults.
+The `post_video` and `grok_analyze` weights stay at `0.0`, and the video carousel is disabled by the pinned defaults. Home excursion heads are returned, and their fusion weights stay at `0.0`. The carousel CTR model and seen filter are off.
 
 The public repository omits `xai_post_text`, so local multilingual tokenization is not guaranteed to match production.
 

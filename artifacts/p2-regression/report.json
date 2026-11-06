@@ -2,7 +2,7 @@
   "status": "passed",
   "browser": "ego-browser",
   "baseUrl": "http://127.0.0.1:4173",
-  "startedAt": "2026-11-05T02:02:16.768Z",
+  "startedAt": "2026-11-06T13:18:55.627Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -11,42 +11,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": true
         }
@@ -56,9 +56,9 @@
       "name": "same-preset-reload-en",
       "status": "passed",
       "detail": {
-        "saved": 0.66,
+        "saved": 0.708,
         "edited": 5,
-        "reloaded": 0.66
+        "reloaded": 0.708
       }
     },
     {
@@ -79,42 +79,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-efpMQI0V.js"
+            "/assets/index-DZW6Um1c.js"
           ],
           "reloaded": true
         }
@@ -124,9 +124,9 @@
       "name": "same-preset-reload-zh",
       "status": "passed",
       "detail": {
-        "saved": 0.66,
+        "saved": 0.708,
         "edited": 5,
-        "reloaded": 0.66
+        "reloaded": 0.708
       }
     },
     {
@@ -153,5 +153,5 @@
     "same-preset-reload-zh.png",
     "inactive-topic-factor-zh.png"
   ],
-  "completedAt": "2026-11-05T02:02:31.898Z"
+  "completedAt": "2026-11-06T13:19:07.802Z"
 }

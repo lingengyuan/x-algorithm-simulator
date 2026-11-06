@@ -2,11 +2,11 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@b508926`](https://github.com/xai-org/x-algorithm/tree/b5089266c0fbad66f388051f8f89056e2a8f974d) · [English](README.md)
+固定在 [`xai-org/x-algorithm@2e2295b`](https://github.com/xai-org/x-algorithm/tree/2e2295b0df598eee5aa05f9c9b458f4490c7fcbe) · [English](README.md)
 
 ## 项目说明
 
-项目可视化上游提交 `b508926` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
+项目可视化上游提交 `2e2295b` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
 
 覆盖范围是公开的召回、过滤、评分、排序和本地数据混排路径。项目不运行模型训练与推理、远端召回与 hydration、生产广告投放和通知过滤。
 
@@ -25,7 +25,7 @@
 
 - 逐步查看 Scored Posts 和 For You 流水线。
 - 展开排序后的帖子，查看最多三项加权贡献，每项绝对值占比不低于 10%。
-- 查看 27 个默认 Phoenix 输出权重，以及排序权重、过滤、可见性、品牌安全和 VMRanker DPP。
+- 查看 29 个默认 Phoenix 输出权重，以及排序权重、过滤、可见性、品牌安全和 VMRanker DPP。
 - 对比本地测试输出、实时调节权重，并保存中英文本地历史记录。
 
 ## 环境要求
@@ -48,7 +48,7 @@ npm run dev
 
 | 路径 | 页面 |
 | --- | --- |
-| `/` | 输出探索：在本地测试数据上查看 27 个 Phoenix 输出权重 |
+| `/` | 输出探索：在本地测试数据上查看 29 个 Phoenix 输出权重 |
 | `/simulator` | 排序模拟：查看流水线各阶段和最终 feed |
 | `/weights` | 权重实验室：对比测试输出并调节权重 |
 | `/history` | 保存在浏览器中的分析历史 |
@@ -67,7 +67,7 @@ npm run dev
 
 固定版本中 `rust_home_mixer_ads_bs_v2_exp_enabled` 为 `false`，因此品牌安全判定使用 legacy 路径。
 
-`post_video` 和 `grok_analyze` 权重保持 `0.0`，视频轮播在默认参数下关闭。
+`post_video` 和 `grok_analyze` 权重保持 `0.0`，视频轮播在默认参数下关闭。首页停留字段会返回，融合权重保持 `0.0`。轮播 CTR 模型和 seen filter 关闭。
 
 公开仓库不含 `xai_post_text`，本地多语言分词不保证与生产环境一致。
 

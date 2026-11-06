@@ -1,5 +1,5 @@
 import type { HeadContribution, PhoenixScores, TweetCandidate, TweetInput, WeightConfig } from '@/core/types';
-import { RANKING_CONSTANTS } from '@/data/upstreamSnapshot';
+import { RANKING_CONSTANTS, VALUE_MODEL_FIXED_WEIGHTS } from '@/data/upstreamSnapshot';
 
 function clamp(value: number, min = 0, max = 1): number {
   return Math.max(min, Math.min(max, value));
@@ -113,6 +113,11 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
   const clickDwellTime = Math.max(0.25, dwellTime * clickScore * (0.7 + rng() * 0.6));
   // Drawn last so existing seeded fixture scores stay stable.
   const grokAnalyzeScore = clamp(engagement * 0.18 + (rng() - 0.5) * 0.06);
+  // Home excursion heads are continuous seconds returned only for the home request.
+  const homeVideoContinuationSecs = tweet.hasMedia === 'video'
+    ? dwellTime * videoOpenScore * (0.5 + rng())
+    : 0;
+  const homeProfileVisitSecs = dwellTime * profileClickScore * (0.4 + rng() * 0.8);
 
   return {
     favoriteScore,
@@ -142,6 +147,8 @@ export function simulatePhoenixScores(tweet: TweetInput, seed?: number): Phoenix
     notDwelledScore,
     dwellTime,
     clickDwellTime,
+    homeVideoContinuationSecs,
+    homeProfileVisitSecs,
   };
 }
 
@@ -204,6 +211,11 @@ export function computeWeightedScore(
     ['quoted_vqv', apply(scores.quotedVqvScore, quotedVqvEligible ? weights.quotedVqvWeight : 0)],
     ['dwell_time', apply(scores.dwellTime, weights.dwellTimeWeight)],
     ['click_dwell_time', apply(scores.clickDwellTime, weights.clickDwellTimeWeight)],
+    // Home excursion terms exist upstream with weight 0.0, so they never change the score.
+    ['video_continuation',
+      apply((scores.videoOpenScore ?? 0) * (scores.homeVideoContinuationSecs ?? 0), VALUE_MODEL_FIXED_WEIGHTS.videoContinuation)],
+    ['profile_visit_secs',
+      apply((scores.profileClickScore ?? 0) * (scores.homeProfileVisitSecs ?? 0), VALUE_MODEL_FIXED_WEIGHTS.profileVisitSecs)],
     ['follow_author', apply(scores.followAuthorScore, weights.followAuthorWeight)],
     ['not_interested', apply(scores.notInterestedScore, weights.notInterestedWeight)],
     ['block_author', apply(scores.blockAuthorScore, weights.blockAuthorWeight)],

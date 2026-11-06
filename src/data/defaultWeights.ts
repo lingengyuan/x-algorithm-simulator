@@ -58,7 +58,7 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   favoriteWeight: {
     name: 'Like', nameZh: '点赞',
     description: 'Weight × predicted like probability', descriptionZh: '权重 × 预测点赞概率',
-    min: 0, max: 5, step: 0.01, type: 'positive',
+    min: 0, max: 5, step: 0.001, type: 'positive',
   },
   replyWeight: {
     name: 'Reply', nameZh: '回复',
@@ -83,7 +83,7 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   clickWeight: {
     name: 'Post Click', nameZh: '点击帖子',
     description: 'Weight × predicted post-click probability', descriptionZh: '权重 × 预测帖子点击概率',
-    min: 0, max: 5, step: 0.01, type: 'positive',
+    min: 0, max: 5, step: 0.001, type: 'positive',
   },
   openLinkWeight: {
     name: 'Open Link', nameZh: '打开链接',
@@ -103,7 +103,7 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   shareWeight: {
     name: 'Share', nameZh: '分享',
     description: 'Weight × predicted share probability', descriptionZh: '权重 × 预测分享概率',
-    min: 0, max: 10, step: 0.1, type: 'positive',
+    min: 0, max: 10, step: 0.001, type: 'positive',
   },
   shareViaDmWeight: {
     name: 'Share via DM', nameZh: '私信分享',
@@ -148,7 +148,7 @@ export const WEIGHT_METADATA: Record<AdjustableWeightKey, WeightMetadata> = {
   dwellTimeWeight: {
     name: 'Continuous Dwell', nameZh: '连续停留时长',
     description: 'Weight × predicted continuous dwell value', descriptionZh: '权重 × 预测连续停留值',
-    min: 0, max: 0.02, step: 0.001, type: 'positive',
+    min: 0, max: 0.02, step: 0.0001, type: 'positive',
   },
   clickDwellTimeWeight: {
     name: 'Click Dwell', nameZh: '点击后停留',

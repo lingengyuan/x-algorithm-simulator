@@ -25,7 +25,7 @@ export function ScoreRadar({ scores }: ScoreRadarProps) {
         return <div key={key}><div className="continuous-label">{isZh ? label.nameZh : label.name}</div>
           <div className="continuous-value">{scores[key] === undefined ? '—' : `${scores[key].toFixed(3)} ${isZh ? '秒' : label.unit}`}</div>
         </div>;
-      })}</div><p className="field-note">— {isZh ? '未启用 / 未返回' : 'Disabled / not returned'}</p></CardContent>
+      })}</div>{continuous.some((key) => scores[key] === undefined) && <p className="field-note">— {isZh ? '未启用 / 未返回' : 'Disabled / not returned'}</p>}</CardContent>
     </Card>
   </div>;
 }

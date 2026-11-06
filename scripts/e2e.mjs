@@ -17,7 +17,7 @@ const downloads = await mkdtemp(resolve(tmpdir(), 'x-simulator-e2e-'));
 await mkdir(output, { recursive: true });
 const task = await taskSpace(options.has('space') ? Number(options.get('space')) : `X simulator E2E ${options.get('run') || Date.now()}`);
 const page = task.page('p1');
-const report = { runId: options.get('run'), status: 'running', upstream: 'b5089266c0fbad66f388051f8f89056e2a8f974d', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
+const report = { runId: options.get('run'), status: 'running', upstream: '2e2295b0df598eee5aa05f9c9b458f4490c7fcbe', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
 let language = 'en';
 const label = (en, zh) => language === 'en' ? en : zh;
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -150,10 +150,17 @@ async function exportTrace(name) {
   assert.equal('reactWithVideoWeight' in trace.config.weights, false);
   assert(trace.rawCandidates.some((candidate) => Number.isFinite(candidate.phoenixScores.postVideoScore)));
   assert(trace.rawCandidates.some((candidate) => Number.isFinite(candidate.phoenixScores.grokAnalyzeScore)));
+  assert(trace.rawCandidates.every((candidate) =>
+    Number.isFinite(candidate.phoenixScores.homeVideoContinuationSecs) &&
+    Number.isFinite(candidate.phoenixScores.homeProfileVisitSecs)));
+  assert(trace.rawCandidates.some((candidate) => candidate.phoenixScores.homeVideoContinuationSecs > 0));
+  assert(trace.rawCandidates.some((candidate) => candidate.phoenixScores.homeProfileVisitSecs > 0));
+  assert.equal(trace.config.weights.videoOpenWeight, 0);
   const phoenixStep = trace.result.steps.find((step) => step.id === 'phoenix');
   if (phoenixStep) {
-    assert.equal(phoenixStep.details.summary.outputHeadCount, 27);
+    assert.equal(phoenixStep.details.summary.outputHeadCount, 29);
     assert.equal(phoenixStep.details.summary.outputContractHeadCount, 29);
+    assert.equal(phoenixStep.details.summary.phoenixAggregationType, 'DENSE_WITH_LONG_DWELL_HOME_EXCURSION');
   }
   assert(trace.rawCandidates.every((candidate) => !('reactWithVideoScore' in candidate.phoenixScores)));
   assert.equal(trace.result.steps.some((step) => step.id === 'ranking'), false);
@@ -171,9 +178,12 @@ async function exportTrace(name) {
 
 function verifyTraceScores(trace, fallback = false) {
   const w = trace.config.weights;
-  assert.equal(w.favoriteWeight, 0.66);
-  assert.equal(w.notInterestedWeight, -52.272);
-  assert.equal(w.clickDwellTimeWeight, 0.4);
+  assert.equal(w.favoriteWeight, 0.708);
+  assert.equal(w.notInterestedWeight, -53.07);
+  assert.equal(w.clickDwellTimeWeight, 0.385);
+  assert.equal(w.videoOpenWeight, 0);
+  assert.equal(w.shareWeight, 2.118);
+  assert.equal(w.dwellTimeWeight, 0.0075);
   assert.equal(w.coldStartImpressionThreshold, 200);
   for (const candidate of trace.result.finalCandidates) {
     if (fallback) {
@@ -191,6 +201,7 @@ function verifyContributions(trace) {
   const w = trace.config.weights;
   for (const candidate of trace.result.finalCandidates) {
     const boost = !candidate.inReplyToTweetId && !candidate.originalTweetId && candidate.isMutualFollowAuthor;
+    let signed = 0;
     const terms = Object.entries(candidate.phoenixScores).map(([key, score]) => {
       const base = key.replace(/Score$/, '');
       let weight = w[base + 'Weight'] ?? 0;
@@ -199,11 +210,14 @@ function verifyContributions(trace) {
       if (base === 'vqv' && (trace.context.viewerFollowerCount >= 10000 || (candidate.videoDurationMs ?? 0) <= w.minVideoDurationMs)) weight = 0;
       if (base === 'quotedVqv' && w.enableQuotedVqvDurationCheck && (candidate.quotedVideoDurationMs ?? 0) <= w.minVideoDurationMs) weight = 0;
       if (base === 'postUnexplored' && w.postUnexploredInNetworkOnly && !candidate.inNetwork) weight = 0;
+      signed += score * weight;
       return Math.abs(score * weight);
     });
-    const total = terms.reduce((sum, term) => sum + term, 0);
+    assert(Math.abs(candidate.rawWeightedScore - signed) < 1e-9, `Weighted score does not use the exported weights: ${candidate.id}`);
     const heads = candidate.topHeads;
+    const total = terms.reduce((sum, term) => sum + term, 0);
     assert(heads.length <= 3);
+    assert.equal(heads.some((head) => head.head === 'video_continuation' || head.head === 'profile_visit_secs'), false);
     assert.equal(new Set(heads.map((head) => head.head)).size, heads.length);
     for (const [index, head] of heads.entries()) {
       assert(Number.isFinite(head.contribution) && Number.isFinite(head.share));
@@ -243,13 +257,22 @@ try {
       await page.click(button(label('Video', '视频')));
       await page.click('[data-testid="analyzer-submit"]');
       await page.waitForSelector('[data-testid="continuous-phoenix-outputs"]');
-      const continuous = await page.evaluate(() => document.querySelector('[data-testid="continuous-phoenix-outputs"]').innerText);
-      assert(continuous.includes(label('Home Video Continuation', '首页视频续看时长')));
-      assert(continuous.includes(label('Disabled / not returned', '未启用 / 未返回')));
-      assert.equal(continuous.includes('Residual'), false);
+      const continuous = await page.evaluate(() => ({
+        text: document.querySelector('[data-testid="continuous-phoenix-outputs"]').innerText,
+        values: [...document.querySelectorAll('[data-testid="continuous-phoenix-outputs"] .continuous-value')]
+          .map((node) => node.textContent.trim()),
+      }));
+      assert(continuous.text.includes(label('Home Video Continuation', '首页视频续看时长')));
+      assert.equal(continuous.values.length, 4);
+      assert(continuous.values.every((value) => /^\d+\.\d{3} (s|秒)$/.test(value)), `Excursion outputs must be numeric seconds: ${continuous.values}`);
+      const [dwellTime, clickDwellTime, videoContinuation, profileVisit] = continuous.values.map((value) => Number.parseFloat(value));
+      assert(dwellTime > 0 && clickDwellTime > 0);
+      assert(videoContinuation > 0 && profileVisit > 0, 'Enabled home excursion heads must return values');
+      assert.equal(continuous.text.includes(label('Disabled / not returned', '未启用 / 未返回')), false);
+      assert.equal(continuous.text.includes('Residual'), false);
       await healthy();
       await shot(`analyzer-${lang}`);
-      check(`analyzer-${lang}`, 'Video fixture outputs and disabled excursion fields render without NaN.');
+      check(`analyzer-${lang}`, 'Video fixture outputs and enabled home excursion seconds render without NaN.');
 
       await page.click(button(label('Compare Mode', '对比模式')));
       await page.waitForFunction(() => document.querySelectorAll('textarea').length === 2);
@@ -259,18 +282,18 @@ try {
       await page.click(button(label('Generate Fixture Outputs', '生成测试输出')));
       await page.waitForSelector('table');
       await healthy();
-      check(`compare-${lang}`, 'Both inputs render a comparison table with missing gated fields.');
+      check(`compare-${lang}`, 'Both inputs render a comparison table with continuous outputs.');
 
       await goto('/weights');
       const favorite = '[data-weight="favoriteWeight"] [role="slider"]';
       const clickDwell = '[data-weight="clickDwellTimeWeight"] [role="slider"]';
-      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.66);
-      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), clickDwell)), 0.4);
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.708);
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), clickDwell)), 0.385);
       await page.press(favorite, 'ArrowRight');
-      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.67);
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.709);
       await shot(`weights-adjusted-${lang}`);
       await page.click(button(label('Reset to Default', '恢复默认')));
-      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.66);
+      assert.equal(Number(await page.evaluate((s) => document.querySelector(s).getAttribute('aria-valuenow'), favorite)), 0.708);
       await healthy();
       await shot(`weights-default-${lang}`);
       check(`weights-${lang}`, 'Defaults, keyboard adjustment, and reset use current Home Mixer weights.');
@@ -311,7 +334,7 @@ try {
       const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
       assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
       const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
-      assert.equal(configValues[label('Upstream commit', '上游提交')], 'b508926');
+      assert.equal(configValues[label('Upstream commit', '上游提交')], '2e2295b');
       assert.equal(configValues[label('Ads blender', '广告混排')], 'multi_risk');
       assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
       assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));

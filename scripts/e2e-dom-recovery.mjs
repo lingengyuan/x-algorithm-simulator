@@ -86,7 +86,7 @@ export async function runDomRecoveryChecks(page, baseUrl = 'http://127.0.0.1:417
       const favorite = '[data-weight="favoriteWeight"] [role="slider"]';
       await page.press(favorite, 'ArrowRight');
       const value = Number(await page.evaluate((selector) => document.querySelector(selector).getAttribute('aria-valuenow'), favorite));
-      assert.equal(value, 0.67);
+      assert.equal(value, 0.709);
       const preset = `DOM-regression-${lang}-${Date.now()}`;
       await clickButton(lang === 'zh' ? '保存预设' : 'Save Preset');
       await page.fill('input[placeholder]', preset);
@@ -94,11 +94,11 @@ export async function runDomRecoveryChecks(page, baseUrl = 'http://127.0.0.1:417
       await page.waitForFunction((name) => document.querySelector('[role="combobox"]')?.textContent.includes(name), preset);
       assert((await translateText(page, '[role="combobox"] > span', true)).replaced > 0);
       await clickButton(lang === 'zh' ? '恢复默认' : 'Reset to Default');
-      await page.waitForFunction((selector) => Number(document.querySelector(selector).getAttribute('aria-valuenow')) === 0.66, favorite);
+      await page.waitForFunction((selector) => Number(document.querySelector(selector).getAttribute('aria-valuenow')) === 0.708, favorite);
       await healthy();
       await page.click('[role="combobox"]');
       await page.click(`loc=role:listboxoption[name="${preset}"]`);
-      await page.waitForFunction((selector) => Number(document.querySelector(selector).getAttribute('aria-valuenow')) === 0.67, favorite);
+      await page.waitForFunction((selector) => Number(document.querySelector(selector).getAttribute('aria-valuenow')) === 0.709, favorite);
       await clickButton(lang === 'zh' ? '删除预设' : 'Delete preset');
       await healthy();
       await shot(`weights-${lang}.png`);
