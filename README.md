@@ -2,11 +2,11 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@2e2295b`](https://github.com/xai-org/x-algorithm/tree/2e2295b0df598eee5aa05f9c9b458f4490c7fcbe) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@3b6919f`](https://github.com/xai-org/x-algorithm/tree/3b6919f87532e57063bb3f1e85c2f509323b513e) · [简体中文](README.zh-CN.md)
 
 ## Overview
 
-The simulator visualizes the published primary default path at upstream commit `2e2295b`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
+The simulator visualizes the published primary default path at upstream commit `3b6919f`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
 
 It covers the published source, filter, scoring, ranking, and fixture-only feed blending path. It does not run model training or inference, remote retrieval and hydration services, production ad delivery, or notification filtering.
 

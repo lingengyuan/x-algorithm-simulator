@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '2e2295b0df598eee5aa05f9c9b458f4490c7fcbe',
-  shortCommit: '2e2295b',
-  releasedAt: '2026-11-06',
-  paramsSyncedAt: '2026-11-05T16:00:35Z',
+  commit: '3b6919f87532e57063bb3f1e85c2f509323b513e',
+  shortCommit: '3b6919f',
+  releasedAt: '2026-11-07',
+  paramsSyncedAt: '2026-11-06T16:00:45Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -103,11 +103,15 @@ export const BLENDING_DEFAULTS = {
 export const ADS_DEFAULTS = {
   enablePageLogging: true,
   brandSafetyVerdictV2: false,
+  // Cache-write TTL only. The simulator records the value and writes no Redis cache.
+  historyCacheTtlSecs: 300,
 } as const;
 
 export const VIDEO_CAROUSEL_DEFAULTS = {
   enabled: false,
   ctrModel: false,
+  // The model is named upstream but stays unused while the carousel and CTR switch are off.
+  ctrModelName: 'lr_v8_search_video_1_2026-11-03_no_high_risk',
   seenFilter: false,
   videoContinuationWeight: 0,
   highRiskFilter: true,

@@ -17,7 +17,7 @@ const downloads = await mkdtemp(resolve(tmpdir(), 'x-simulator-e2e-'));
 await mkdir(output, { recursive: true });
 const task = await taskSpace(options.has('space') ? Number(options.get('space')) : `X simulator E2E ${options.get('run') || Date.now()}`);
 const page = task.page('p1');
-const report = { runId: options.get('run'), status: 'running', upstream: '2e2295b0df598eee5aa05f9c9b458f4490c7fcbe', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
+const report = { runId: options.get('run'), status: 'running', upstream: '3b6919f87532e57063bb3f1e85c2f509323b513e', browser: 'ego-browser', startedAt: new Date().toISOString(), checks: [], screenshots: [], traces: [] };
 let language = 'en';
 const label = (en, zh) => language === 'en' ? en : zh;
 const check = (name, detail) => { report.checks.push({ name, status: 'passed', detail }); console.log(`PASS ${name}`); };
@@ -334,7 +334,7 @@ try {
       const upstreamLink = await page.evaluate(() => document.querySelector('header a.upstream-link')?.getAttribute('href'));
       assert.equal(upstreamLink, `https://github.com/xai-org/x-algorithm/commit/${report.upstream}`);
       const configValues = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll('.configuration-list > div')].map((row) => [row.querySelector('dt')?.textContent.trim(), row.querySelector('dd')?.textContent.trim()])));
-      assert.equal(configValues[label('Upstream commit', '上游提交')], '2e2295b');
+      assert.equal(configValues[label('Upstream commit', '上游提交')], '3b6919f');
       assert.equal(configValues[label('Ads blender', '广告混排')], 'multi_risk');
       assert.equal(configValues[label('Brand-safety path', '品牌安全路径')], 'Legacy');
       assert.equal(configValues[label('Video carousel', '视频轮播')], label('Disabled', '关闭'));
