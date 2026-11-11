@@ -2,11 +2,11 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@3b6919f`](https://github.com/xai-org/x-algorithm/tree/3b6919f87532e57063bb3f1e85c2f509323b513e) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@660cd74`](https://github.com/xai-org/x-algorithm/tree/660cd7407c5726ec8d3aef27c32e1377b1c7e480) · [简体中文](README.zh-CN.md)
 
 ## Overview
 
-The simulator visualizes the published primary default path at upstream commit `3b6919f`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
+The simulator visualizes the published primary default path at upstream commit `660cd74`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
 
 It covers the published source, filter, scoring, ranking, and fixture-only feed blending path. It does not run model training or inference, remote retrieval and hydration services, production ad delivery, or notification filtering.
 
@@ -63,7 +63,7 @@ npm run dev
 
 ## Simulator Scope
 
-The default ad blender is `multi_risk`. It groups compatible ad neighbours by risk, distributes the remaining posts between groups, and truncates the page.
+The default ad blender is `slot_spread`. It reserves spaced ad slots, pulls the nearest compatible posts into each pair, and truncates the page.
 
 Brand-safety verdicts use the legacy published path, because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false` at this commit.
 

@@ -1,9 +1,9 @@
 {
-  "runId": "1794100715042",
+  "runId": "1794367171570",
   "status": "passed",
-  "upstream": "3b6919f87532e57063bb3f1e85c2f509323b513e",
+  "upstream": "660cd7407c5726ec8d3aef27c32e1377b1c7e480",
   "browser": "ego-browser",
-  "startedAt": "2026-11-08T01:18:35.179Z",
+  "startedAt": "2026-11-11T03:19:31.710Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -12,42 +12,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": true
         }
@@ -80,42 +80,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-Dnt37fYn.js"
+            "/assets/index-DgBq9t1x.js"
           ],
           "reloaded": true
         }
@@ -338,20 +338,22 @@
       "detail": "The 3,500-post scenario selects 50 posts with the carousel disabled."
     },
     {
-      "name": "multi-risk-page-and-neighbours",
+      "name": "slot-spread-page-and-neighbours",
       "status": "passed",
       "detail": {
         "pageSize": 35,
+        "pageSlots": 9,
         "adPositions": [
           1,
-          6,
-          11,
-          16,
-          21,
-          26,
+          5,
+          9,
+          13,
+          17,
+          22,
+          27,
           32
         ],
-        "checkedAds": 7
+        "checkedAds": 8
       }
     },
     {
@@ -464,100 +466,100 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "fca8bbfbaa547830effda5ca985ea88b7ae3a5ea849f7e5be07af161aa428307",
-      "bytes": 1212418,
-      "rawBytes": 3044716,
-      "rawSha256": "7fa32d586db61358088684640a1e6eaa46647f1a054ed5f80f2bcc29f53783c9",
+      "sha256": "886c6da482f167a10124c63cdb99c6e30150675dcdec942ebcfd1d60e03a0324",
+      "bytes": 1212640,
+      "rawBytes": 3044727,
+      "rawSha256": "999763c14d7fd0a2da8f3560fea26a0bfc6d560a3c21f8fe37d74e44168bb963",
       "timingsMs": {
-        "click": 396,
-        "downloadEvent": 322,
-        "saveAs": 1005
+        "click": 1007,
+        "downloadEvent": 999,
+        "saveAs": 852
       }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "b2d5c8a2f67b6a97ef71c8647010f83766d1817761a184c7a89c75bde27a80fa",
-      "bytes": 1212430,
-      "rawBytes": 3044716,
-      "rawSha256": "9ea943892c03737697ddd077111b00970a85ac10c015f21f0738a2863f031d1c",
+      "sha256": "17baa88b0068f3f77a1ca233d0ec0a9385092e682d343ecb9d7d8b28d91934e6",
+      "bytes": 1212654,
+      "rawBytes": 3044727,
+      "rawSha256": "d7eb21f6ab10e44e3362324c48afff030df82e021712f0dd79ff612d9b87e8f2",
       "timingsMs": {
-        "click": 450,
-        "downloadEvent": 448,
-        "saveAs": 243
+        "click": 395,
+        "downloadEvent": 319,
+        "saveAs": 378
       }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "62e515514dc8b39fb2143e3bc77c8bb12703a724e75577b04bbcd11ef31b5086",
-      "bytes": 1210372,
-      "rawBytes": 3036279,
-      "rawSha256": "f0b2c0b537f79cfcd072f9958ede34d54e37e3030587ef1a4b93888c22383dc4",
+      "sha256": "a56b6dd0075f297a3ea550f1fc99a0dbb8ff1292736bd8ad5252b3df94586fa2",
+      "bytes": 1210559,
+      "rawBytes": 3036290,
+      "rawSha256": "dd59077707da9aff0f390d4e93dc85a2f2756fadf33e580295ceb0464ffc3389",
       "timingsMs": {
-        "click": 309,
-        "downloadEvent": 307,
-        "saveAs": 247
+        "click": 399,
+        "downloadEvent": 343,
+        "saveAs": 256
       }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "2aec32be49ae14e63164cacd0b26a851009a3900acf69ce9593f069b6316f9ed",
-      "bytes": 931213,
-      "rawBytes": 2405634,
-      "rawSha256": "5ead491285cf117a70d041502bc12c6a30175ca435cd5379ade137d2a9331d82",
+      "sha256": "12a2ab71d71555ec92cc26bd8ee88f6a9864459ef98c13cb0ad32e9b57f96f16",
+      "bytes": 931257,
+      "rawBytes": 2405645,
+      "rawSha256": "43faed8e098b972f74dd2117ff7978e09a27dcc7a9e37e3dea49eff6b11f574a",
       "timingsMs": {
-        "click": 287,
-        "downloadEvent": 286,
-        "saveAs": 238
+        "click": 460,
+        "downloadEvent": 387,
+        "saveAs": 206
       }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "49f588111acb6409db62667619fd78bf4a43dc07849137c57325b7a73e726987",
-      "bytes": 824227,
-      "rawBytes": 2077489,
-      "rawSha256": "acdc608b6e353f8a9af2ffeb787ae4e603a846d2d47a45e1c7c466637cd0578b",
+      "sha256": "bdf4e798c1e5c122eac2ec3554ad8da33a8b8d6fb5e99bb44cd01c9b0a3c8510",
+      "bytes": 824326,
+      "rawBytes": 2077500,
+      "rawSha256": "4d39d20b99644bd1297e96502b43a7a336fd7332a7e182fbd4ecceba8986fd3a",
       "timingsMs": {
-        "click": 296,
-        "downloadEvent": 285,
-        "saveAs": 238
+        "click": 506,
+        "downloadEvent": 442,
+        "saveAs": 773
       }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "2fddaa4761551d3dec382194e1c09320568e13dfa7397b6448637f67c1d42dac",
-      "bytes": 6473394,
-      "rawBytes": 16224863,
-      "rawSha256": "c8c89f3d27c081d180f85226dbbf3e6534379aaabacaf2ec500e980c26220def",
+      "sha256": "bfaaa115edf32c7a0ea104fd14406b8f08900b6ab7dbc6747c7cc222087e8dd0",
+      "bytes": 6443066,
+      "rawBytes": 16148368,
+      "rawSha256": "ffaec44c916929ab65e0af643a155fd57a9d03fe3cd909a517e25711a26f0949",
       "timingsMs": {
-        "click": 220,
-        "downloadEvent": 221,
-        "saveAs": 325
+        "click": 563,
+        "downloadEvent": 510,
+        "saveAs": 236
       }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "c8150b49cfabd06c4eef9838c1e0923ae8ca86691d02205c47b2e641c1a04111",
-      "bytes": 1043743,
-      "rawBytes": 2612640,
-      "rawSha256": "d2ee4815f100d8ee3bfcca3a152415b9376f3c116db294b974f5ad362eae14b5",
+      "sha256": "3a3cb8b84721eac7a8bcb8edd8539994ca5eae3448d6b254dc5e437c8c35891e",
+      "bytes": 1043773,
+      "rawBytes": 2612651,
+      "rawSha256": "4c98c83a02e9ae079b48a76753e3d9ad02797181be8ce4fa7673d5ad44261d0f",
       "timingsMs": {
-        "click": 409,
-        "downloadEvent": 406,
-        "saveAs": 1087
+        "click": 458,
+        "downloadEvent": 393,
+        "saveAs": 862
       }
     },
     {
       "file": "source-budget.json.gz",
-      "sha256": "9f12c7dc2e699ebdcaf171e4641db42845574fd046195da6e9d6d3d1fe63c83e",
-      "bytes": 36489212,
-      "rawBytes": 93379051,
-      "rawSha256": "365a61c3f661ca8898c07f95406e2fbd08e66a59622b640894ace0409d66783f",
+      "sha256": "beda70910049a42c86a7f0b249e58b28edf04258a65fdf4ffbf960fe9b212bf3",
+      "bytes": 36460064,
+      "rawBytes": 93302400,
+      "rawSha256": "9ca52aeacc13f510e3cea09fe7ab7053eadca654e25233575bb5b95ef80fd337",
       "timingsMs": {
-        "click": 622,
-        "downloadEvent": 627,
-        "saveAs": 1237
+        "click": 1287,
+        "downloadEvent": 1309,
+        "saveAs": 450
       }
     }
   ],
-  "completedAt": "2026-11-08T01:26:12.198Z"
+  "completedAt": "2026-11-11T03:27:47.421Z"
 }

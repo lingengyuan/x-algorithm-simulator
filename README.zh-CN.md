@@ -2,11 +2,11 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@3b6919f`](https://github.com/xai-org/x-algorithm/tree/3b6919f87532e57063bb3f1e85c2f509323b513e) · [English](README.md)
+固定在 [`xai-org/x-algorithm@660cd74`](https://github.com/xai-org/x-algorithm/tree/660cd7407c5726ec8d3aef27c32e1377b1c7e480) · [English](README.md)
 
 ## 项目说明
 
-项目可视化上游提交 `3b6919f` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
+项目可视化上游提交 `660cd74` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
 
 覆盖范围是公开的召回、过滤、评分、排序和本地数据混排路径。项目不运行模型训练与推理、远端召回与 hydration、生产广告投放和通知过滤。
 
@@ -63,7 +63,7 @@ npm run dev
 
 ## 模拟范围
 
-默认广告混排为 `multi_risk`：按风险等级选取广告邻帖，把剩余帖子分配到组间，再按页容量截断。
+默认广告混排为 `slot_spread`：按请求间距预留广告位，为每个广告选取最近且兼容的上下邻帖，再按页容量截断。
 
 固定版本中 `rust_home_mixer_ads_bs_v2_exp_enabled` 为 `false`，因此品牌安全判定使用 legacy 路径。
 

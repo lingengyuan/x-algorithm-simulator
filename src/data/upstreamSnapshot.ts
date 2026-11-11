@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '3b6919f87532e57063bb3f1e85c2f509323b513e',
-  shortCommit: '3b6919f',
-  releasedAt: '2026-11-07',
-  paramsSyncedAt: '2026-11-06T16:00:45Z',
+  commit: '660cd7407c5726ec8d3aef27c32e1377b1c7e480',
+  shortCommit: '660cd74',
+  releasedAt: '2026-11-10',
+  paramsSyncedAt: '2026-11-09T16:00:34Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -30,6 +30,12 @@ export const SOURCE_DEFAULTS = {
   phoenixMoe: { enabled: false, maxResults: 0 },
   sid: { enabled: false, maxResults: 800 },
   cachedPosts: { enabled: true, maxResults: 750 },
+} as const;
+
+/** New switches in the 2026-11-09 sync. Their source and frame stages stay off. */
+export const DISABLED_FEATURE_DEFAULTS = {
+  shuffledHistoryRetrieval: false,
+  underTheHoodFrame: false,
 } as const;
 
 /** CachedPostsQueryHydrator only switches to the cached path at this size. */
@@ -70,8 +76,8 @@ export const FILTER_DEFAULTS = {
   newUserMinEngagement: {
     enabled: false,
     metric: 'fav' as const,
-    useRatio: false,
-    threshold: 0,
+    useRatio: true,
+    threshold: 0.004,
     maxAccountAgeSecs: 1800,
     maxResurrectionAgeSecs: 1800,
   },
@@ -92,7 +98,7 @@ export const BLENDING_DEFAULTS = {
   promptsPosition: 0,
   feedSurveyPosition: 12,
   enableAds: true,
-  adsBlender: 'multi_risk',
+  adsBlender: 'slot_spread',
   enableWhoToFollow: true,
   enablePrompts: true,
   enableJetfuelFrames: false,
@@ -114,6 +120,9 @@ export const VIDEO_CAROUSEL_DEFAULTS = {
   ctrModelName: 'lr_v8_search_video_1_2026-11-03_no_high_risk',
   seenFilter: false,
   videoContinuationWeight: 0,
+  // New header icon and not-interested weight stay off in the published defaults.
+  headerIcon: false,
+  notInterestedWeight: 0,
   highRiskFilter: true,
   mediumRiskFilter: false,
   embeddingVersion: 'v8_search_1',

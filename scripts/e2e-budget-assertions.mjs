@@ -31,7 +31,6 @@ export function verifyBudgetTrace(budgetTrace, check) {
   assert(topK.inputCount > 50);
   assert.equal(topK.outputCount, 50);
   check('default-top-k', 'The 3,500-post scenario selects 50 posts with the carousel disabled.');
-  const safePosts = budgetTrace.result.finalCandidates.filter((post) => !['medium_risk', 'high_risk'].includes(post.brandSafetyVerdict ?? 'medium_risk'));
   const ads = budgetTrace.context.adFixtures;
   const positions = ads.slice(0, 4).map((ad) => ad.insertPosition).sort((a, b) => a - b);
   const gaps = positions.slice(1).map((position, index) => position - positions[index]).filter((gap) => gap > 0);
@@ -39,26 +38,36 @@ export function verifyBudgetTrace(budgetTrace, check) {
   assert(ads.every((ad) => ad.brandSafetyRisk === 'unknown' && !ad.handles.length && !ad.keywords.length));
   const organic = budgetTrace.result.finalFeedItems.filter((item) => item.type === 'post' || item.type === 'ad');
   const placed = organic.flatMap((item, index) => item.type === 'ad' ? [{ item, above: organic[index - 1], below: organic[index + 1] }] : []);
-  // MultiRisk assembles eight triples before truncating to the 35-item page.
+  const adPositions = organic.flatMap((item, index) => item.type === 'ad' ? [index] : []);
+  const pageSlots = Math.min(
+    Math.floor((topK.outputCount - 2) / spacing) + 1,
+    Math.floor((35 - 2 + spacing) / (spacing + 1))
+  );
   assert.equal(spacing, 3);
   assert.equal(ads.length, 8);
-  assert(safePosts.length >= 16);
+  assert.equal(pageSlots, 9);
   assert.equal(organic.length, 35);
-  assert.equal(placed.length, 7);
-  const adPositions = organic.flatMap((item, index) => item.type === 'ad' ? [index] : []);
-  assert.deepEqual(adPositions, [1, 6, 11, 16, 21, 26, 32]);
+  assert.equal(placed.length, 8);
+  assert.deepEqual(adPositions, [1, 5, 9, 13, 17, 22, 27, 32]);
+  assert(adPositions.slice(1).every((position, index) => position - adPositions[index] >= spacing));
+  assert.equal(organic.at(-1)?.type, 'post');
+  assert.deepEqual(
+    placed.map(({ item }) => item.id),
+    ads.map((ad) => `module-ad-${ad.id}`)
+  );
   const postIds = organic.filter((item) => item.type === 'post').map((item) => item.tweet.id);
   assert.equal(new Set(postIds).size, postIds.length);
-  const groupSize = Math.floor(safePosts.length / 8);
-  for (const [index, triple] of placed.entries()) {
-    assert.equal(triple.item.id, `module-ad-${ads[index].id}`);
-    assert.equal(triple.above.tweet.id, safePosts[index * groupSize].id);
-    assert.equal(triple.below.tweet.id, safePosts[index * groupSize + 1].id);
-    for (const neighbour of [triple.above, triple.below]) {
-      assert.equal(neighbour?.type, 'post');
+  for (const { above, below } of placed) {
+    assert.equal(above?.type, 'post');
+    assert.equal(below?.type, 'post');
+    for (const neighbour of [above, below]) {
       assert(!['medium_risk', 'high_risk'].includes(neighbour.tweet.brandSafetyVerdict));
     }
   }
-  check('multi-risk-page-and-neighbours', { pageSize: organic.length, adPositions, checkedAds: placed.length });
-
+  check('slot-spread-page-and-neighbours', {
+    pageSize: organic.length,
+    pageSlots,
+    adPositions,
+    checkedAds: placed.length,
+  });
 }

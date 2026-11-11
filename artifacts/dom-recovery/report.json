@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://127.0.0.1:4173",
-  "startedAt": "2026-11-08T01:25:53.778Z",
+  "startedAt": "2026-11-11T03:27:19.550Z",
   "browser": "ego-browser",
   "mechanism": "Translator-style text-node replacement in the actual application",
   "checks": [
@@ -82,5 +82,5 @@
     "recovered.png"
   ],
   "status": "passed",
-  "completedAt": "2026-11-08T01:26:12.195Z"
+  "completedAt": "2026-11-11T03:27:47.421Z"
 }
