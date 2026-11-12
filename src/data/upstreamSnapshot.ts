@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '660cd7407c5726ec8d3aef27c32e1377b1c7e480',
-  shortCommit: '660cd74',
-  releasedAt: '2026-11-10',
-  paramsSyncedAt: '2026-11-09T16:00:34Z',
+  commit: 'f06f45adc05578198e672db6c563a0435e7232dd',
+  shortCommit: 'f06f45a',
+  releasedAt: '2026-11-11',
+  paramsSyncedAt: '2026-11-10T16:00:31Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -32,10 +32,23 @@ export const SOURCE_DEFAULTS = {
   cachedPosts: { enabled: true, maxResults: 750 },
 } as const;
 
-/** New switches in the 2026-11-09 sync. Their source and frame stages stay off. */
+/** Switches that stay off at the pinned commit. */
 export const DISABLED_FEATURE_DEFAULTS = {
   shuffledHistoryRetrieval: false,
   underTheHoodFrame: false,
+  grokbotSuggestedTasksFrame: false,
+  // Fatigue window in hours; the frame switch above stays off.
+  grokbotSuggestedTasksFatigueHours: 6,
+} as const;
+
+/** VMRanker post-topic inputs added in the 2026-11-10 sync. The switch stays off. */
+export const POST_TOPICS_DEFAULTS = {
+  sendPostTopics: false,
+  maxCandidates: 200,
+  timeoutMs: 80,
+  // Recent views feed the same experiment payload.
+  recentViewsRows: 64,
+  recentViewsSequenceLength: 256,
 } as const;
 
 /** CachedPostsQueryHydrator only switches to the cached path at this size. */
@@ -52,6 +65,7 @@ export const HYDRATOR_DEFAULTS = {
   inferredGender: true,
   immersiveScoringSequence: false,
   recentSearchQueries: false,
+  recentViews: POST_TOPICS_DEFAULTS.sendPostTopics,
   postEngagers: false,
   phoenixReplyAncestors: false,
   newUserSoftNsfw: false,
@@ -118,13 +132,15 @@ export const VIDEO_CAROUSEL_DEFAULTS = {
   ctrModel: false,
   // The model is named upstream but stays unused while the carousel and CTR switch are off.
   ctrModelName: 'lr_v8_search_video_1_2026-11-03_no_high_risk',
-  seenFilter: false,
+  seenFilter: true,
   videoContinuationWeight: 0,
   // New header icon and not-interested weight stay off in the published defaults.
   headerIcon: false,
   notInterestedWeight: 0,
   highRiskFilter: true,
-  mediumRiskFilter: false,
+  mediumRiskFilter: true,
+  // Removes carousel videos from the feed only when switched on.
+  takeFromFeed: false,
   embeddingVersion: 'v8_search_1',
   fatigueMinutes: 60,
   position: 6,

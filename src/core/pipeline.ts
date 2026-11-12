@@ -62,6 +62,7 @@ const QUERY_HYDRATOR_NAMES = [
   'ScoringSequenceQueryHydrator',
   'ImmersiveScoringSequenceQueryHydrator',
   'RetrievalSequenceQueryHydrator',
+  'RecentViewsQueryHydrator',
   'BlockedUserIdsQueryHydrator',
   'MutedUserIdsQueryHydrator',
   'FollowedUserIdsQueryHydrator',
@@ -299,6 +300,9 @@ function queryHydratorEnabled(
       return HYDRATOR_DEFAULTS.recentSearchQueries;
     case 'RetrievalSequenceQueryHydrator':
       return HYDRATOR_DEFAULTS.retrievalSequence;
+    case 'RecentViewsQueryHydrator':
+      return HYDRATOR_DEFAULTS.recentViews && !context.inNetworkOnly &&
+        context.topicIds.length === 0 && !context.isBulkTopicRequest;
     case 'FollowedUserIdsQueryHydrator':
       return context.followedAuthorIds.length === 0;
     case 'CachedPostsQueryHydrator':
@@ -502,7 +506,8 @@ function executePipeline(
 
   for (const name of QUERY_HYDRATOR_NAMES) {
     const enabled = queryHydratorEnabled(name, context);
-    const disabledByDefault = name === 'MutualFollowQueryHydrator';
+    const disabledByDefault = name === 'MutualFollowQueryHydrator' ||
+      name === 'RecentViewsQueryHydrator';
     const disabledDescription = disabledByDefault
       ? `${name} (disabled by published default)`
       : `${name} (disabled for this request)`;

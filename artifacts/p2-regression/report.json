@@ -2,7 +2,7 @@
   "status": "passed",
   "browser": "ego-browser",
   "baseUrl": "http://127.0.0.1:4173",
-  "startedAt": "2026-11-11T03:19:31.723Z",
+  "startedAt": "2026-11-12T01:24:33.734Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -11,42 +11,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         }
@@ -79,42 +79,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         }
@@ -153,5 +153,5 @@
     "same-preset-reload-zh.png",
     "inactive-topic-factor-zh.png"
   ],
-  "completedAt": "2026-11-11T03:19:45.933Z"
+  "completedAt": "2026-11-12T01:24:49.388Z"
 }

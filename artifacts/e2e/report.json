@@ -1,9 +1,9 @@
 {
-  "runId": "1794367171570",
+  "runId": "1794446673580",
   "status": "passed",
-  "upstream": "660cd7407c5726ec8d3aef27c32e1377b1c7e480",
+  "upstream": "f06f45adc05578198e672db6c563a0435e7232dd",
   "browser": "ego-browser",
-  "startedAt": "2026-11-11T03:19:31.710Z",
+  "startedAt": "2026-11-12T01:24:33.729Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -12,42 +12,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         }
@@ -80,42 +80,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-DgBq9t1x.js"
+            "/assets/index-CqEksbxH.js"
           ],
           "reloaded": true
         }
@@ -316,7 +316,7 @@
       "status": "passed",
       "detail": {
         "rawCandidates": 3500,
-        "steps": 93
+        "steps": 94
       }
     },
     {
@@ -466,100 +466,100 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "886c6da482f167a10124c63cdb99c6e30150675dcdec942ebcfd1d60e03a0324",
-      "bytes": 1212640,
-      "rawBytes": 3044727,
-      "rawSha256": "999763c14d7fd0a2da8f3560fea26a0bfc6d560a3c21f8fe37d74e44168bb963",
+      "sha256": "6187ea9a10d0e9b10df54cae50084da8a7ad3a807f2640a0b4099b2c854bef9b",
+      "bytes": 1212610,
+      "rawBytes": 3045038,
+      "rawSha256": "aa090a93c3673c49f5aeda2a11da9efd2a816422ad825994f8bfa1703191a566",
       "timingsMs": {
-        "click": 1007,
-        "downloadEvent": 999,
-        "saveAs": 852
+        "click": 1262,
+        "downloadEvent": 1243,
+        "saveAs": 2259
       }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "17baa88b0068f3f77a1ca233d0ec0a9385092e682d343ecb9d7d8b28d91934e6",
-      "bytes": 1212654,
-      "rawBytes": 3044727,
-      "rawSha256": "d7eb21f6ab10e44e3362324c48afff030df82e021712f0dd79ff612d9b87e8f2",
+      "sha256": "54a1197ee9a6e60e0e75c1fffe586b858f1ab78ef60343da2361a17eb47ffbc5",
+      "bytes": 1212633,
+      "rawBytes": 3045038,
+      "rawSha256": "960d0b15f782352681a936144531e07b308516da72cf4bcfa5f2168c4eeec7e9",
       "timingsMs": {
-        "click": 395,
-        "downloadEvent": 319,
-        "saveAs": 378
+        "click": 954,
+        "downloadEvent": 937,
+        "saveAs": 860
       }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "a56b6dd0075f297a3ea550f1fc99a0dbb8ff1292736bd8ad5252b3df94586fa2",
-      "bytes": 1210559,
-      "rawBytes": 3036290,
-      "rawSha256": "dd59077707da9aff0f390d4e93dc85a2f2756fadf33e580295ceb0464ffc3389",
+      "sha256": "53e0e85ba3cc87ad3b5e12b41481cf898d39d283e0d95429ea59a7eca6bf5b17",
+      "bytes": 1210555,
+      "rawBytes": 3036601,
+      "rawSha256": "95b81296db54ae863653656b4144213f36bf8dcefafa6701fd18384934b7b417",
       "timingsMs": {
-        "click": 399,
-        "downloadEvent": 343,
-        "saveAs": 256
+        "click": 878,
+        "downloadEvent": 857,
+        "saveAs": 241
       }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "12a2ab71d71555ec92cc26bd8ee88f6a9864459ef98c13cb0ad32e9b57f96f16",
-      "bytes": 931257,
-      "rawBytes": 2405645,
-      "rawSha256": "43faed8e098b972f74dd2117ff7978e09a27dcc7a9e37e3dea49eff6b11f574a",
+      "sha256": "6d8d871caf1cd2eecb0d1c508bb50947eb2da3a87ac145336a55a7d4af99fd65",
+      "bytes": 931221,
+      "rawBytes": 2405956,
+      "rawSha256": "b993d924d254c143347fb09eb808e68ec8e0388b513d421a6376c520fc235995",
       "timingsMs": {
-        "click": 460,
-        "downloadEvent": 387,
-        "saveAs": 206
+        "click": 399,
+        "downloadEvent": 377,
+        "saveAs": 238
       }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "bdf4e798c1e5c122eac2ec3554ad8da33a8b8d6fb5e99bb44cd01c9b0a3c8510",
-      "bytes": 824326,
-      "rawBytes": 2077500,
-      "rawSha256": "4d39d20b99644bd1297e96502b43a7a336fd7332a7e182fbd4ecceba8986fd3a",
+      "sha256": "3b1a429d2e934cb4164cf067d48b8017afa537690b1e03051cf3a4589df23c55",
+      "bytes": 824251,
+      "rawBytes": 2077811,
+      "rawSha256": "32cd47cf16473697def006419c7e099c8c9a15918d6d65dc2a601d64c6ec049d",
       "timingsMs": {
-        "click": 506,
-        "downloadEvent": 442,
-        "saveAs": 773
+        "click": 417,
+        "downloadEvent": 400,
+        "saveAs": 5626
       }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "bfaaa115edf32c7a0ea104fd14406b8f08900b6ab7dbc6747c7cc222087e8dd0",
-      "bytes": 6443066,
-      "rawBytes": 16148368,
-      "rawSha256": "ffaec44c916929ab65e0af643a155fd57a9d03fe3cd909a517e25711a26f0949",
+      "sha256": "0b1fa80d820ffe1c4f7ed12f4bc74a747b38ad0c4166fba9609600cfe56ee32a",
+      "bytes": 6443055,
+      "rawBytes": 16148681,
+      "rawSha256": "a8171142b7c141f1f207e22ee04625a4ce4214f7524e1d3ea07992ba6463214a",
       "timingsMs": {
-        "click": 563,
-        "downloadEvent": 510,
-        "saveAs": 236
+        "click": 1111,
+        "downloadEvent": 1122,
+        "saveAs": 276
       }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "3a3cb8b84721eac7a8bcb8edd8539994ca5eae3448d6b254dc5e437c8c35891e",
-      "bytes": 1043773,
-      "rawBytes": 2612651,
-      "rawSha256": "4c98c83a02e9ae079b48a76753e3d9ad02797181be8ce4fa7673d5ad44261d0f",
+      "sha256": "7852c73653a4120b1551bf3376a59a12fe765d37f6b0cbedb341d6250d96adc9",
+      "bytes": 1043776,
+      "rawBytes": 2612962,
+      "rawSha256": "c27567a280cb7db78139ac26298716ca0495b606eba22eef33b835a9a9aae093",
       "timingsMs": {
-        "click": 458,
-        "downloadEvent": 393,
-        "saveAs": 862
+        "click": 297,
+        "downloadEvent": 274,
+        "saveAs": 984
       }
     },
     {
       "file": "source-budget.json.gz",
-      "sha256": "beda70910049a42c86a7f0b249e58b28edf04258a65fdf4ffbf960fe9b212bf3",
-      "bytes": 36460064,
-      "rawBytes": 93302400,
-      "rawSha256": "9ca52aeacc13f510e3cea09fe7ab7053eadca654e25233575bb5b95ef80fd337",
+      "sha256": "fdbb9ca295344eeff98d30befa739b4a56a28bb14962c1276eeb92caff77a9ff",
+      "bytes": 36460683,
+      "rawBytes": 93302715,
+      "rawSha256": "ace1c888d4225aea253945a73b4d654f889d6e19b98f0ee36f90248c1eb1be71",
       "timingsMs": {
-        "click": 1287,
-        "downloadEvent": 1309,
-        "saveAs": 450
+        "click": 1370,
+        "downloadEvent": 1392,
+        "saveAs": 427
       }
     }
   ],
-  "completedAt": "2026-11-11T03:27:47.421Z"
+  "completedAt": "2026-11-12T01:33:18.344Z"
 }

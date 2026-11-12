@@ -2,11 +2,11 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@660cd74`](https://github.com/xai-org/x-algorithm/tree/660cd7407c5726ec8d3aef27c32e1377b1c7e480) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@f06f45a`](https://github.com/xai-org/x-algorithm/tree/f06f45adc05578198e672db6c563a0435e7232dd) · [简体中文](README.zh-CN.md)
 
 ## Overview
 
-The simulator visualizes the published primary default path at upstream commit `660cd74`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
+The simulator visualizes the published primary default path at upstream commit `f06f45a`. It runs on deterministic local fixtures, so it cannot predict production reach or engagement.
 
 It covers the published source, filter, scoring, ranking, and fixture-only feed blending path. It does not run model training or inference, remote retrieval and hydration services, production ad delivery, or notification filtering.
 
@@ -67,7 +67,9 @@ The default ad blender is `slot_spread`. It reserves spaced ad slots, pulls the 
 
 Brand-safety verdicts use the legacy published path, because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false` at this commit.
 
-The `post_video` and `grok_analyze` weights stay at `0.0`, and the video carousel is disabled by the pinned defaults. Home excursion heads are returned, and their fusion weights stay at `0.0`. The carousel CTR model and seen filter are off.
+The `post_video` and `grok_analyze` weights stay at `0.0`, and the video carousel is disabled by the pinned defaults. Home excursion heads are returned, and their fusion weights stay at `0.0`. The carousel CTR model stays off; its seen and medium-risk filters are on, but they only run when the carousel is enabled.
+
+VMRanker post-topic and recent-view inputs stay off, because `rust_home_mixer_vm_ranker_send_post_topics` is `false`.
 
 The public repository omits `xai_post_text`, so local multilingual tokenization is not guaranteed to match production.
 

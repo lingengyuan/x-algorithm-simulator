@@ -2,11 +2,11 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@660cd74`](https://github.com/xai-org/x-algorithm/tree/660cd7407c5726ec8d3aef27c32e1377b1c7e480) · [English](README.md)
+固定在 [`xai-org/x-algorithm@f06f45a`](https://github.com/xai-org/x-algorithm/tree/f06f45adc05578198e672db6c563a0435e7232dd) · [English](README.md)
 
 ## 项目说明
 
-项目可视化上游提交 `660cd74` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
+项目可视化上游提交 `f06f45a` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
 
 覆盖范围是公开的召回、过滤、评分、排序和本地数据混排路径。项目不运行模型训练与推理、远端召回与 hydration、生产广告投放和通知过滤。
 
@@ -67,7 +67,9 @@ npm run dev
 
 固定版本中 `rust_home_mixer_ads_bs_v2_exp_enabled` 为 `false`，因此品牌安全判定使用 legacy 路径。
 
-`post_video` 和 `grok_analyze` 权重保持 `0.0`，视频轮播在默认参数下关闭。首页停留字段会返回，融合权重保持 `0.0`。轮播 CTR 模型和 seen filter 关闭。
+`post_video` 和 `grok_analyze` 权重保持 `0.0`，视频轮播在默认参数下关闭。首页停留字段会返回，融合权重保持 `0.0`。轮播 CTR 模型关闭；seen filter 和中等风险过滤在上游开启，但只在视频轮播启用时生效。
+
+VMRanker 的帖子话题和最近浏览输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_post_topics` 为 `false`。
 
 公开仓库不含 `xai_post_text`，本地多语言分词不保证与生产环境一致。
 
