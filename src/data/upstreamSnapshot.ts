@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'f06f45adc05578198e672db6c563a0435e7232dd',
-  shortCommit: 'f06f45a',
-  releasedAt: '2026-11-11',
-  paramsSyncedAt: '2026-11-10T16:00:31Z',
+  commit: 'cec61682937a4899360a340acba9e9b9bb8f43e3',
+  shortCommit: 'cec6168',
+  releasedAt: '2026-11-12',
+  paramsSyncedAt: '2026-11-11T16:00:37Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -34,11 +34,13 @@ export const SOURCE_DEFAULTS = {
 
 /** Switches that stay off at the pinned commit. */
 export const DISABLED_FEATURE_DEFAULTS = {
-  shuffledHistoryRetrieval: false,
   underTheHoodFrame: false,
   grokbotSuggestedTasksFrame: false,
   // Fatigue window in hours; the frame switch above stays off.
   grokbotSuggestedTasksFatigueHours: 6,
+  // Served and dismissed frames are persisted under these Strato keys.
+  grokbotSuggestedTasksServedKey: 'home.grokbot_suggested_tasks.served',
+  grokbotSuggestedTasksDismissalKey: 'home.grokbot_suggested_tasks',
 } as const;
 
 /** VMRanker post-topic inputs added in the 2026-11-10 sync. The switch stays off. */

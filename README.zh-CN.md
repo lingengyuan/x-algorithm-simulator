@@ -2,11 +2,11 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@f06f45a`](https://github.com/xai-org/x-algorithm/tree/f06f45adc05578198e672db6c563a0435e7232dd) · [English](README.md)
+固定在 [`xai-org/x-algorithm@cec6168`](https://github.com/xai-org/x-algorithm/tree/cec61682937a4899360a340acba9e9b9bb8f43e3) · [English](README.md)
 
 ## 项目说明
 
-项目可视化上游提交 `f06f45a` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
+项目可视化上游提交 `cec6168` 公开的主默认路径。所有计算基于确定性本地测试数据，不能预测生产环境的真实曝光或互动。
 
 覆盖范围是公开的召回、过滤、评分、排序和本地数据混排路径。项目不运行模型训练与推理、远端召回与 hydration、生产广告投放和通知过滤。
 

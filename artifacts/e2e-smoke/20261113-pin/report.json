@@ -1,0 +1,68 @@
+{
+  "runId": "20261113-pin",
+  "status": "passed",
+  "scope": "Pin and config snapshot smoke after upstream sync",
+  "upstream": {
+    "baseCommit": "f06f45adc05578198e672db6c563a0435e7232dd",
+    "commit": "cec61682937a4899360a340acba9e9b9bb8f43e3",
+    "shortCommit": "cec6168",
+    "paramsSyncedAt": "2026-11-11T16:00:37Z",
+    "commitCount": 1
+  },
+  "browser": "ego-browser",
+  "fullReport": {
+    "path": "artifacts/e2e/report.json",
+    "runId": "1794446673580",
+    "upstream": "f06f45adc05578198e672db6c563a0435e7232dd",
+    "checks": 56,
+    "note": "Previous full E2E run, pinned to f06f45a. Kept unchanged."
+  },
+  "checks": [
+    {
+      "name": "analyzer-load",
+      "status": "passed",
+      "detail": "Fixture analysis renders without an error boundary or invalid numbers."
+    },
+    {
+      "name": "upstream-pin-display",
+      "status": "passed",
+      "detail": {
+        "href": "https://github.com/xai-org/x-algorithm/commit/cec61682937a4899360a340acba9e9b9bb8f43e3",
+        "configCommit": "cec6168"
+      }
+    },
+    {
+      "name": "pipeline-default-path",
+      "status": "passed",
+      "detail": {
+        "finalPosts": 7
+      }
+    },
+    {
+      "name": "trace-version",
+      "status": "passed",
+      "detail": {
+        "commit": "cec61682937a4899360a340acba9e9b9bb8f43e3",
+        "shortCommit": "cec6168",
+        "paramsSyncedAt": "2026-11-11T16:00:37Z"
+      }
+    },
+    {
+      "name": "weights-load",
+      "status": "passed",
+      "detail": "Weight Lab renders the current upstream defaults."
+    },
+    {
+      "name": "history-load",
+      "status": "passed",
+      "detail": "History route renders without errors."
+    }
+  ],
+  "screenshots": [
+    "analyzer-en.png",
+    "simulator-en.png",
+    "weights-en.png"
+  ],
+  "startedAt": "2026-11-13T01:20:58.681Z",
+  "completedAt": "2026-11-13T01:21:52.401Z"
+}
