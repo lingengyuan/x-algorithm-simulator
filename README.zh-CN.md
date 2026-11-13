@@ -90,15 +90,7 @@ npm run check
 - 话题请求跳过 DPP。
 - 远端召回、向量和 Thompson 抽样使用可重复的本地测试数据。
 
-## 上游监控
-
-[`monitor-upstream`](.github/workflows/monitor-upstream.yml) 工作流每天北京时间 09:00 运行，从 `src/data/upstreamSnapshot.ts` 读取固定的提交。
-
-上游出现新提交时，工作流创建一条 Issue 并指派给仓库所有者。已关闭的 Issue 也参与去重。Issue 包含差异链接，以及可直接发给开发助手的适配指令。你发出指令后才开始适配。监控不需要额外密钥。
-
-立即检查请点 **Run workflow**。勾选 **verify_notifications** 可创建并关闭一条测试 Issue。运行结果以 JSON 报告保存为 `upstream-monitor-e2e` 工件。
-
-GitHub 可能延迟定时运行，并在公开仓库连续 60 天无活动后停用定时任务。可以在 Actions 页面重新启用。
+上游提交由 [`monitor-upstream`](.github/workflows/monitor-upstream.yml) 工作流每天检查。
 
 ## 许可证
 

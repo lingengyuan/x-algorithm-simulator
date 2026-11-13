@@ -90,15 +90,7 @@ Update the snapshot and implementation together, and pin upstream changes to a s
 - Topic requests skip DPP.
 - Remote retrieval, embeddings, and Thompson draws use repeatable local fixtures.
 
-## Upstream Monitor
-
-The [`monitor-upstream`](.github/workflows/monitor-upstream.yml) workflow runs daily at 09:00 Beijing time. It reads the pinned commit from `src/data/upstreamSnapshot.ts`.
-
-When upstream has a new commit, the workflow opens one Issue assigned to the repository owner. Closed Issues also block duplicates. The Issue links to the diff and contains a request you can send to your development assistant. Adaptation starts only after you send that request. The monitor needs no extra secrets.
-
-To check immediately, select **Run workflow**. Enable **verify_notifications** to create and close a test Issue. The run saves a JSON report as the `upstream-monitor-e2e` artifact.
-
-GitHub can delay scheduled runs, and it disables schedules in public repositories after 60 days without activity. Re-enable the workflow on its Actions page.
+Daily upstream checks run in the [`monitor-upstream`](.github/workflows/monitor-upstream.yml) workflow.
 
 ## License
 
