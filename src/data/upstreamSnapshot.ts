@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'cec61682937a4899360a340acba9e9b9bb8f43e3',
-  shortCommit: 'cec6168',
-  releasedAt: '2026-11-12',
-  paramsSyncedAt: '2026-11-11T16:00:37Z',
+  commit: '590f3926e5bc33c50d9ece13953623e1e75ee595',
+  shortCommit: '590f392',
+  releasedAt: '2026-11-13',
+  paramsSyncedAt: '2026-11-12T16:00:36Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -51,6 +51,15 @@ export const POST_TOPICS_DEFAULTS = {
   // Recent views feed the same experiment payload.
   recentViewsRows: 64,
   recentViewsSequenceLength: 256,
+} as const;
+
+/** VMRanker DPP history and ordering added in the 2026-11-12 sync. All stay off. */
+export const VM_RANKER_DPP_DEFAULTS = {
+  sendDppHistory: false,
+  historyMaxItems: 200,
+  greedyOrder: false,
+  window: 0,
+  windowHalfDistance: 0,
 } as const;
 
 /** CachedPostsQueryHydrator only switches to the cached path at this size. */
@@ -115,6 +124,8 @@ export const BLENDING_DEFAULTS = {
   feedSurveyPosition: 12,
   enableAds: true,
   adsBlender: 'slot_spread',
+  // Following-feed ad blender minimum organic posts.
+  adsFollowingMinPosts: 5,
   enableWhoToFollow: true,
   enablePrompts: true,
   enableJetfuelFrames: false,
@@ -166,7 +177,7 @@ export const UPSTREAM_DEFAULT_WEIGHTS: WeightConfig = {
   vqvWeight: 0,
   shareWeight: 2.118,
   shareViaDmWeight: 5,
-  shareViaCopyLinkWeight: 20,
+  shareViaCopyLinkWeight: 0,
   dwellWeight: 0.05,
   quoteWeight: 5,
   quotedClickWeight: 0.05,

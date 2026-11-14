@@ -1,9 +1,9 @@
 {
-  "runId": "1794446673580",
+  "runId": "1794628149674",
   "status": "passed",
-  "upstream": "f06f45adc05578198e672db6c563a0435e7232dd",
+  "upstream": "590f3926e5bc33c50d9ece13953623e1e75ee595",
   "browser": "ego-browser",
-  "startedAt": "2026-11-12T01:24:33.729Z",
+  "startedAt": "2026-11-14T03:49:11.492Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -12,42 +12,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": true
         }
@@ -80,42 +80,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-CqEksbxH.js"
+            "/assets/index-BUyi_qLt.js"
           ],
           "reloaded": true
         }
@@ -328,7 +328,7 @@
       "name": "legacy-nsfw-author-override",
       "status": "passed",
       "detail": {
-        "candidates": 2,
+        "candidates": 3,
         "verdict": "high_risk"
       }
     },
@@ -466,100 +466,100 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "6187ea9a10d0e9b10df54cae50084da8a7ad3a807f2640a0b4099b2c854bef9b",
-      "bytes": 1212610,
-      "rawBytes": 3045038,
-      "rawSha256": "aa090a93c3673c49f5aeda2a11da9efd2a816422ad825994f8bfa1703191a566",
+      "sha256": "d14384191af9d9b891e3ec0c8afd42a9d85b13689547ffc8e845070a0edd89b7",
+      "bytes": 1212650,
+      "rawBytes": 3045044,
+      "rawSha256": "d2c9d412782f24398b05f225c0018d4b948aeaaf09159c472cd162cbd0430452",
       "timingsMs": {
-        "click": 1262,
-        "downloadEvent": 1243,
-        "saveAs": 2259
+        "click": 942,
+        "downloadEvent": 868,
+        "saveAs": 1062
       }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "54a1197ee9a6e60e0e75c1fffe586b858f1ab78ef60343da2361a17eb47ffbc5",
-      "bytes": 1212633,
-      "rawBytes": 3045038,
-      "rawSha256": "960d0b15f782352681a936144531e07b308516da72cf4bcfa5f2168c4eeec7e9",
+      "sha256": "ea73621b307ec8bd05a4f61d655bb69b80c3ceddb01d8c249c255d7fe4dedf8d",
+      "bytes": 1212644,
+      "rawBytes": 3045044,
+      "rawSha256": "42ccd7ba8ccee187932176994d265f5950b73c9612106346e71ae25b68195aa6",
       "timingsMs": {
-        "click": 954,
-        "downloadEvent": 937,
-        "saveAs": 860
+        "click": 1018,
+        "downloadEvent": 995,
+        "saveAs": 234
       }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "53e0e85ba3cc87ad3b5e12b41481cf898d39d283e0d95429ea59a7eca6bf5b17",
-      "bytes": 1210555,
-      "rawBytes": 3036601,
-      "rawSha256": "95b81296db54ae863653656b4144213f36bf8dcefafa6701fd18384934b7b417",
+      "sha256": "466a139519b1af101b9cfa99379f32b9745070cf91b6206ad79a66f0961a1d32",
+      "bytes": 1209870,
+      "rawBytes": 3036592,
+      "rawSha256": "573b099b2a68fbf9c948ae4db53ea08ffa90a994dd5d952c059b016acb6ff5e1",
       "timingsMs": {
-        "click": 878,
-        "downloadEvent": 857,
-        "saveAs": 241
+        "click": 763,
+        "downloadEvent": 750,
+        "saveAs": 412
       }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "6d8d871caf1cd2eecb0d1c508bb50947eb2da3a87ac145336a55a7d4af99fd65",
-      "bytes": 931221,
-      "rawBytes": 2405956,
-      "rawSha256": "b993d924d254c143347fb09eb808e68ec8e0388b513d421a6376c520fc235995",
+      "sha256": "36b81eb1ffb2bac9fc994a51ab71b60a796d6d23d7d79c549e664a0062bdcac1",
+      "bytes": 931227,
+      "rawBytes": 2405863,
+      "rawSha256": "ee2a8a84191feb83136bd648c8619d39a609adb72d93f6a26e1291664c25974c",
       "timingsMs": {
-        "click": 399,
-        "downloadEvent": 377,
-        "saveAs": 238
+        "click": 322,
+        "downloadEvent": 312,
+        "saveAs": 494
       }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "3b1a429d2e934cb4164cf067d48b8017afa537690b1e03051cf3a4589df23c55",
-      "bytes": 824251,
-      "rawBytes": 2077811,
-      "rawSha256": "32cd47cf16473697def006419c7e099c8c9a15918d6d65dc2a601d64c6ec049d",
+      "sha256": "a30ac5533ab06bc80fa660d03820f1b8da5f5cc96c468d9404a5ec9334b82e12",
+      "bytes": 824192,
+      "rawBytes": 2077587,
+      "rawSha256": "d4de9bae421d2ba8ba4f335934d6a5d282d75bb28da1f0560ce442b2cbb6c816",
       "timingsMs": {
-        "click": 417,
-        "downloadEvent": 400,
-        "saveAs": 5626
+        "click": 920,
+        "downloadEvent": 919,
+        "saveAs": 245
       }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "0b1fa80d820ffe1c4f7ed12f4bc74a747b38ad0c4166fba9609600cfe56ee32a",
-      "bytes": 6443055,
-      "rawBytes": 16148681,
-      "rawSha256": "a8171142b7c141f1f207e22ee04625a4ce4214f7524e1d3ea07992ba6463214a",
+      "sha256": "c351210b4a9034936c41f2b95dbf1d5eaba7691c6856d6e7b8dc3161189a41c4",
+      "bytes": 6444067,
+      "rawBytes": 16139389,
+      "rawSha256": "b65f04101eece1b58f1f894961e93f6e2a6d51cce86b4cf3bd4674e7dbad3c4d",
       "timingsMs": {
-        "click": 1111,
-        "downloadEvent": 1122,
-        "saveAs": 276
+        "click": 439,
+        "downloadEvent": 442,
+        "saveAs": 1778
       }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "7852c73653a4120b1551bf3376a59a12fe765d37f6b0cbedb341d6250d96adc9",
-      "bytes": 1043776,
-      "rawBytes": 2612962,
-      "rawSha256": "c27567a280cb7db78139ac26298716ca0495b606eba22eef33b835a9a9aae093",
+      "sha256": "8938b84da4c7ac9171a68c3e52c086c5fa0844e710fc47101909768432ab98b7",
+      "bytes": 1043943,
+      "rawBytes": 2613497,
+      "rawSha256": "80ee1c5f105cc15a681cb0e59e8dfc612ea8af326d4e4acb7363c425d0fa00b7",
       "timingsMs": {
-        "click": 297,
-        "downloadEvent": 274,
-        "saveAs": 984
+        "click": 352,
+        "downloadEvent": 340,
+        "saveAs": 400
       }
     },
     {
       "file": "source-budget.json.gz",
-      "sha256": "fdbb9ca295344eeff98d30befa739b4a56a28bb14962c1276eeb92caff77a9ff",
-      "bytes": 36460683,
-      "rawBytes": 93302715,
-      "rawSha256": "ace1c888d4225aea253945a73b4d654f889d6e19b98f0ee36f90248c1eb1be71",
+      "sha256": "224b9d9629e7ac108b213553b1dfc6f6bb6ad161942d0c417b035cd0e7b489f0",
+      "bytes": 36458378,
+      "rawBytes": 93297060,
+      "rawSha256": "a114344bf307542892e1ca0a83a99b91c535b9717281f3d934aa2b4b4634c016",
       "timingsMs": {
-        "click": 1370,
-        "downloadEvent": 1392,
-        "saveAs": 427
+        "click": 1347,
+        "downloadEvent": 1368,
+        "saveAs": 396
       }
     }
   ],
-  "completedAt": "2026-11-12T01:33:18.344Z"
+  "completedAt": "2026-11-14T03:57:34.029Z"
 }

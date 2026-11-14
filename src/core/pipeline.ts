@@ -82,21 +82,21 @@ const QUERY_HYDRATOR_NAMES = [
 ] as const;
 
 const CANDIDATE_HYDRATORS = [
-  'InNetworkCandidateHydrator',
-  'BidirectionalFollowHydrator',
+  'QuoteHydrator',
   'CoreDataCandidateHydrator',
   'PhoenixReplyAncestorsHydrator',
-  'QuoteHydrator',
-  'MediaInfoHydrator',
+  'BidirectionalFollowHydrator',
   'SubscriptionHydrator',
-  'GizmoduckCandidateHydrator',
+  'MediaInfoHydrator',
   'BlockedByHydrator',
   'FilteredTopicsHydrator',
+  'GizmoduckCandidateHydrator',
   'LanguageCodeHydrator',
   'EngagementCountsHydrator',
-  'PostEngagersHydrator',
   'SemanticIdHydrator',
+  'PostEngagersHydrator',
   'NewUserSoftNsfwLabelHydrator',
+  'InNetworkCandidateHydrator',
 ] as const;
 
 const POST_SELECTION_HYDRATORS = [
