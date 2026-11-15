@@ -2,7 +2,7 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@590f392`](https://github.com/xai-org/x-algorithm/tree/590f3926e5bc33c50d9ece13953623e1e75ee595) · [English](README.md)
+固定在 [`xai-org/x-algorithm@30647a8`](https://github.com/xai-org/x-algorithm/tree/30647a85a20cbdd114169beb9973680c4dc4f401) · [English](README.md)
 
 ## 项目说明
 
@@ -67,7 +67,7 @@ npm run dev
 - 默认广告混排为 `slot_spread`：预留间隔广告位，为每个广告选取最近的兼容帖子，再按页容量截断。
 - 固定版本中 `rust_home_mixer_ads_bs_v2_exp_enabled` 为 `false`，品牌安全判定使用 legacy 路径。
 - `post_video`、`grok_analyze` 和 `share_via_copy_link` 权重保持 `0.0`，视频轮播及其 CTR 模型关闭。
-- 首页扩展行为头（视频续看和主页访问）会返回，融合权重保持 `0.0`。VMRanker 的帖子话题和最近浏览输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_post_topics` 为 `false`。DPP 历史输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_dpp_history` 为 `false`。
+- 首页扩展行为头（视频续看和主页访问）会返回，融合权重保持 `0.0`。VMRanker 的帖子话题和最近浏览输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_post_topics` 为 `false`。For You 请求会把最多 50 条已投放帖子作为 DPP 历史发送，因为 `rust_home_mixer_vm_ranker_send_dpp_history` 为 `true`。模拟器不构造该历史输入：`rust_home_mixer_vm_ranker_dpp_window` 为 `0`，DPP 仍只对当前候选池排序。
 - 公开仓库不含 `xai_post_text`，本地多语言分词可能与生产环境不一致。
 
 ## 开发与测试

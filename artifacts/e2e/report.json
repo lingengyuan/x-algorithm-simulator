@@ -1,9 +1,9 @@
 {
-  "runId": "1794628149674",
+  "runId": "1794705547810",
   "status": "passed",
-  "upstream": "590f3926e5bc33c50d9ece13953623e1e75ee595",
+  "upstream": "30647a85a20cbdd114169beb9973680c4dc4f401",
   "browser": "ego-browser",
-  "startedAt": "2026-11-14T03:49:11.492Z",
+  "startedAt": "2026-11-15T01:19:08.129Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -12,42 +12,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": true
         }
@@ -80,42 +80,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-BUyi_qLt.js"
+            "/assets/index-BBoRJILd.js"
           ],
           "reloaded": true
         }
@@ -466,100 +466,100 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "d14384191af9d9b891e3ec0c8afd42a9d85b13689547ffc8e845070a0edd89b7",
-      "bytes": 1212650,
+      "sha256": "5cb5b3b7fbd3ff4b2dde5b1da9d86ceec9a1bec1440de59640f97b073b8ce092",
+      "bytes": 1212584,
       "rawBytes": 3045044,
-      "rawSha256": "d2c9d412782f24398b05f225c0018d4b948aeaaf09159c472cd162cbd0430452",
+      "rawSha256": "10396cd3f8a3550b6d098d86b0e81883c6fd8a91ed27ba3979e9fb78a04d4151",
       "timingsMs": {
-        "click": 942,
-        "downloadEvent": 868,
-        "saveAs": 1062
+        "click": 868,
+        "downloadEvent": 791,
+        "saveAs": 900
       }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "ea73621b307ec8bd05a4f61d655bb69b80c3ceddb01d8c249c255d7fe4dedf8d",
-      "bytes": 1212644,
+      "sha256": "a4e7c43dca21048761f120af7329d6d5f673b0823d8d7f869eea6e7018ce1099",
+      "bytes": 1212555,
       "rawBytes": 3045044,
-      "rawSha256": "42ccd7ba8ccee187932176994d265f5950b73c9612106346e71ae25b68195aa6",
+      "rawSha256": "be6671b109c9a91b1e9c6f9f1633ba6e457c45f46b648d0307dcf0158ba453e8",
       "timingsMs": {
-        "click": 1018,
-        "downloadEvent": 995,
-        "saveAs": 234
+        "click": 351,
+        "downloadEvent": 283,
+        "saveAs": 195
       }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "466a139519b1af101b9cfa99379f32b9745070cf91b6206ad79a66f0961a1d32",
-      "bytes": 1209870,
+      "sha256": "e919bef1da5683b73ef1a4af58bacb3a64af820814b9ce3a3886a5e4353b3981",
+      "bytes": 1209811,
       "rawBytes": 3036592,
-      "rawSha256": "573b099b2a68fbf9c948ae4db53ea08ffa90a994dd5d952c059b016acb6ff5e1",
+      "rawSha256": "7bc54608f27d328e97191dd1620568f4bd509feeafb76f1f48e5eb049644675c",
       "timingsMs": {
-        "click": 763,
-        "downloadEvent": 750,
-        "saveAs": 412
+        "click": 1003,
+        "downloadEvent": 977,
+        "saveAs": 236
       }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "36b81eb1ffb2bac9fc994a51ab71b60a796d6d23d7d79c549e664a0062bdcac1",
-      "bytes": 931227,
+      "sha256": "c15a7759c9e63900c3c626709c66510d548a4556619cef8f60595b914de58711",
+      "bytes": 931209,
       "rawBytes": 2405863,
-      "rawSha256": "ee2a8a84191feb83136bd648c8619d39a609adb72d93f6a26e1291664c25974c",
+      "rawSha256": "cc022ce1c76d519a75742249bffb195acc5050f2a9b6910ec95f5051c6ed1d32",
       "timingsMs": {
-        "click": 322,
-        "downloadEvent": 312,
-        "saveAs": 494
+        "click": 467,
+        "downloadEvent": 412,
+        "saveAs": 208
       }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "a30ac5533ab06bc80fa660d03820f1b8da5f5cc96c468d9404a5ec9334b82e12",
-      "bytes": 824192,
+      "sha256": "e171666b7ee941e08af50c59d26d1fb2b4e3ce25d0a296b74dd4d41567b75571",
+      "bytes": 824162,
       "rawBytes": 2077587,
-      "rawSha256": "d4de9bae421d2ba8ba4f335934d6a5d282d75bb28da1f0560ce442b2cbb6c816",
+      "rawSha256": "43e7d459605023f06f66e67038e7a9b770327dc748f14a1b852dcc82a34ab24a",
       "timingsMs": {
-        "click": 920,
-        "downloadEvent": 919,
-        "saveAs": 245
+        "click": 560,
+        "downloadEvent": 493,
+        "saveAs": 195
       }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "c351210b4a9034936c41f2b95dbf1d5eaba7691c6856d6e7b8dc3161189a41c4",
-      "bytes": 6444067,
+      "sha256": "e4f4c99d15c1d3c356418dfb7f95e190eaf02407213d96342d6c0c2860a51f4b",
+      "bytes": 6443992,
       "rawBytes": 16139389,
-      "rawSha256": "b65f04101eece1b58f1f894961e93f6e2a6d51cce86b4cf3bd4674e7dbad3c4d",
+      "rawSha256": "6ba5438587f8c46d626d1e1dc6b816e968078d6ed5a38453cb5208f327dedd60",
       "timingsMs": {
-        "click": 439,
-        "downloadEvent": 442,
-        "saveAs": 1778
+        "click": 634,
+        "downloadEvent": 582,
+        "saveAs": 241
       }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "8938b84da4c7ac9171a68c3e52c086c5fa0844e710fc47101909768432ab98b7",
-      "bytes": 1043943,
+      "sha256": "e13f25d47170518a5dbc9559098ccb6e06a2f3d09e0861dbf58bb3c953b6a1c8",
+      "bytes": 1043908,
       "rawBytes": 2613497,
-      "rawSha256": "80ee1c5f105cc15a681cb0e59e8dfc612ea8af326d4e4acb7363c425d0fa00b7",
+      "rawSha256": "d1a1e2f2038bab54917f04676721079665e175adc7bec3e048df742f8ae4b4ae",
       "timingsMs": {
-        "click": 352,
-        "downloadEvent": 340,
-        "saveAs": 400
+        "click": 995,
+        "downloadEvent": 934,
+        "saveAs": 189
       }
     },
     {
       "file": "source-budget.json.gz",
-      "sha256": "224b9d9629e7ac108b213553b1dfc6f6bb6ad161942d0c417b035cd0e7b489f0",
-      "bytes": 36458378,
+      "sha256": "b5361e7c22f41f81119459a1d379dbc73461a071c4c2def3c3995eddbc297b7a",
+      "bytes": 36461775,
       "rawBytes": 93297060,
-      "rawSha256": "a114344bf307542892e1ca0a83a99b91c535b9717281f3d934aa2b4b4634c016",
+      "rawSha256": "6e2fff7659292ac0be0fc1fd28263e73cf52f1990f8a81abb9061da494787d99",
       "timingsMs": {
-        "click": 1347,
-        "downloadEvent": 1368,
-        "saveAs": 396
+        "click": 1324,
+        "downloadEvent": 1349,
+        "saveAs": 378
       }
     }
   ],
-  "completedAt": "2026-11-14T03:57:34.029Z"
+  "completedAt": "2026-11-15T01:27:23.149Z"
 }

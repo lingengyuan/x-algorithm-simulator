@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '590f3926e5bc33c50d9ece13953623e1e75ee595',
-  shortCommit: '590f392',
-  releasedAt: '2026-11-13',
-  paramsSyncedAt: '2026-11-12T16:00:36Z',
+  commit: '30647a85a20cbdd114169beb9973680c4dc4f401',
+  shortCommit: '30647a8',
+  releasedAt: '2026-11-14',
+  paramsSyncedAt: '2026-11-13T16:00:28Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -53,10 +53,15 @@ export const POST_TOPICS_DEFAULTS = {
   recentViewsSequenceLength: 256,
 } as const;
 
-/** VMRanker DPP history and ordering added in the 2026-11-12 sync. All stay off. */
+/**
+ * VMRanker DPP history and ordering.
+ * For You requests send served history since the 2026-11-14 sync.
+ * The simulator records the switch but builds no history input.
+ * Ordering switches stay off: no sliding window, no greedy order.
+ */
 export const VM_RANKER_DPP_DEFAULTS = {
-  sendDppHistory: false,
-  historyMaxItems: 200,
+  sendDppHistory: true,
+  historyMaxItems: 50,
   greedyOrder: false,
   window: 0,
   windowHalfDistance: 0,
