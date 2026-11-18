@@ -2,7 +2,7 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@30647a8`](https://github.com/xai-org/x-algorithm/tree/30647a85a20cbdd114169beb9973680c4dc4f401) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@a284320`](https://github.com/xai-org/x-algorithm/tree/a284320b66a9dce35e6f5d6b052ee308eeb12326) · [简体中文](README.zh-CN.md)
 
 ## Overview
 
@@ -65,9 +65,11 @@ Open `http://localhost:5173`.
 ## Simulator Scope
 
 - The default ad blender is `slot_spread`: it reserves spaced ad slots, fills each pair with the nearest compatible posts, and truncates the page.
+- Per-activity-state ad-load thinning and ads-only timelines stay off because `rust_home_mixer_ads_user_state_keep_pct` and `rust_home_mixer_ads_user_state_spacing` are empty, and `rust_home_mixer_enable_ads_only_timeline` is `false`.
 - Brand-safety verdicts use the legacy path because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false`.
 - `post_video`, `grok_analyze`, and `share_via_copy_link` weights stay at `0.0`, and the video carousel and its CTR model are off.
-- Home excursion heads (video continuation and profile visit) are returned with fusion weights `0.0`. VMRanker post-topic and recent-view inputs stay off because `rust_home_mixer_vm_ranker_send_post_topics` is `false`. For You requests send up to 50 served posts as DPP history because `rust_home_mixer_vm_ranker_send_dpp_history` is `true`. The simulator does not build that history input: with `rust_home_mixer_vm_ranker_dpp_window` at `0`, DPP still ranks only the current candidate pool.
+- Value-model scoring uses `rust_home_mixer_value_model_mode = weighted`; the `multiplicative` path and its not-dwelled power terms are not modeled.
+- Home excursion heads (video continuation and profile visit) are returned with fusion weights `0.0`. VMRanker post-topic and recent-view inputs stay off because `rust_home_mixer_vm_ranker_send_post_topics` is `false`. DPP-history inputs stay off because `rust_home_mixer_vm_ranker_send_dpp_history` is `false`.
 - The public repository omits `xai_post_text`, so local multilingual tokenization may differ from production.
 
 ## Development and Testing

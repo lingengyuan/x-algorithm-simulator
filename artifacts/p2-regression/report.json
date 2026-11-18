@@ -2,7 +2,7 @@
   "status": "passed",
   "browser": "ego-browser",
   "baseUrl": "http://127.0.0.1:4173",
-  "startedAt": "2026-11-15T01:19:08.144Z",
+  "startedAt": "2026-11-18T01:58:39.953Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -11,42 +11,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": true
         }
@@ -79,42 +79,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-BBoRJILd.js"
+            "/assets/index-CYOIF8y-.js"
           ],
           "reloaded": true
         }
@@ -153,5 +153,5 @@
     "same-preset-reload-zh.png",
     "inactive-topic-factor-zh.png"
   ],
-  "completedAt": "2026-11-15T01:19:22.951Z"
+  "completedAt": "2026-11-18T01:58:54.041Z"
 }

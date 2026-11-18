@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '30647a85a20cbdd114169beb9973680c4dc4f401',
-  shortCommit: '30647a8',
-  releasedAt: '2026-11-14',
-  paramsSyncedAt: '2026-11-13T16:00:28Z',
+  commit: 'a284320b66a9dce35e6f5d6b052ee308eeb12326',
+  shortCommit: 'a284320',
+  releasedAt: '2026-11-17',
+  paramsSyncedAt: '2026-11-16T16:00:37Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -54,17 +54,25 @@ export const POST_TOPICS_DEFAULTS = {
 } as const;
 
 /**
- * VMRanker DPP history and ordering.
- * For You requests send served history since the 2026-11-14 sync.
- * The simulator records the switch but builds no history input.
- * Ordering switches stay off: no sliding window, no greedy order.
+ * VMRanker DPP history and ordering at the pinned commit.
+ * For You history sending is off; the 50-item cap applies only when enabled.
+ * Ordering switches stay off: no sliding window, no greedy order, no SID term.
  */
 export const VM_RANKER_DPP_DEFAULTS = {
-  sendDppHistory: true,
+  sendDppHistory: false,
   historyMaxItems: 50,
   greedyOrder: false,
   window: 0,
   windowHalfDistance: 0,
+  windowSidLambda: 0,
+} as const;
+
+/** Value-model mode added in the 2026-11-17 upstream commit. Defaults keep the weighted path. */
+export const VALUE_MODEL_DEFAULTS = {
+  mode: 'weighted',
+  notDwelledPowerExponent: 0,
+  notDwelledPowerOffset: 0,
+  multiplicativeVmEngageBias: 0,
 } as const;
 
 /** CachedPostsQueryHydrator only switches to the cached path at this size. */
@@ -143,6 +151,12 @@ export const ADS_DEFAULTS = {
   brandSafetyVerdictV2: false,
   // Cache-write TTL only. The simulator records the value and writes no Redis cache.
   historyCacheTtlSecs: 300,
+  // Per-activity-state ad-load thinning stays off while both lists are empty.
+  userStateKeepPct: [] as readonly number[],
+  userStateSpacing: [] as readonly number[],
+  // Ads-only timelines stay off for every viewer.
+  enableAdsOnlyTimeline: false,
+  adsOnlyTimelineViewerIds: [] as readonly number[],
 } as const;
 
 export const VIDEO_CAROUSEL_DEFAULTS = {

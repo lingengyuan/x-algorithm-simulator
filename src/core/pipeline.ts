@@ -646,9 +646,23 @@ function executePipeline(
   );
   add(scoredEffects.step);
 
-  for (const name of ['ServedHistoryQueryHydrator', 'PastRequestTimestampsQueryHydrator']) {
+  // AdsUserStateQueryHydrator follows the dismissal hydrator upstream and stays off
+  // while both ad user-state lists are empty.
+  const forYouQueryHydrators: Array<[string, boolean]> = [
+    ['ServedHistoryQueryHydrator', true],
+    ['PastRequestTimestampsQueryHydrator', true],
+    ['AdsUserStateQueryHydrator', false],
+  ];
+  for (const [name, enabled] of forYouQueryHydrators) {
     add(step(
-      template(`for_you_query_hydrator_${slug(name)}`, name, name, 'query_hydrator'),
+      template(
+        `for_you_query_hydrator_${slug(name)}`,
+        name,
+        name,
+        'query_hydrator',
+        enabled ? name : `${name} (disabled by published default)`,
+        enabled ? name : `${name}（公开默认关闭）`
+      ),
       candidates.length,
       candidates.length
     ));
