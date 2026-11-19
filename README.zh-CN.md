@@ -2,7 +2,7 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@a284320`](https://github.com/xai-org/x-algorithm/tree/a284320b66a9dce35e6f5d6b052ee308eeb12326) · [English](README.md)
+固定在 [`xai-org/x-algorithm@9081b33`](https://github.com/xai-org/x-algorithm/tree/9081b332f25634db1c3249ebd3d56fba332fd2e6) · [English](README.md)
 
 ## 项目说明
 
@@ -65,10 +65,11 @@ npm run dev
 ## 模拟范围
 
 - 默认广告混排为 `slot_spread`：预留间隔广告位，为每个广告选取最近的兼容帖子，再按页容量截断。
-- 按用户活跃度分层的广告负载抽稀和纯广告信息流默认关闭：`rust_home_mixer_ads_user_state_keep_pct` 与 `rust_home_mixer_ads_user_state_spacing` 为空，`rust_home_mixer_enable_ads_only_timeline` 为 `false`。
+- 按用户活跃度分层的广告负载抽稀、按页面分数分层的广告负载和纯广告信息流默认关闭：对应参数列表为空，且 `rust_home_mixer_enable_ads_only_timeline` 为 `false`。
 - 固定版本中 `rust_home_mixer_ads_bs_v2_exp_enabled` 为 `false`，品牌安全判定使用 legacy 路径。
-- `post_video`、`grok_analyze` 和 `share_via_copy_link` 权重保持 `0.0`，视频轮播及其 CTR 模型关闭。
-- 价值模型使用 `rust_home_mixer_value_model_mode = weighted`；未模拟 `multiplicative` 路径及其 not-dwelled 幂次项。
+- `post_video` 和 `grok_analyze` 权重保持 `0.0`；`share_via_copy_link` 使用公开权重 `20`。视频轮播及其 CTR 模型关闭。
+- 价值模型使用 `rust_home_mixer_value_model_mode = weighted`；未模拟 `multiplicative` 路径及其 not-dwelled 幂次项。四个类别因子默认均为 `-1`，因此不启用覆盖。
+- 教师评分副作用已登记但默认关闭，因为 `rust_home_mixer_enable_teacher_score_side_effect` 为 `false`。
 - 首页扩展行为头（视频续看和主页访问）会返回，融合权重保持 `0.0`。VMRanker 的帖子话题和最近浏览输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_post_topics` 为 `false`。DPP 历史输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_dpp_history` 为 `false`。
 - 公开仓库不含 `xai_post_text`，本地多语言分词可能与生产环境不一致。
 

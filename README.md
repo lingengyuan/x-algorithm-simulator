@@ -2,7 +2,7 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@a284320`](https://github.com/xai-org/x-algorithm/tree/a284320b66a9dce35e6f5d6b052ee308eeb12326) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@9081b33`](https://github.com/xai-org/x-algorithm/tree/9081b332f25634db1c3249ebd3d56fba332fd2e6) · [简体中文](README.zh-CN.md)
 
 ## Overview
 
@@ -65,10 +65,11 @@ Open `http://localhost:5173`.
 ## Simulator Scope
 
 - The default ad blender is `slot_spread`: it reserves spaced ad slots, fills each pair with the nearest compatible posts, and truncates the page.
-- Per-activity-state ad-load thinning and ads-only timelines stay off because `rust_home_mixer_ads_user_state_keep_pct` and `rust_home_mixer_ads_user_state_spacing` are empty, and `rust_home_mixer_enable_ads_only_timeline` is `false`.
+- Per-activity-state ad-load thinning, page-score ad-load tiers, and ads-only timelines stay off because their parameter lists are empty and `rust_home_mixer_enable_ads_only_timeline` is `false`.
 - Brand-safety verdicts use the legacy path because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false`.
-- `post_video`, `grok_analyze`, and `share_via_copy_link` weights stay at `0.0`, and the video carousel and its CTR model are off.
-- Value-model scoring uses `rust_home_mixer_value_model_mode = weighted`; the `multiplicative` path and its not-dwelled power terms are not modeled.
+- `post_video` and `grok_analyze` weights stay at `0.0`; `share_via_copy_link` uses its published weight `20`. The video carousel and its CTR model are off.
+- Value-model scoring uses `rust_home_mixer_value_model_mode = weighted`; the `multiplicative` path and its not-dwelled power terms are not modeled. Class-factor overrides stay unset because all four factors default to `-1`.
+- The teacher-score side effect is registered but off because `rust_home_mixer_enable_teacher_score_side_effect` is `false`.
 - Home excursion heads (video continuation and profile visit) are returned with fusion weights `0.0`. VMRanker post-topic and recent-view inputs stay off because `rust_home_mixer_vm_ranker_send_post_topics` is `false`. DPP-history inputs stay off because `rust_home_mixer_vm_ranker_send_dpp_history` is `false`.
 - The public repository omits `xai_post_text`, so local multilingual tokenization may differ from production.
 

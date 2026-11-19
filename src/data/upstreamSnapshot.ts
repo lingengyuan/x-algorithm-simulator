@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'a284320b66a9dce35e6f5d6b052ee308eeb12326',
-  shortCommit: 'a284320',
-  releasedAt: '2026-11-17',
-  paramsSyncedAt: '2026-11-16T16:00:37Z',
+  commit: '9081b332f25634db1c3249ebd3d56fba332fd2e6',
+  shortCommit: '9081b33',
+  releasedAt: '2026-11-18',
+  paramsSyncedAt: '2026-11-17T16:00:33Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -154,9 +154,34 @@ export const ADS_DEFAULTS = {
   // Per-activity-state ad-load thinning stays off while both lists are empty.
   userStateKeepPct: [] as readonly number[],
   userStateSpacing: [] as readonly number[],
+  // Page-score ad-load tiers also stay off while both lists are empty.
+  pageScoreKeepPct: [] as readonly number[],
+  pageScoreSpacing: [] as readonly number[],
+  pageScoreLowThreshold: 0,
+  pageScoreHighThreshold: 0,
+  pageScoreTopK: 20,
   // Ads-only timelines stay off for every viewer.
   enableAdsOnlyTimeline: false,
   adsOnlyTimelineViewerIds: [] as readonly number[],
+} as const;
+
+/** Teacher-score side effect added in the 2026-11-18 upstream commit. Off by default. */
+export const TEACHER_SCORE_DEFAULTS = {
+  enabled: false,
+  phoenixCluster: '',
+  sampleBps: 0,
+  topK: 64,
+  actionIndices: [] as readonly number[],
+  timeoutMs: 2000,
+  ttlSeconds: 3000,
+} as const;
+
+/** VMRanker class-factor overrides. Negative values leave the factor unset. */
+export const CLASS_FACTOR_DEFAULTS = {
+  oonEngagementWeightFactor: -1,
+  oonDwellTimeWeightFactor: -1,
+  inNetworkEngagementWeightFactor: -1,
+  inNetworkDwellTimeWeightFactor: -1,
 } as const;
 
 export const VIDEO_CAROUSEL_DEFAULTS = {
@@ -196,7 +221,7 @@ export const UPSTREAM_DEFAULT_WEIGHTS: WeightConfig = {
   vqvWeight: 0,
   shareWeight: 2.118,
   shareViaDmWeight: 5,
-  shareViaCopyLinkWeight: 0,
+  shareViaCopyLinkWeight: 20,
   dwellWeight: 0.05,
   quoteWeight: 5,
   quotedClickWeight: 0.05,

@@ -124,6 +124,8 @@ const SCORED_POSTS_SIDE_EFFECTS = [
   'MutualFollowStatsSideEffect',
   'DebugSideEffect',
   'PhoenixRequestCacheSideEffect',
+  // Registered upstream; stays off because rust_home_mixer_enable_teacher_score_side_effect is false.
+  'TeacherScoreSideEffect',
 ] as const;
 
 const FOR_YOU_SIDE_EFFECTS = [
@@ -647,10 +649,12 @@ function executePipeline(
   add(scoredEffects.step);
 
   // AdsUserStateQueryHydrator follows the dismissal hydrator upstream and stays off
-  // while both ad user-state lists are empty.
+  // while both ad user-state lists are empty. Frame dismissal only runs for eligible
+  // frames; the published frame defaults leave it off.
   const forYouQueryHydrators: Array<[string, boolean]> = [
     ['ServedHistoryQueryHydrator', true],
     ['PastRequestTimestampsQueryHydrator', true],
+    ['FrameDismissalQueryHydrator', false],
     ['AdsUserStateQueryHydrator', false],
   ];
   for (const [name, enabled] of forYouQueryHydrators) {
