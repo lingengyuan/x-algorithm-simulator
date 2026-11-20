@@ -124,7 +124,7 @@ const SCORED_POSTS_SIDE_EFFECTS = [
   'MutualFollowStatsSideEffect',
   'DebugSideEffect',
   'PhoenixRequestCacheSideEffect',
-  // Registered upstream; stays off because rust_home_mixer_enable_teacher_score_side_effect is false.
+  // Enabled upstream by default; the simulator records the checkpoint without external writes.
   'TeacherScoreSideEffect',
 ] as const;
 

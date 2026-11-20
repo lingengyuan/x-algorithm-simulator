@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '9081b332f25634db1c3249ebd3d56fba332fd2e6',
-  shortCommit: '9081b33',
-  releasedAt: '2026-11-18',
-  paramsSyncedAt: '2026-11-17T16:00:33Z',
+  commit: 'b55151777cd8901111c7b5985a724f671f05d2c4',
+  shortCommit: 'b551517',
+  releasedAt: '2026-11-19',
+  paramsSyncedAt: '2026-11-18T16:00:39Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -65,6 +65,12 @@ export const VM_RANKER_DPP_DEFAULTS = {
   window: 0,
   windowHalfDistance: 0,
   windowSidLambda: 0,
+} as const;
+
+/** VMRanker engagement-ineligible input added in the 2026-11-19 upstream commit. The switch stays off. */
+export const VM_RANKER_ENGAGEMENT_DEFAULTS = {
+  sendEngagementIneligible: false,
+  maxCandidates: 200,
 } as const;
 
 /** Value-model mode added in the 2026-11-17 upstream commit. Defaults keep the weighted path. */
@@ -160,19 +166,23 @@ export const ADS_DEFAULTS = {
   pageScoreLowThreshold: 0,
   pageScoreHighThreshold: 0,
   pageScoreTopK: 20,
+  // Even spread needs a non-empty keep list to change the slot layout.
+  userLoadEvenSpread: false,
   // Ads-only timelines stay off for every viewer.
   enableAdsOnlyTimeline: false,
   adsOnlyTimelineViewerIds: [] as readonly number[],
 } as const;
 
-/** Teacher-score side effect added in the 2026-11-18 upstream commit. Off by default. */
+/**
+ * Teacher-score side effect enabled at the pinned commit.
+ * It reuses served posts' Phoenix scores and writes external caches only.
+ */
 export const TEACHER_SCORE_DEFAULTS = {
-  enabled: false,
-  phoenixCluster: '',
-  sampleBps: 0,
-  topK: 64,
-  actionIndices: [] as readonly number[],
-  timeoutMs: 2000,
+  enabled: true,
+  actionIndices: [
+    1, 4, 5, 6, 11, 12, 13, 14, 16, 17, 21, 23, 25, 29, 30,
+    32, 33, 37, 38, 39, 59,
+  ] as readonly number[],
   ttlSeconds: 3000,
 } as const;
 
