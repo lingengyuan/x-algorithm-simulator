@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'b55151777cd8901111c7b5985a724f671f05d2c4',
-  shortCommit: 'b551517',
-  releasedAt: '2026-11-19',
-  paramsSyncedAt: '2026-11-18T16:00:39Z',
+  commit: 'ed78e0645cfafcd026cfc1fd0da964f630533334',
+  shortCommit: 'ed78e06',
+  releasedAt: '2026-11-20',
+  paramsSyncedAt: '2026-11-19T16:00:34Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -144,7 +144,7 @@ export const BLENDING_DEFAULTS = {
   enableAds: true,
   adsBlender: 'slot_spread',
   // Following-feed ad blender minimum organic posts.
-  adsFollowingMinPosts: 5,
+  adsFollowingMinPosts: 2,
   enableWhoToFollow: true,
   enablePrompts: true,
   enableJetfuelFrames: false,
@@ -208,6 +208,8 @@ export const VIDEO_CAROUSEL_DEFAULTS = {
   mediumRiskFilter: true,
   // Removes carousel videos from the feed only when switched on.
   takeFromFeed: false,
+  // The separate MoE carousel source stays off; Phoenix MoE is also off.
+  moeSource: false,
   embeddingVersion: 'v8_search_1',
   fatigueMinutes: 60,
   position: 6,
@@ -294,6 +296,10 @@ export const RANKING_DEFAULTS = {
   topicDppEnabled: false,
   pageDecodeRerank: false,
   pageRlExploration: false,
+  // Phoenix-side VMRanker ranking stays off; eta and prior tau apply only when it runs.
+  rankerVmRank: false,
+  rankerVmRankEta: 0,
+  rankerVmRankPriorTau: 0.2,
   homeExcursionScores: true,
   videoCarousel: VIDEO_CAROUSEL_DEFAULTS.enabled,
   coldStartThompsonSampling: true,

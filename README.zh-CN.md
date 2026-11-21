@@ -2,7 +2,7 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@b551517`](https://github.com/xai-org/x-algorithm/tree/b55151777cd8901111c7b5985a724f671f05d2c4) · [English](README.md)
+固定在 [`xai-org/x-algorithm@ed78e06`](https://github.com/xai-org/x-algorithm/tree/ed78e0645cfafcd026cfc1fd0da964f630533334) · [English](README.md)
 
 ## 项目说明
 
@@ -70,7 +70,7 @@ npm run dev
 - `post_video` 和 `grok_analyze` 权重保持 `0.0`；`share_via_copy_link` 使用公开权重 `20`。视频轮播及其 CTR 模型关闭。
 - 价值模型使用 `rust_home_mixer_value_model_mode = weighted`；未模拟 `multiplicative` 路径及其 not-dwelled 幂次项。四个类别因子默认均为 `-1`，因此不启用覆盖。
 - 教师评分副作用默认启用；它复用已服务帖子的 Phoenix 分数并写入外部缓存，模拟器只记录检查点，不执行。
-- 首页扩展行为头（视频续看和主页访问）会返回，融合权重保持 `0.0`。VMRanker 的帖子话题和最近浏览输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_post_topics` 为 `false`。DPP 历史输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_dpp_history` 为 `false`。不可参与互动输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_engagement_ineligible` 为 `false`。
+- 首页扩展行为头（视频续看和主页访问）会返回，融合权重保持 `0.0`。VMRanker 的帖子话题和最近浏览输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_post_topics` 为 `false`。DPP 历史输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_dpp_history` 为 `false`。不可参与互动输入默认关闭，因为 `rust_home_mixer_vm_ranker_send_engagement_ineligible` 为 `false`。Phoenix 侧的 VMRanker 排序默认关闭，因为 `rust_home_mixer_enable_ranker_vm_rank` 为 `false`。
 - 公开仓库不含 `xai_post_text`，本地多语言分词可能与生产环境不一致。
 
 ## 开发与测试

@@ -1,9 +1,9 @@
 {
-  "runId": "1795139206426",
+  "runId": "1795268639284",
   "status": "passed",
-  "upstream": "b55151777cd8901111c7b5985a724f671f05d2c4",
+  "upstream": "ed78e0645cfafcd026cfc1fd0da964f630533334",
   "browser": "ego-browser",
-  "startedAt": "2026-11-20T01:46:46.765Z",
+  "startedAt": "2026-11-21T13:43:59.473Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -12,42 +12,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": true
         }
@@ -80,42 +80,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-BS8Xlvjo.js"
+            "/assets/index-Cjp0W7uG.js"
           ],
           "reloaded": true
         }
@@ -466,100 +466,100 @@
   "traces": [
     {
       "file": "for-you-en.json.gz",
-      "sha256": "57e81c63e202c8a1d3c50e95cbeb43511d320c0fc4372568f4032269380ff95a",
-      "bytes": 1212752,
+      "sha256": "fa5bd2e656e935aafed19e24f578827011d56653181b8729de37f8dc21cf6bc7",
+      "bytes": 1212739,
       "rawBytes": 3045954,
-      "rawSha256": "2c0d9785f363edb9ea6f93c9b3daade858d0c97b09dbf4fc62eea3ae4816285c",
+      "rawSha256": "a34f42153be7983a3c863f9e9d6b529f3a148906e25ca9b587a1e185eec68f9f",
       "timingsMs": {
-        "click": 414,
-        "downloadEvent": 328,
-        "saveAs": 4924
+        "click": 679,
+        "downloadEvent": 626,
+        "saveAs": 190
       }
     },
     {
       "file": "for-you-zh.json.gz",
-      "sha256": "2342a5b8447d8dde3ceaff8a0c15b8d4cd03a539a8254162a2761e272f391eaa",
-      "bytes": 1212737,
+      "sha256": "f8c3167258e8c159d8ba0be8bcc09d069407d9dafae29cb580477aea0a0c2b51",
+      "bytes": 1212687,
       "rawBytes": 3045954,
-      "rawSha256": "92c79a470cbdb6d02ed860287aa852632be2a0839124e3ef91f3c64d1ebed7d0",
+      "rawSha256": "a589f54c28bd9a24b0f04efb8ab1b14459f88e79e2cae1cced13995a36ab9857",
       "timingsMs": {
-        "click": 525,
-        "downloadEvent": 450,
-        "saveAs": 804
+        "click": 415,
+        "downloadEvent": 361,
+        "saveAs": 186
       }
     },
     {
       "file": "fallback-zh.json.gz",
-      "sha256": "9f93fa97a90a96e0eaa260840544af0489d0a768a98c51a601de54e69fb5c565",
-      "bytes": 1210629,
+      "sha256": "dbd0c74ace4b42ccf13fd19331e7c8e6285193b9d49e2f9d28f6097dd6bff49d",
+      "bytes": 1210648,
       "rawBytes": 3037517,
-      "rawSha256": "2a2d8502f7e6f88c9a673b1d04f7633665ad794597b0ed08fd870c940a329026",
+      "rawSha256": "66bb3650e671b2e52466f43d77ce50867bd9f81c53420af65afa41f5f6b03578",
       "timingsMs": {
-        "click": 1025,
-        "downloadEvent": 1022,
-        "saveAs": 264
+        "click": 901,
+        "downloadEvent": 849,
+        "saveAs": 199
       }
     },
     {
       "file": "topic-zh.json.gz",
-      "sha256": "a4eb5ebd469cf39b80be276f9917b22da499b2174ed1af4644da17b53ed2c557",
-      "bytes": 931332,
+      "sha256": "df4cb958da0c6a1bef3eda10029f8a6405a397ac31c9ae76c76b251c07969892",
+      "bytes": 931322,
       "rawBytes": 2406872,
-      "rawSha256": "ada5841d1d2faecb039677ce6cf862b3949bcead823cd4f712f5893d3afa8e94",
+      "rawSha256": "a43796d556b4170af994bad09e00fba137670b57f11034f22ea2c33acf3b7b33",
       "timingsMs": {
-        "click": 1009,
-        "downloadEvent": 983,
-        "saveAs": 486
+        "click": 1087,
+        "downloadEvent": 1069,
+        "saveAs": 234
       }
     },
     {
       "file": "ranked-following.json.gz",
-      "sha256": "958646f419cabb78286583139f46b12c2b57d89bf371cdb1cda3a054182b4d58",
-      "bytes": 824334,
+      "sha256": "f9c9db75ea5c31bf3c3abd6923dd6144b6c749b19dbbb64b0cd46efc3e646030",
+      "bytes": 824342,
       "rawBytes": 2078727,
-      "rawSha256": "a219d76d5bc452ec03731ffcec8baa227e48864f1d8987a4b5bbe8166eca43c7",
+      "rawSha256": "5746f62d66e9ea0ff4e1175777d4ba75f4a9d782d87a493592144d19e49197f4",
       "timingsMs": {
-        "click": 959,
-        "downloadEvent": 895,
-        "saveAs": 193
+        "click": 381,
+        "downloadEvent": 320,
+        "saveAs": 207
       }
     },
     {
       "file": "cached.json.gz",
-      "sha256": "b3c71b97dea4d8b436f527696bfadf8842522ebcbfce7204a6e85c8982537bb2",
-      "bytes": 6442990,
+      "sha256": "7046dbe0d3632ac52502791372700ab791d912692b5d81610f66d5358711c42e",
+      "bytes": 6443020,
       "rawBytes": 16149601,
-      "rawSha256": "fc662c8b190daa2ae903062102663776e08db89f07c1ec087af67565eb5234df",
+      "rawSha256": "e9639814420cd897f646a248d20d27c737eefe702fed5cd638df9132bc4314bd",
       "timingsMs": {
-        "click": 1077,
-        "downloadEvent": 1081,
-        "saveAs": 285
+        "click": 686,
+        "downloadEvent": 638,
+        "saveAs": 209
       }
     },
     {
       "file": "without-videos.json.gz",
-      "sha256": "cc7824b62df39fb32cb4dee42473d24b8bfcd0c1b9629231ca56174554c50deb",
-      "bytes": 1043835,
+      "sha256": "c88a34ae1cc15426edc2afa09982b9915ad1f61144657397afd84ec0de187c33",
+      "bytes": 1043822,
       "rawBytes": 2613878,
-      "rawSha256": "50f5445efc9eeefa0fdfb9186611f43480a476844475fe0c55092832dbe63f51",
+      "rawSha256": "2cbd3d2ddbff0040607f3c997558b7f1f9ade0c825c75b20056f6dd825bcd146",
       "timingsMs": {
-        "click": 962,
-        "downloadEvent": 908,
-        "saveAs": 197
+        "click": 1074,
+        "downloadEvent": 1066,
+        "saveAs": 267
       }
     },
     {
       "file": "source-budget.json.gz",
-      "sha256": "94f57eea9eb610a77f6ff828e438fbe21bd6792d71577ff7893637d31154d663",
-      "bytes": 36460196,
+      "sha256": "6bc1c9db30fa824f58a3fe4c5764d307680d30ef145f9f5bfbd11b0aae4b175e",
+      "bytes": 36460337,
       "rawBytes": 93303635,
-      "rawSha256": "76acfe44926f5817a66d34a3756023d6548798ab3ce69e8800c1afa3669ab276",
+      "rawSha256": "5c0be004f59e39d17f5ac412fac4a156e8797c2f3613f3bd0e42039b79473a78",
       "timingsMs": {
-        "click": 1392,
-        "downloadEvent": 1411,
-        "saveAs": 406
+        "click": 1277,
+        "downloadEvent": 1294,
+        "saveAs": 506
       }
     }
   ],
-  "completedAt": "2026-11-20T01:55:20.427Z"
+  "completedAt": "2026-11-21T13:52:23.457Z"
 }
