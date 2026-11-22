@@ -648,13 +648,13 @@ function executePipeline(
   );
   add(scoredEffects.step);
 
-  // AdsUserStateQueryHydrator follows the dismissal hydrator upstream and stays off
-  // while both ad user-state lists are empty. Frame dismissal only runs for eligible
-  // frames; the published frame defaults leave it off.
+  // Frame dismissal, the under-the-hood setting hydrator, and ad user-state hydration
+  // stay off under the published defaults; both ad user-state lists are empty.
   const forYouQueryHydrators: Array<[string, boolean]> = [
     ['ServedHistoryQueryHydrator', true],
     ['PastRequestTimestampsQueryHydrator', true],
     ['FrameDismissalQueryHydrator', false],
+    ['UnderTheHoodSettingQueryHydrator', false],
     ['AdsUserStateQueryHydrator', false],
   ];
   for (const [name, enabled] of forYouQueryHydrators) {

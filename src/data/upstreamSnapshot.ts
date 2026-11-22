@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'ed78e0645cfafcd026cfc1fd0da964f630533334',
-  shortCommit: 'ed78e06',
-  releasedAt: '2026-11-20',
-  paramsSyncedAt: '2026-11-19T16:00:34Z',
+  commit: '269340ce2eb8ca785bafa4f2c17a2e8b752bccd3',
+  shortCommit: '269340c',
+  releasedAt: '2026-11-21',
+  paramsSyncedAt: '2026-11-20T16:00:34Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -25,7 +25,7 @@ export const SOURCE_DEFAULTS = {
   popularPosts: { enabled: true, maxResults: 500 },
   tweetMixer: { enabled: false, maxResults: 800 },
   simclusters: { enabled: true, maxResults: 800 },
-  phoenix: { enabled: true, maxResults: 1000 },
+  phoenix: { enabled: true, maxResults: 1000, datasetTopK: '' },
   phoenixTopics: { enabled: true, maxResults: 1000 },
   phoenixMoe: { enabled: false, maxResults: 0 },
   sid: { enabled: false, maxResults: 800 },
@@ -35,6 +35,7 @@ export const SOURCE_DEFAULTS = {
 /** Switches that stay off at the pinned commit. */
 export const DISABLED_FEATURE_DEFAULTS = {
   underTheHoodFrame: false,
+  underTheHoodSetting: false,
   grokbotSuggestedTasksFrame: false,
   // Fatigue window in hours; the frame switch above stays off.
   grokbotSuggestedTasksFatigueHours: 6,
@@ -210,6 +211,8 @@ export const VIDEO_CAROUSEL_DEFAULTS = {
   takeFromFeed: false,
   // The separate MoE carousel source stays off; Phoenix MoE is also off.
   moeSource: false,
+  // Restricting the carousel to MoE candidates needs the carousel itself on.
+  moeOnly: false,
   embeddingVersion: 'v8_search_1',
   fatigueMinutes: 60,
   position: 6,

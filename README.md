@@ -2,7 +2,7 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@ed78e06`](https://github.com/xai-org/x-algorithm/tree/ed78e0645cfafcd026cfc1fd0da964f630533334) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@269340c`](https://github.com/xai-org/x-algorithm/tree/269340ce2eb8ca785bafa4f2c17a2e8b752bccd3) · [简体中文](README.zh-CN.md)
 
 ## Overview
 

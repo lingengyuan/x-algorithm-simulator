@@ -2,7 +2,7 @@
 
 用于理解 X 公开推荐流程的交互式模拟器。
 
-固定在 [`xai-org/x-algorithm@ed78e06`](https://github.com/xai-org/x-algorithm/tree/ed78e0645cfafcd026cfc1fd0da964f630533334) · [English](README.md)
+固定在 [`xai-org/x-algorithm@269340c`](https://github.com/xai-org/x-algorithm/tree/269340ce2eb8ca785bafa4f2c17a2e8b752bccd3) · [English](README.md)
 
 ## 项目说明
 
