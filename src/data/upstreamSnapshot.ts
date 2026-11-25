@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: '269340ce2eb8ca785bafa4f2c17a2e8b752bccd3',
-  shortCommit: '269340c',
-  releasedAt: '2026-11-21',
-  paramsSyncedAt: '2026-11-20T16:00:34Z',
+  commit: 'e005f9528e504596f2c024a274d5fb533ce6488a',
+  shortCommit: 'e005f95',
+  releasedAt: '2026-11-24',
+  paramsSyncedAt: '2026-11-23T16:00:40Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -28,6 +28,8 @@ export const SOURCE_DEFAULTS = {
   phoenix: { enabled: true, maxResults: 1000, datasetTopK: '' },
   phoenixTopics: { enabled: true, maxResults: 1000 },
   phoenixMoe: { enabled: false, maxResults: 0 },
+  // Popular-video carousel source; also requires the carousel itself to be on.
+  popularVideo: { enabled: false, maxResults: 100, clusterId: 'Experiment26Fou' },
   sid: { enabled: false, maxResults: 800 },
   cachedPosts: { enabled: true, maxResults: 750 },
 } as const;
@@ -177,6 +179,7 @@ export const ADS_DEFAULTS = {
 /**
  * Teacher-score side effect enabled at the pinned commit.
  * It reuses served posts' Phoenix scores and writes external caches only.
+ * Cached-post pages append to the existing request entry instead of writing a new one.
  */
 export const TEACHER_SCORE_DEFAULTS = {
   enabled: true,
@@ -184,7 +187,7 @@ export const TEACHER_SCORE_DEFAULTS = {
     1, 4, 5, 6, 11, 12, 13, 14, 16, 17, 21, 23, 25, 29, 30,
     32, 33, 37, 38, 39, 59,
   ] as readonly number[],
-  ttlSeconds: 3000,
+  ttlSeconds: 10800,
 } as const;
 
 /** VMRanker class-factor overrides. Negative values leave the factor unset. */
@@ -213,6 +216,9 @@ export const VIDEO_CAROUSEL_DEFAULTS = {
   moeSource: false,
   // Restricting the carousel to MoE candidates needs the carousel itself on.
   moeOnly: false,
+  // Popular-video candidates and their popular-only restriction stay off.
+  popularVideoSource: SOURCE_DEFAULTS.popularVideo.enabled,
+  popularOnly: false,
   embeddingVersion: 'v8_search_1',
   fatigueMinutes: 60,
   position: 6,

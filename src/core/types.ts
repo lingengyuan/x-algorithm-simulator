@@ -53,6 +53,7 @@ export type CandidateSourceType =
   | 'phoenix'
   | 'phoenix_topics'
   | 'phoenix_moe'
+  | 'popular_video'
   | 'sid'
   | 'cached_posts';
 
@@ -63,7 +64,8 @@ export type ServedType =
   | 'for_you_tweet_mixer'
   | 'for_you_simclusters'
   | 'for_you_phoenix_retrieval'
-  | 'for_you_phoenix_retrieval_moe';
+  | 'for_you_phoenix_retrieval_moe'
+  | 'for_you_phoenix_retrieval_popular_video';
 
 export interface VisibilityFeatures {
   authorState?: 'active' | 'suspended' | 'deactivated' | 'erased' | 'offboarded';

@@ -2,7 +2,7 @@
 
 Interactive simulator for the public X recommendation pipeline.
 
-Pinned to [`xai-org/x-algorithm@269340c`](https://github.com/xai-org/x-algorithm/tree/269340ce2eb8ca785bafa4f2c17a2e8b752bccd3) · [简体中文](README.zh-CN.md)
+Pinned to [`xai-org/x-algorithm@e005f95`](https://github.com/xai-org/x-algorithm/tree/e005f9528e504596f2c024a274d5fb533ce6488a) · [简体中文](README.zh-CN.md)
 
 ## Overview
 
@@ -67,7 +67,7 @@ Open `http://localhost:5173`.
 - The default ad blender is `slot_spread`: it reserves spaced ad slots, fills each pair with the nearest compatible posts, and truncates the page.
 - Per-activity-state ad-load thinning and page-score ad-load tiers stay off because their parameter lists are empty. Even-spread ad load stays off because `rust_home_mixer_ads_user_load_even_spread` is `false`, and ads-only timelines stay off because `rust_home_mixer_enable_ads_only_timeline` is `false`.
 - Brand-safety verdicts use the legacy path because `rust_home_mixer_ads_bs_v2_exp_enabled` is `false`.
-- `post_video` and `grok_analyze` weights stay at `0.0`; `share_via_copy_link` uses its published weight `20`. The video carousel and its CTR model are off.
+- `post_video` and `grok_analyze` weights stay at `0.0`; `share_via_copy_link` uses its published weight `20`. The video carousel and its CTR model are off; the popular-video carousel source and its popular-only restriction stay off too.
 - Value-model scoring uses `rust_home_mixer_value_model_mode = weighted`; the `multiplicative` path and its not-dwelled power terms are not modeled. Class-factor overrides stay unset because all four factors default to `-1`.
 - The teacher-score side effect is enabled by default; it reuses served posts' Phoenix scores and writes external caches, so the simulator records the checkpoint without executing it.
 - Home excursion heads (video continuation and profile visit) are returned with fusion weights `0.0`. VMRanker post-topic and recent-view inputs stay off because `rust_home_mixer_vm_ranker_send_post_topics` is `false`. DPP-history inputs stay off because `rust_home_mixer_vm_ranker_send_dpp_history` is `false`. Engagement-ineligible inputs stay off because `rust_home_mixer_vm_ranker_send_engagement_ineligible` is `false`. Phoenix-side VMRanker ranking stays off because `rust_home_mixer_enable_ranker_vm_rank` is `false`.

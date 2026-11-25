@@ -244,6 +244,7 @@ function sourceCandidates(
         .map((candidate) => resetForSource(candidate, 'phoenix_topics', 'for_you_phoenix_retrieval'))
     : [];
   const phoenixMoe: TweetCandidate[] = [];
+  const popularVideo: TweetCandidate[] = [];
   const cachedIds = new Set(context.cachedPostIds);
   const cachedPosts = SOURCE_DEFAULTS.cachedPosts.enabled && hasCachedPosts
     ? raw.filter((candidate) => cachedIds.has(candidate.id))
@@ -259,6 +260,7 @@ function sourceCandidates(
     { template: template('source_phoenix', 'PhoenixSource', 'Phoenix 来源', 'source'), candidates: phoenix },
     { template: template('source_phoenix_topics', 'PhoenixTopicsSource', 'Phoenix 话题来源', 'source'), candidates: phoenixTopics },
     { template: template('source_phoenix_moe', 'PhoenixMOESource', 'Phoenix MOE 来源（默认关闭）', 'source'), candidates: phoenixMoe },
+    { template: template('source_popular_video', 'PopularVideoSource', 'PopularVideo 来源（默认关闭）', 'source'), candidates: popularVideo },
     { template: template('source_sid', 'SidSource (disabled)', 'SID 来源（默认关闭）', 'source'), candidates: [] },
     { template: template('source_cached_posts', 'CachedPostsSource', '缓存帖子来源', 'source'), candidates: cachedPosts },
   ];

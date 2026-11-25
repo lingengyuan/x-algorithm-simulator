@@ -2,7 +2,7 @@
   "status": "passed",
   "browser": "ego-browser",
   "baseUrl": "http://127.0.0.1:4173",
-  "startedAt": "2026-11-22T01:50:47.421Z",
+  "startedAt": "2026-11-25T03:05:31.616Z",
   "checks": [
     {
       "name": "deep-links-en",
@@ -11,42 +11,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": true
         }
@@ -79,42 +79,42 @@
         {
           "path": "/simulator",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": false
         },
         {
           "path": "/simulator/",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": true
         },
         {
           "path": "/weights",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": false
         },
         {
           "path": "/weights/",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": true
         },
         {
           "path": "/history",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": false
         },
         {
           "path": "/history/",
           "assets": [
-            "/assets/index-_9_4Mou_.js"
+            "/assets/index-BTSPKDCL.js"
           ],
           "reloaded": true
         }
@@ -153,5 +153,5 @@
     "same-preset-reload-zh.png",
     "inactive-topic-factor-zh.png"
   ],
-  "completedAt": "2026-11-22T01:51:01.067Z"
+  "completedAt": "2026-11-25T03:05:45.912Z"
 }
