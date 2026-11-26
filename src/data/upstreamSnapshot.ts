@@ -6,10 +6,10 @@ import type { WeightConfig } from '@/core/types';
  */
 export const UPSTREAM_SNAPSHOT = {
   repository: 'https://github.com/xai-org/x-algorithm',
-  commit: 'e005f9528e504596f2c024a274d5fb533ce6488a',
-  shortCommit: 'e005f95',
-  releasedAt: '2026-11-24',
-  paramsSyncedAt: '2026-11-23T16:00:40Z',
+  commit: '52d45989090e63992ba04e4f6cfccd73bf8cc05c',
+  shortCommit: '52d4598',
+  releasedAt: '2026-11-25',
+  paramsSyncedAt: '2026-11-24T16:00:39Z',
 } as const;
 
 export const PHOENIX_DEFAULTS = {
@@ -36,14 +36,22 @@ export const SOURCE_DEFAULTS = {
 
 /** Switches that stay off at the pinned commit. */
 export const DISABLED_FEATURE_DEFAULTS = {
+  underTheHood: false,
   underTheHoodFrame: false,
   underTheHoodSetting: false,
+  // Viewer trace limit gate; needs the master switch above.
+  underTheHoodLimit: false,
   grokbotSuggestedTasksFrame: false,
   // Fatigue window in hours; the frame switch above stays off.
   grokbotSuggestedTasksFatigueHours: 6,
   // Served and dismissed frames are persisted under these Strato keys.
   grokbotSuggestedTasksServedKey: 'home.grokbot_suggested_tasks.served',
   grokbotSuggestedTasksDismissalKey: 'home.grokbot_suggested_tasks',
+  // Black Friday frame replaces suggested tasks when on; both stay off.
+  grokbotBlackFridayFrame: false,
+  grokbotBlackFridayFatigueHours: 6,
+  grokbotBlackFridayServedKey: 'home.grokbot_black_friday.served',
+  grokbotBlackFridayDismissalKey: 'home.grokbot_black_friday',
 } as const;
 
 /** VMRanker post-topic inputs added in the 2026-11-10 sync. The switch stays off. */
@@ -84,7 +92,7 @@ export const VALUE_MODEL_DEFAULTS = {
   multiplicativeVmEngageBias: 0,
 } as const;
 
-/** CachedPostsQueryHydrator only switches to the cached path at this size. */
+/** CachedPostsQueryHydrator switches to the cached path at this many non-carousel-only posts. */
 export const CACHED_POSTS_MIN_COUNT = 500;
 
 export const HYDRATOR_DEFAULTS = {
@@ -225,6 +233,7 @@ export const VIDEO_CAROUSEL_DEFAULTS = {
   immersiveVqvWeight: 0,
   openTimesImmersiveDwellWeight: 0,
   weightedScoreWeight: 0,
+  // Also caps cached carousel-only posts, which do not use the feed cache slots.
   extraCandidates: 30,
 } as const;
 
